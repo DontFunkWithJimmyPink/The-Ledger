@@ -2,6 +2,12 @@ name: Create Task Issues
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - copilot/create-issues-from-tasks
+    paths:
+      - scripts/create-issues.sh
+      - .github/workflows/create-issues.yml
 
 permissions:
   issues: write

@@ -9,6 +9,16 @@ REPO="DontFunkWithJimmyPink/The-Ledger"
 # Create labels first (idempotent — ignores error if label exists)
 create_label() { gh label create --repo "$REPO" "$1" --color "$2" --description "$3" 2>/dev/null || true; }
 
+# Create issue only if no open/closed issue with the same title already exists
+create_issue_idempotent() {
+  local title="$1"; shift
+  if gh issue list --repo "$REPO" --search "\"$title\" in:title" --state all --json title --jq '.[].title' 2>/dev/null | grep -qF "$title"; then
+    echo "  → already exists, skipping."
+  else
+    gh issue create --repo "$REPO" --title "$title" "$@"
+  fi
+}
+
 echo "Creating labels..."
 create_label "phase:setup"            "0075ca" "Phase 1: Project setup & tooling"
 create_label "phase:foundation"       "e4e669" "Phase 2: Foundational infrastructure"
@@ -33,9 +43,7 @@ create_label "priority:p1-mvp"       "d93f0b" "Priority 1 — MVP"
 echo "Creating issues..."
 
 echo 'Creating T001...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T001] Initialize Next.js 14 App Router project with TypeScript strict mode — configure' \
+create_issue_idempotent '[T001] Initialize Next.js 14 App Router project with TypeScript strict mode — configure' \
   --label 'phase:setup' \
   --body '## T001 — Phase 1: Setup (Project Initialization)
 
@@ -47,9 +55,7 @@ Initialize Next.js 14 App Router project with TypeScript strict mode — configu
 '
 
 echo 'Creating T002...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T002] [P] Configure TailwindCSS with warm-earthy custom theme tokens (leather-900/700/500/' \
+create_issue_idempotent '[T002] [P] Configure TailwindCSS with warm-earthy custom theme tokens (leather-900/700/500/' \
   --label 'phase:setup,parallel' \
   --body '## T002 — Phase 1: Setup (Project Initialization)
 
@@ -63,9 +69,7 @@ Configure TailwindCSS with warm-earthy custom theme tokens (leather-900/700/500/
 '
 
 echo 'Creating T003...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T003] [P] Configure ESLint and Prettier — create .eslintrc.js (TypeScript rules, Next.js p' \
+create_issue_idempotent '[T003] [P] Configure ESLint and Prettier — create .eslintrc.js (TypeScript rules, Next.js p' \
   --label 'phase:setup,parallel' \
   --body '## T003 — Phase 1: Setup (Project Initialization)
 
@@ -79,9 +83,7 @@ Configure ESLint and Prettier — create .eslintrc.js (TypeScript rules, Next.js
 '
 
 echo 'Creating T004...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T004] [P] Configure Jest and React Testing Library — create jest.config.ts, jest.setup.ts;' \
+create_issue_idempotent '[T004] [P] Configure Jest and React Testing Library — create jest.config.ts, jest.setup.ts;' \
   --label 'phase:setup,parallel' \
   --body '## T004 — Phase 1: Setup (Project Initialization)
 
@@ -95,9 +97,7 @@ Configure Jest and React Testing Library — create jest.config.ts, jest.setup.t
 '
 
 echo 'Creating T005...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T005] [P] Configure Playwright — create playwright.config.ts targeting localhost:3000; add' \
+create_issue_idempotent '[T005] [P] Configure Playwright — create playwright.config.ts targeting localhost:3000; add' \
   --label 'phase:setup,parallel' \
   --body '## T005 — Phase 1: Setup (Project Initialization)
 
@@ -111,9 +111,7 @@ Configure Playwright — create playwright.config.ts targeting localhost:3000; a
 '
 
 echo 'Creating T006...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T006] [P] Create .env.local.example documenting all required variables: NEXT_PUBLIC_SUPABA' \
+create_issue_idempotent '[T006] [P] Create .env.local.example documenting all required variables: NEXT_PUBLIC_SUPABA' \
   --label 'phase:setup,parallel' \
   --body '## T006 — Phase 1: Setup (Project Initialization)
 
@@ -127,9 +125,7 @@ Create .env.local.example documenting all required variables: NEXT_PUBLIC_SUPABA
 '
 
 echo 'Creating T007...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T007] Create full src/ directory skeleton per plan.md: src/app/(auth)/, src/app/(app)/' \
+create_issue_idempotent '[T007] Create full src/ directory skeleton per plan.md: src/app/(auth)/, src/app/(app)/' \
   --label 'phase:setup' \
   --body '## T007 — Phase 1: Setup (Project Initialization)
 
@@ -141,9 +137,7 @@ Create full src/ directory skeleton per plan.md: src/app/(auth)/, src/app/(app)/
 '
 
 echo 'Creating T008...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T008] Apply complete database schema to Supabase — run specs/001-ledger-notebook-app/c' \
+create_issue_idempotent '[T008] Apply complete database schema to Supabase — run specs/001-ledger-notebook-app/c' \
   --label 'phase:foundation' \
   --body '## T008 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -155,9 +149,7 @@ Apply complete database schema to Supabase — run specs/001-ledger-notebook-app
 '
 
 echo 'Creating T009...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T009] Configure Supabase Storage — create private bucket `notebook-photos`; apply spec' \
+create_issue_idempotent '[T009] Configure Supabase Storage — create private bucket `notebook-photos`; apply spec' \
   --label 'phase:foundation' \
   --body '## T009 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -169,9 +161,7 @@ Configure Supabase Storage — create private bucket `notebook-photos`; apply sp
 '
 
 echo 'Creating T010...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T010] [P] Create Supabase browser client factory in src/lib/supabase/client.ts using `crea' \
+create_issue_idempotent '[T010] [P] Create Supabase browser client factory in src/lib/supabase/client.ts using `crea' \
   --label 'phase:foundation,parallel' \
   --body '## T010 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -185,9 +175,7 @@ Create Supabase browser client factory in src/lib/supabase/client.ts using `crea
 '
 
 echo 'Creating T011...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T011] [P] Create Supabase server client factory in src/lib/supabase/server.ts using `creat' \
+create_issue_idempotent '[T011] [P] Create Supabase server client factory in src/lib/supabase/server.ts using `creat' \
   --label 'phase:foundation,parallel' \
   --body '## T011 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -201,9 +189,7 @@ Create Supabase server client factory in src/lib/supabase/server.ts using `creat
 '
 
 echo 'Creating T012...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T012] Create Next.js auth middleware in src/middleware.ts — validates session cookie o' \
+create_issue_idempotent '[T012] Create Next.js auth middleware in src/middleware.ts — validates session cookie o' \
   --label 'phase:foundation' \
   --body '## T012 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -215,9 +201,7 @@ Create Next.js auth middleware in src/middleware.ts — validates session cookie
 '
 
 echo 'Creating T013...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T013] Create auth callback Route Handler in src/app/api/auth/callback/route.ts — excha' \
+create_issue_idempotent '[T013] Create auth callback Route Handler in src/app/api/auth/callback/route.ts — excha' \
   --label 'phase:foundation' \
   --body '## T013 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -229,9 +213,7 @@ Create auth callback Route Handler in src/app/api/auth/callback/route.ts — exc
 '
 
 echo 'Creating T014...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T014] [P] Define all shared TypeScript interfaces in src/types/index.ts: Notebook, Page, T' \
+create_issue_idempotent '[T014] [P] Define all shared TypeScript interfaces in src/types/index.ts: Notebook, Page, T' \
   --label 'phase:foundation,parallel' \
   --body '## T014 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -245,9 +227,7 @@ Define all shared TypeScript interfaces in src/types/index.ts: Notebook, Page, T
 '
 
 echo 'Creating T015...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T015] [P] Create CSS design tokens in src/styles/design-tokens.css (CSS custom properties ' \
+create_issue_idempotent '[T015] [P] Create CSS design tokens in src/styles/design-tokens.css (CSS custom properties ' \
   --label 'phase:foundation,parallel' \
   --body '## T015 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -261,9 +241,7 @@ Create CSS design tokens in src/styles/design-tokens.css (CSS custom properties 
 '
 
 echo 'Creating T016...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T016] Create root layout in src/app/layout.tsx — load @fontsource/lora and @fontsource' \
+create_issue_idempotent '[T016] Create root layout in src/app/layout.tsx — load @fontsource/lora and @fontsource' \
   --label 'phase:foundation' \
   --body '## T016 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -275,9 +253,7 @@ Create root layout in src/app/layout.tsx — load @fontsource/lora and @fontsour
 '
 
 echo 'Creating T017...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T017] Create src/app/globals.css — Tailwind base directives + design token CSS variabl' \
+create_issue_idempotent '[T017] Create src/app/globals.css — Tailwind base directives + design token CSS variabl' \
   --label 'phase:foundation' \
   --body '## T017 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -289,9 +265,7 @@ Create src/app/globals.css — Tailwind base directives + design token CSS varia
 '
 
 echo 'Creating T018...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T018] [P] Create primitive UI components in src/components/ui/: Button.tsx (variants: prim' \
+create_issue_idempotent '[T018] [P] Create primitive UI components in src/components/ui/: Button.tsx (variants: prim' \
   --label 'phase:foundation,parallel' \
   --body '## T018 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -305,9 +279,7 @@ Create primitive UI components in src/components/ui/: Button.tsx (variants: prim
 '
 
 echo 'Creating T019...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T019] [P] Create fractional indexing utility in src/lib/utils/fractional-index.ts — thin w' \
+create_issue_idempotent '[T019] [P] Create fractional indexing utility in src/lib/utils/fractional-index.ts — thin w' \
   --label 'phase:foundation,parallel' \
   --body '## T019 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -321,9 +293,7 @@ Create fractional indexing utility in src/lib/utils/fractional-index.ts — thin
 '
 
 echo 'Creating T020...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T020] [P] Create content utility in src/lib/utils/content.ts — implement `extractTiptapTex' \
+create_issue_idempotent '[T020] [P] Create content utility in src/lib/utils/content.ts — implement `extractTiptapTex' \
   --label 'phase:foundation,parallel' \
   --body '## T020 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -337,9 +307,7 @@ Create content utility in src/lib/utils/content.ts — implement `extractTiptapT
 '
 
 echo 'Creating T021...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T021] Create authentication pages: src/app/(auth)/login/page.tsx (email + password sig' \
+create_issue_idempotent '[T021] Create authentication pages: src/app/(auth)/login/page.tsx (email + password sig' \
   --label 'phase:foundation' \
   --body '## T021 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -351,9 +319,7 @@ Create authentication pages: src/app/(auth)/login/page.tsx (email + password sig
 '
 
 echo 'Creating T022...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T022] Create authenticated app shell: src/app/(app)/layout.tsx (flex layout with Sideb' \
+create_issue_idempotent '[T022] Create authenticated app shell: src/app/(app)/layout.tsx (flex layout with Sideb' \
   --label 'phase:foundation' \
   --body '## T022 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -365,9 +331,7 @@ Create authenticated app shell: src/app/(app)/layout.tsx (flex layout with Sideb
 '
 
 echo 'Creating T023...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T023] [P] Create generic polling hook in src/lib/hooks/use-polling.ts — accepts a callback' \
+create_issue_idempotent '[T023] [P] Create generic polling hook in src/lib/hooks/use-polling.ts — accepts a callback' \
   --label 'phase:foundation,parallel' \
   --body '## T023 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -381,9 +345,7 @@ Create generic polling hook in src/lib/hooks/use-polling.ts — accepts a callba
 '
 
 echo 'Creating T024...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T024] [P] Create autosave hook in src/lib/hooks/use-autosave.ts — accepts a save callback ' \
+create_issue_idempotent '[T024] [P] Create autosave hook in src/lib/hooks/use-autosave.ts — accepts a save callback ' \
   --label 'phase:foundation,parallel' \
   --body '## T024 — Phase 2: Foundational (Blocking Prerequisites)
 
@@ -397,9 +359,7 @@ Create autosave hook in src/lib/hooks/use-autosave.ts — accepts a save callbac
 '
 
 echo 'Creating T025...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T025] [P] [US1] Create notebook home page in src/app/(app)/notebook/page.tsx — Server Component ' \
+create_issue_idempotent '[T025] [P] [US1] Create notebook home page in src/app/(app)/notebook/page.tsx — Server Component ' \
   --label 'phase:us1-tasks,user-story:tasks,parallel,priority:p1-mvp' \
   --body '## T025 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -415,9 +375,7 @@ Create notebook home page in src/app/(app)/notebook/page.tsx — Server Componen
 '
 
 echo 'Creating T026...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T026] [P] [US1] Create page editor route in src/app/(app)/notebook/[pageId]/page.tsx — Server Co' \
+create_issue_idempotent '[T026] [P] [US1] Create page editor route in src/app/(app)/notebook/[pageId]/page.tsx — Server Co' \
   --label 'phase:us1-tasks,user-story:tasks,parallel,priority:p1-mvp' \
   --body '## T026 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -433,9 +391,7 @@ Create page editor route in src/app/(app)/notebook/[pageId]/page.tsx — Server 
 '
 
 echo 'Creating T027...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T027] [P] [US1] Create CustomTaskItem Tiptap extension in src/components/editor/extensions/Custo' \
+create_issue_idempotent '[T027] [P] [US1] Create CustomTaskItem Tiptap extension in src/components/editor/extensions/Custo' \
   --label 'phase:us1-tasks,user-story:tasks,parallel,priority:p1-mvp' \
   --body '## T027 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -451,9 +407,7 @@ Create CustomTaskItem Tiptap extension in src/components/editor/extensions/Custo
 '
 
 echo 'Creating T028...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T028] [US1] Create PageEditor component in src/components/editor/PageEditor.tsx — `"use clie' \
+create_issue_idempotent '[T028] [US1] Create PageEditor component in src/components/editor/PageEditor.tsx — `"use clie' \
   --label 'phase:us1-tasks,user-story:tasks,priority:p1-mvp' \
   --body '## T028 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -467,9 +421,7 @@ Create PageEditor component in src/components/editor/PageEditor.tsx — `"use cl
 '
 
 echo 'Creating T029...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T029] [US1] Create EditorToolbar in src/components/editor/EditorToolbar.tsx — renders Bold, ' \
+create_issue_idempotent '[T029] [US1] Create EditorToolbar in src/components/editor/EditorToolbar.tsx — renders Bold, ' \
   --label 'phase:us1-tasks,user-story:tasks,priority:p1-mvp' \
   --body '## T029 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -483,9 +435,7 @@ Create EditorToolbar in src/components/editor/EditorToolbar.tsx — renders Bold
 '
 
 echo 'Creating T030...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T030] [P] [US1] Create standalone sortable TaskList container in src/components/tasks/TaskList.t' \
+create_issue_idempotent '[T030] [P] [US1] Create standalone sortable TaskList container in src/components/tasks/TaskList.t' \
   --label 'phase:us1-tasks,user-story:tasks,parallel,priority:p1-mvp' \
   --body '## T030 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -501,9 +451,7 @@ Create standalone sortable TaskList container in src/components/tasks/TaskList.t
 '
 
 echo 'Creating T031...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T031] [P] [US1] Create TaskItem component in src/components/tasks/TaskItem.tsx — renders checkbo' \
+create_issue_idempotent '[T031] [P] [US1] Create TaskItem component in src/components/tasks/TaskItem.tsx — renders checkbo' \
   --label 'phase:us1-tasks,user-story:tasks,parallel,priority:p1-mvp' \
   --body '## T031 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -519,9 +467,7 @@ Create TaskItem component in src/components/tasks/TaskItem.tsx — renders check
 '
 
 echo 'Creating T032...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T032] [US1] Wire full autosave cycle in src/components/editor/PageEditor.tsx — on every Tipt' \
+create_issue_idempotent '[T032] [US1] Wire full autosave cycle in src/components/editor/PageEditor.tsx — on every Tipt' \
   --label 'phase:us1-tasks,user-story:tasks,priority:p1-mvp' \
   --body '## T032 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -535,9 +481,7 @@ Wire full autosave cycle in src/components/editor/PageEditor.tsx — on every Ti
 '
 
 echo 'Creating T033...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T033] [US1] Implement page reordering in src/app/(app)/notebook/page.tsx — wrap page list in' \
+create_issue_idempotent '[T033] [US1] Implement page reordering in src/app/(app)/notebook/page.tsx — wrap page list in' \
   --label 'phase:us1-tasks,user-story:tasks,priority:p1-mvp' \
   --body '## T033 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -551,9 +495,7 @@ Implement page reordering in src/app/(app)/notebook/page.tsx — wrap page list 
 '
 
 echo 'Creating T034...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T034] [US1] Add save status indicator in src/components/editor/PageEditor.tsx — display "Sav' \
+create_issue_idempotent '[T034] [US1] Add save status indicator in src/components/editor/PageEditor.tsx — display "Sav' \
   --label 'phase:us1-tasks,user-story:tasks,priority:p1-mvp' \
   --body '## T034 — Phase 3: User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1) 🎯 MVP
 
@@ -567,9 +509,7 @@ Add save status indicator in src/components/editor/PageEditor.tsx — display "S
 '
 
 echo 'Creating T035...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T035] [P] [US2] Extend PageEditor StarterKit configuration in src/components/editor/PageEditor.t' \
+create_issue_idempotent '[T035] [P] [US2] Extend PageEditor StarterKit configuration in src/components/editor/PageEditor.t' \
   --label 'phase:us2-journal,user-story:journal,parallel' \
   --body '## T035 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -585,9 +525,7 @@ Extend PageEditor StarterKit configuration in src/components/editor/PageEditor.t
 '
 
 echo 'Creating T036...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T036] [P] [US2] Add Heading, BulletList, OrderedList, and BlockQuote buttons to src/components/e' \
+create_issue_idempotent '[T036] [P] [US2] Add Heading, BulletList, OrderedList, and BlockQuote buttons to src/components/e' \
   --label 'phase:us2-journal,user-story:journal,parallel' \
   --body '## T036 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -603,9 +541,7 @@ Add Heading, BulletList, OrderedList, and BlockQuote buttons to src/components/e
 '
 
 echo 'Creating T037...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T037] [US2] Implement inline page title editing in src/app/(app)/notebook/[pageId]/page.tsx ' \
+create_issue_idempotent '[T037] [US2] Implement inline page title editing in src/app/(app)/notebook/[pageId]/page.tsx ' \
   --label 'phase:us2-journal,user-story:journal' \
   --body '## T037 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -619,9 +555,7 @@ Implement inline page title editing in src/app/(app)/notebook/[pageId]/page.tsx 
 '
 
 echo 'Creating T038...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T038] [US2] Verify autosave for rich-text content in src/lib/hooks/use-autosave.ts — ensure ' \
+create_issue_idempotent '[T038] [US2] Verify autosave for rich-text content in src/lib/hooks/use-autosave.ts — ensure ' \
   --label 'phase:us2-journal,user-story:journal' \
   --body '## T038 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -635,9 +569,7 @@ Verify autosave for rich-text content in src/lib/hooks/use-autosave.ts — ensur
 '
 
 echo 'Creating T039...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T039] [US2] Display page list with titles and formatted dates in src/app/(app)/notebook/page' \
+create_issue_idempotent '[T039] [US2] Display page list with titles and formatted dates in src/app/(app)/notebook/page' \
   --label 'phase:us2-journal,user-story:journal' \
   --body '## T039 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -651,9 +583,7 @@ Display page list with titles and formatted dates in src/app/(app)/notebook/page
 '
 
 echo 'Creating T040...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T040] [US2] Handle page deletion in src/app/(app)/notebook/[pageId]/page.tsx — add Delete bu' \
+create_issue_idempotent '[T040] [US2] Handle page deletion in src/app/(app)/notebook/[pageId]/page.tsx — add Delete bu' \
   --label 'phase:us2-journal,user-story:journal' \
   --body '## T040 — Phase 4: User Story 2 — Write Journal Entries and Notes (Priority: P2)
 
@@ -667,9 +597,7 @@ Handle page deletion in src/app/(app)/notebook/[pageId]/page.tsx — add Delete 
 '
 
 echo 'Creating T041...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T041] [P] [US3] Create TaskDueDatePicker component in src/components/tasks/TaskDueDatePicker.tsx' \
+create_issue_idempotent '[T041] [P] [US3] Create TaskDueDatePicker component in src/components/tasks/TaskDueDatePicker.tsx' \
   --label 'phase:us3-reminders,user-story:reminders,parallel' \
   --body '## T041 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -685,9 +613,7 @@ Create TaskDueDatePicker component in src/components/tasks/TaskDueDatePicker.tsx
 '
 
 echo 'Creating T042...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T042] [P] [US3] Create useReminders hook in src/lib/hooks/use-reminders.ts — uses `usePolling` a' \
+create_issue_idempotent '[T042] [P] [US3] Create useReminders hook in src/lib/hooks/use-reminders.ts — uses `usePolling` a' \
   --label 'phase:us3-reminders,user-story:reminders,parallel' \
   --body '## T042 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -703,9 +629,7 @@ Create useReminders hook in src/lib/hooks/use-reminders.ts — uses `usePolling`
 '
 
 echo 'Creating T043...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T043] [US3] Create ReminderBell component in src/components/reminders/ReminderBell.tsx — sho' \
+create_issue_idempotent '[T043] [US3] Create ReminderBell component in src/components/reminders/ReminderBell.tsx — sho' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T043 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -719,9 +643,7 @@ Create ReminderBell component in src/components/reminders/ReminderBell.tsx — s
 '
 
 echo 'Creating T044...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T044] [US3] Create ReminderPoller client component in src/components/reminders/ReminderPolle' \
+create_issue_idempotent '[T044] [US3] Create ReminderPoller client component in src/components/reminders/ReminderPolle' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T044 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -735,9 +657,7 @@ Create ReminderPoller client component in src/components/reminders/ReminderPolle
 '
 
 echo 'Creating T045...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T045] [US3] Create Reminders view page in src/app/(app)/reminders/page.tsx — Server Componen' \
+create_issue_idempotent '[T045] [US3] Create Reminders view page in src/app/(app)/reminders/page.tsx — Server Componen' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T045 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -751,9 +671,7 @@ Create Reminders view page in src/app/(app)/reminders/page.tsx — Server Compon
 '
 
 echo 'Creating T046...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T046] [US3] Implement overdue task visual highlighting in src/components/tasks/TaskItem.tsx ' \
+create_issue_idempotent '[T046] [US3] Implement overdue task visual highlighting in src/components/tasks/TaskItem.tsx ' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T046 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -767,9 +685,7 @@ Implement overdue task visual highlighting in src/components/tasks/TaskItem.tsx 
 '
 
 echo 'Creating T047...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T047] [US3] Auto-dismiss reminder on task completion in src/components/tasks/TaskItem.tsx — ' \
+create_issue_idempotent '[T047] [US3] Auto-dismiss reminder on task completion in src/components/tasks/TaskItem.tsx — ' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T047 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -783,9 +699,7 @@ Auto-dismiss reminder on task completion in src/components/tasks/TaskItem.tsx �
 '
 
 echo 'Creating T048...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T048] [US3] Integrate ReminderPoller and ReminderBell into app shell in src/app/(app)/layout' \
+create_issue_idempotent '[T048] [US3] Integrate ReminderPoller and ReminderBell into app shell in src/app/(app)/layout' \
   --label 'phase:us3-reminders,user-story:reminders' \
   --body '## T048 — Phase 5: User Story 3 — Set Reminders and Track Completion (Priority: P3)
 
@@ -799,9 +713,7 @@ Integrate ReminderPoller and ReminderBell into app shell in src/app/(app)/layout
 '
 
 echo 'Creating T049...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T049] [P] [US4] Create PhotoUploadButton component in src/components/photos/PhotoUploadButton.ts' \
+create_issue_idempotent '[T049] [P] [US4] Create PhotoUploadButton component in src/components/photos/PhotoUploadButton.ts' \
   --label 'phase:us4-photos,user-story:photos,parallel' \
   --body '## T049 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -817,9 +729,7 @@ Create PhotoUploadButton component in src/components/photos/PhotoUploadButton.ts
 '
 
 echo 'Creating T050...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T050] [P] [US4] Create PhotoLightbox component in src/components/photos/PhotoLightbox.tsx — Moda' \
+create_issue_idempotent '[T050] [P] [US4] Create PhotoLightbox component in src/components/photos/PhotoLightbox.tsx — Moda' \
   --label 'phase:us4-photos,user-story:photos,parallel' \
   --body '## T050 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -835,9 +745,7 @@ Create PhotoLightbox component in src/components/photos/PhotoLightbox.tsx — Mo
 '
 
 echo 'Creating T051...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T051] [US4] Add Tiptap Image extension to PageEditor in src/components/editor/PageEditor.tsx' \
+create_issue_idempotent '[T051] [US4] Add Tiptap Image extension to PageEditor in src/components/editor/PageEditor.tsx' \
   --label 'phase:us4-photos,user-story:photos' \
   --body '## T051 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -851,9 +759,7 @@ Add Tiptap Image extension to PageEditor in src/components/editor/PageEditor.tsx
 '
 
 echo 'Creating T052...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T052] [US4] Add photo upload button to EditorToolbar in src/components/editor/EditorToolbar.' \
+create_issue_idempotent '[T052] [US4] Add photo upload button to EditorToolbar in src/components/editor/EditorToolbar.' \
   --label 'phase:us4-photos,user-story:photos' \
   --body '## T052 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -867,9 +773,7 @@ Add photo upload button to EditorToolbar in src/components/editor/EditorToolbar.
 '
 
 echo 'Creating T053...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T053] [US4] Implement photo deletion in src/components/photos/PhotoUploadButton.tsx and src/' \
+create_issue_idempotent '[T053] [US4] Implement photo deletion in src/components/photos/PhotoUploadButton.tsx and src/' \
   --label 'phase:us4-photos,user-story:photos' \
   --body '## T053 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -883,9 +787,7 @@ Implement photo deletion in src/components/photos/PhotoUploadButton.tsx and src/
 '
 
 echo 'Creating T054...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T054] [US4] Handle photo upload errors and size limit in src/components/photos/PhotoUploadBu' \
+create_issue_idempotent '[T054] [US4] Handle photo upload errors and size limit in src/components/photos/PhotoUploadBu' \
   --label 'phase:us4-photos,user-story:photos' \
   --body '## T054 — Phase 6: User Story 4 — Attach and View Photos (Priority: P4)
 
@@ -899,9 +801,7 @@ Handle photo upload errors and size limit in src/components/photos/PhotoUploadBu
 '
 
 echo 'Creating T055...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T055] [P] [US5] Create DrawingCanvas component in src/components/drawing/DrawingCanvas.tsx — `"u' \
+create_issue_idempotent '[T055] [P] [US5] Create DrawingCanvas component in src/components/drawing/DrawingCanvas.tsx — `"u' \
   --label 'phase:us5-drawing,user-story:drawing,parallel' \
   --body '## T055 — Phase 7: User Story 5 — Draw and Sketch Ideas (Priority: P5)
 
@@ -917,9 +817,7 @@ Create DrawingCanvas component in src/components/drawing/DrawingCanvas.tsx — `
 '
 
 echo 'Creating T056...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T056] [US5] Integrate DrawingCanvas into page editor in src/app/(app)/notebook/[pageId]/page' \
+create_issue_idempotent '[T056] [US5] Integrate DrawingCanvas into page editor in src/app/(app)/notebook/[pageId]/page' \
   --label 'phase:us5-drawing,user-story:drawing' \
   --body '## T056 — Phase 7: User Story 5 — Draw and Sketch Ideas (Priority: P5)
 
@@ -933,9 +831,7 @@ Integrate DrawingCanvas into page editor in src/app/(app)/notebook/[pageId]/page
 '
 
 echo 'Creating T057...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T057] [US5] Implement drawing autosave in src/components/drawing/DrawingCanvas.tsx — confirm' \
+create_issue_idempotent '[T057] [US5] Implement drawing autosave in src/components/drawing/DrawingCanvas.tsx — confirm' \
   --label 'phase:us5-drawing,user-story:drawing' \
   --body '## T057 — Phase 7: User Story 5 — Draw and Sketch Ideas (Priority: P5)
 
@@ -949,9 +845,7 @@ Implement drawing autosave in src/components/drawing/DrawingCanvas.tsx — confi
 '
 
 echo 'Creating T058...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T058] [US5] Load persisted drawing data on canvas mount in src/components/drawing/DrawingCan' \
+create_issue_idempotent '[T058] [US5] Load persisted drawing data on canvas mount in src/components/drawing/DrawingCan' \
   --label 'phase:us5-drawing,user-story:drawing' \
   --body '## T058 — Phase 7: User Story 5 — Draw and Sketch Ideas (Priority: P5)
 
@@ -965,9 +859,7 @@ Load persisted drawing data on canvas mount in src/components/drawing/DrawingCan
 '
 
 echo 'Creating T059...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T059] [US5] Add SkeletonCanvas loading placeholder in src/components/drawing/DrawingCanvas.t' \
+create_issue_idempotent '[T059] [US5] Add SkeletonCanvas loading placeholder in src/components/drawing/DrawingCanvas.t' \
   --label 'phase:us5-drawing,user-story:drawing' \
   --body '## T059 — Phase 7: User Story 5 — Draw and Sketch Ideas (Priority: P5)
 
@@ -981,9 +873,7 @@ Add SkeletonCanvas loading placeholder in src/components/drawing/DrawingCanvas.t
 '
 
 echo 'Creating T060...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T060] [P] [US6] Add sort controls to src/app/(app)/notebook/page.tsx — client-side state for `so' \
+create_issue_idempotent '[T060] [P] [US6] Add sort controls to src/app/(app)/notebook/page.tsx — client-side state for `so' \
   --label 'phase:us6-search,user-story:search,parallel' \
   --body '## T060 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -999,9 +889,7 @@ Add sort controls to src/app/(app)/notebook/page.tsx — client-side state for `
 '
 
 echo 'Creating T061...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T061] [P] [US6] Implement keyword search in src/app/(app)/notebook/page.tsx — controlled search ' \
+create_issue_idempotent '[T061] [P] [US6] Implement keyword search in src/app/(app)/notebook/page.tsx — controlled search ' \
   --label 'phase:us6-search,user-story:search,parallel' \
   --body '## T061 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1017,9 +905,7 @@ Implement keyword search in src/app/(app)/notebook/page.tsx — controlled searc
 '
 
 echo 'Creating T062...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T062] [P] [US6] Implement label CRUD in src/components/layout/Sidebar.tsx — "New Label" button o' \
+create_issue_idempotent '[T062] [P] [US6] Implement label CRUD in src/components/layout/Sidebar.tsx — "New Label" button o' \
   --label 'phase:us6-search,user-story:search,parallel' \
   --body '## T062 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1035,9 +921,7 @@ Implement label CRUD in src/components/layout/Sidebar.tsx — "New Label" button
 '
 
 echo 'Creating T063...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T063] [US6] Implement label filter in src/components/layout/Sidebar.tsx — on label chip clic' \
+create_issue_idempotent '[T063] [US6] Implement label filter in src/components/layout/Sidebar.tsx — on label chip clic' \
   --label 'phase:us6-search,user-story:search' \
   --body '## T063 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1051,9 +935,7 @@ Implement label filter in src/components/layout/Sidebar.tsx — on label chip cl
 '
 
 echo 'Creating T064...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T064] [US6] Implement label assignment to pages in src/app/(app)/notebook/[pageId]/page.tsx ' \
+create_issue_idempotent '[T064] [US6] Implement label assignment to pages in src/app/(app)/notebook/[pageId]/page.tsx ' \
   --label 'phase:us6-search,user-story:search' \
   --body '## T064 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1067,9 +949,7 @@ Implement label assignment to pages in src/app/(app)/notebook/[pageId]/page.tsx 
 '
 
 echo 'Creating T065...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T065] [US6] Handle empty search state in src/app/(app)/notebook/page.tsx — render a clear "N' \
+create_issue_idempotent '[T065] [US6] Handle empty search state in src/app/(app)/notebook/page.tsx — render a clear "N' \
   --label 'phase:us6-search,user-story:search' \
   --body '## T065 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1083,9 +963,7 @@ Handle empty search state in src/app/(app)/notebook/page.tsx — render a clear 
 '
 
 echo 'Creating T066...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T066] [US6] Implement manual page reorder (DnD) in src/app/(app)/notebook/page.tsx and src/c' \
+create_issue_idempotent '[T066] [US6] Implement manual page reorder (DnD) in src/app/(app)/notebook/page.tsx and src/c' \
   --label 'phase:us6-search,user-story:search' \
   --body '## T066 — Phase 8: User Story 6 — Organise, Sort, and Search Content (Priority: P6)
 
@@ -1099,9 +977,7 @@ Implement manual page reorder (DnD) in src/app/(app)/notebook/page.tsx and src/c
 '
 
 echo 'Creating T067...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T067] [P] [US7] Implement 30-second page-list polling in src/app/(app)/notebook/page.tsx — mount' \
+create_issue_idempotent '[T067] [P] [US7] Implement 30-second page-list polling in src/app/(app)/notebook/page.tsx — mount' \
   --label 'phase:us7-cross-device,user-story:cross-device,parallel' \
   --body '## T067 — Phase 9: User Story 7 — Access from Any Device (Priority: P7)
 
@@ -1117,9 +993,7 @@ Implement 30-second page-list polling in src/app/(app)/notebook/page.tsx — mou
 '
 
 echo 'Creating T068...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T068] [P] [US7] Implement editor content polling in src/app/(app)/notebook/[pageId]/page.tsx — m' \
+create_issue_idempotent '[T068] [P] [US7] Implement editor content polling in src/app/(app)/notebook/[pageId]/page.tsx — m' \
   --label 'phase:us7-cross-device,user-story:cross-device,parallel' \
   --body '## T068 — Phase 9: User Story 7 — Access from Any Device (Priority: P7)
 
@@ -1135,9 +1009,7 @@ Implement editor content polling in src/app/(app)/notebook/[pageId]/page.tsx —
 '
 
 echo 'Creating T069...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T069] [US7] Responsive layout audit in src/app/(app)/layout.tsx, src/components/layout/Sideb' \
+create_issue_idempotent '[T069] [US7] Responsive layout audit in src/app/(app)/layout.tsx, src/components/layout/Sideb' \
   --label 'phase:us7-cross-device,user-story:cross-device' \
   --body '## T069 — Phase 9: User Story 7 — Access from Any Device (Priority: P7)
 
@@ -1151,9 +1023,7 @@ Responsive layout audit in src/app/(app)/layout.tsx, src/components/layout/Sideb
 '
 
 echo 'Creating T070...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T070] [US7] Touch input verification in src/components/tasks/TaskList.tsx and src/components' \
+create_issue_idempotent '[T070] [US7] Touch input verification in src/components/tasks/TaskList.tsx and src/components' \
   --label 'phase:us7-cross-device,user-story:cross-device' \
   --body '## T070 — Phase 9: User Story 7 — Access from Any Device (Priority: P7)
 
@@ -1167,9 +1037,7 @@ Touch input verification in src/components/tasks/TaskList.tsx and src/components
 '
 
 echo 'Creating T071...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T071] [US7] Cross-device smoke test — document manual test steps in tests/e2e/cross-device.m' \
+create_issue_idempotent '[T071] [US7] Cross-device smoke test — document manual test steps in tests/e2e/cross-device.m' \
   --label 'phase:us7-cross-device,user-story:cross-device' \
   --body '## T071 — Phase 9: User Story 7 — Access from Any Device (Priority: P7)
 
@@ -1183,9 +1051,7 @@ Cross-device smoke test — document manual test steps in tests/e2e/cross-device
 '
 
 echo 'Creating T072...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T072] [P] Accessibility audit (WCAG 2.1 AA) across all core screens — add aria-labels to a' \
+create_issue_idempotent '[T072] [P] Accessibility audit (WCAG 2.1 AA) across all core screens — add aria-labels to a' \
   --label 'phase:polish,parallel' \
   --body '## T072 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1199,9 +1065,7 @@ Accessibility audit (WCAG 2.1 AA) across all core screens — add aria-labels to
 '
 
 echo 'Creating T073...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T073] [P] Keyboard navigation in src/components/tasks/TaskList.tsx and src/components/edit' \
+create_issue_idempotent '[T073] [P] Keyboard navigation in src/components/tasks/TaskList.tsx and src/components/edit' \
   --label 'phase:polish,parallel' \
   --body '## T073 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1215,9 +1079,7 @@ Keyboard navigation in src/components/tasks/TaskList.tsx and src/components/edit
 '
 
 echo 'Creating T074...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T074] Performance audit — run `npm run analyze` (Next.js bundle analyser); verify @exc' \
+create_issue_idempotent '[T074] Performance audit — run `npm run analyze` (Next.js bundle analyser); verify @exc' \
   --label 'phase:polish' \
   --body '## T074 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1229,9 +1091,7 @@ Performance audit — run `npm run analyze` (Next.js bundle analyser); verify @e
 '
 
 echo 'Creating T075...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T075] [P] Add React error boundaries in src/app/(app)/notebook/[pageId]/page.tsx — wrap Pa' \
+create_issue_idempotent '[T075] [P] Add React error boundaries in src/app/(app)/notebook/[pageId]/page.tsx — wrap Pa' \
   --label 'phase:polish,parallel' \
   --body '## T075 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1245,9 +1105,7 @@ Add React error boundaries in src/app/(app)/notebook/[pageId]/page.tsx — wrap 
 '
 
 echo 'Creating T076...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T076] [P] Handle auth session expiry gracefully in src/middleware.ts and src/components/ed' \
+create_issue_idempotent '[T076] [P] Handle auth session expiry gracefully in src/middleware.ts and src/components/ed' \
   --label 'phase:polish,parallel' \
   --body '## T076 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1261,9 +1119,7 @@ Handle auth session expiry gracefully in src/middleware.ts and src/components/ed
 '
 
 echo 'Creating T077...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T077] [P] Harden autosave retry logic in src/lib/hooks/use-autosave.ts — confirm single re' \
+create_issue_idempotent '[T077] [P] Harden autosave retry logic in src/lib/hooks/use-autosave.ts — confirm single re' \
   --label 'phase:polish,parallel' \
   --body '## T077 — Phase 10: Polish & Cross-Cutting Concerns
 
@@ -1277,9 +1133,7 @@ Harden autosave retry logic in src/lib/hooks/use-autosave.ts — confirm single 
 '
 
 echo 'Creating T078...'
-gh issue create \
-  --repo "$REPO" \
-  --title '[T078] Run full quickstart validation — follow specs/001-ledger-notebook-app/quickstart' \
+create_issue_idempotent '[T078] Run full quickstart validation — follow specs/001-ledger-notebook-app/quickstart' \
   --label 'phase:polish' \
   --body '## T078 — Phase 10: Polish & Cross-Cutting Concerns
 
