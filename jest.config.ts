@@ -30,7 +30,7 @@ const config: Config = {
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/e2e/'],
   transformIgnorePatterns: [
-    '/node_modules/',
+    'node_modules/(?!(fractional-indexing)/)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 };
