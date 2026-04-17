@@ -4,5 +4,5 @@ export default function Home() {
       <h1>The Ledger</h1>
       <p>Digital Notebook App</p>
     </main>
-  )
+  );
 }

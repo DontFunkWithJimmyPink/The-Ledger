@@ -6,13 +6,13 @@
 
 ## Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Node.js | 20 LTS | [nodejs.org](https://nodejs.org) or `nvm use 20` |
-| npm | 10+ | Bundled with Node 20 |
-| Git | any | Pre-installed on most systems |
-| Supabase CLI | latest | `npm install -g supabase` |
-| Vercel CLI (optional) | latest | `npm install -g vercel` |
+| Tool                  | Version | Install                                          |
+| --------------------- | ------- | ------------------------------------------------ |
+| Node.js               | 20 LTS  | [nodejs.org](https://nodejs.org) or `nvm use 20` |
+| npm                   | 10+     | Bundled with Node 20                             |
+| Git                   | any     | Pre-installed on most systems                    |
+| Supabase CLI          | latest  | `npm install -g supabase`                        |
+| Vercel CLI (optional) | latest  | `npm install -g vercel`                          |
 
 ---
 
@@ -33,6 +33,7 @@ npm install
 ```
 
 Key packages installed:
+
 - `next` — Next.js 14 (App Router)
 - `@supabase/supabase-js`, `@supabase/ssr` — Supabase client
 - `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-task-list`, `@tiptap/extension-task-item`, `@tiptap/extension-image`, `@tiptap/extension-placeholder` — Rich text editor
@@ -106,6 +107,7 @@ npm run dev
 The app will be available at [http://localhost:3000](http://localhost:3000).
 
 The first time you open the app:
+
 1. Click **Create an account** and sign up with an email + password.
 2. Check your email for a confirmation link (in local Supabase, use the Inbucket UI at
    [http://localhost:54324](http://localhost:54324)).
@@ -172,19 +174,19 @@ vercel --prod
 
 ## 9 — Available Scripts
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| Dev server | `npm run dev` | Next.js with hot reload on :3000 |
-| Build | `npm run build` | Production Next.js build |
-| Start | `npm run start` | Run the production build locally |
-| Lint | `npm run lint` | ESLint check |
-| Format | `npm run format` | Prettier write |
-| Type-check | `npm run type-check` | `tsc --noEmit` |
-| Test | `npm run test` | Jest unit + integration |
-| Test watch | `npm run test:watch` | Jest in watch mode |
-| Test coverage | `npm run test:coverage` | Coverage report (target ≥ 80%) |
-| E2E tests | `npm run test:e2e` | Playwright E2E suite |
-| Bundle analysis | `npm run analyze` | Next.js bundle analyser |
+| Script          | Command                 | Description                      |
+| --------------- | ----------------------- | -------------------------------- |
+| Dev server      | `npm run dev`           | Next.js with hot reload on :3000 |
+| Build           | `npm run build`         | Production Next.js build         |
+| Start           | `npm run start`         | Run the production build locally |
+| Lint            | `npm run lint`          | ESLint check                     |
+| Format          | `npm run format`        | Prettier write                   |
+| Type-check      | `npm run type-check`    | `tsc --noEmit`                   |
+| Test            | `npm run test`          | Jest unit + integration          |
+| Test watch      | `npm run test:watch`    | Jest in watch mode               |
+| Test coverage   | `npm run test:coverage` | Coverage report (target ≥ 80%)   |
+| E2E tests       | `npm run test:e2e`      | Playwright E2E suite             |
+| Bundle analysis | `npm run analyze`       | Next.js bundle analyser          |
 
 ---
 
@@ -204,12 +206,12 @@ specs/001-ledger-notebook-app/   → This feature's design docs and contracts
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| "Invalid API key" from Supabase | Check `.env.local` values match the Supabase dashboard exactly |
-| Sign-up email not arriving (local) | Open Inbucket at [http://localhost:54324](http://localhost:54324) |
-| Excalidraw SSR error | Ensure the `DrawingCanvas` component is wrapped in `next/dynamic` with `ssr: false` |
-| Tiptap `window is not defined` | Wrap any Tiptap usage in a `"use client"` component |
-| Photos not uploading | Check the `notebook-photos` bucket exists and is **private**, and storage policies are applied |
-| RLS blocking queries | Confirm you are authenticated (`supabase.auth.getUser()`) and tables have RLS policies applied |
-| Port conflict on :3000 | `npm run dev -- --port 3001` |
+| Problem                            | Solution                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| "Invalid API key" from Supabase    | Check `.env.local` values match the Supabase dashboard exactly                                 |
+| Sign-up email not arriving (local) | Open Inbucket at [http://localhost:54324](http://localhost:54324)                              |
+| Excalidraw SSR error               | Ensure the `DrawingCanvas` component is wrapped in `next/dynamic` with `ssr: false`            |
+| Tiptap `window is not defined`     | Wrap any Tiptap usage in a `"use client"` component                                            |
+| Photos not uploading               | Check the `notebook-photos` bucket exists and is **private**, and storage policies are applied |
+| RLS blocking queries               | Confirm you are authenticated (`supabase.auth.getUser()`) and tables have RLS policies applied |
+| Port conflict on :3000             | `npm run dev -- --port 3001`                                                                   |

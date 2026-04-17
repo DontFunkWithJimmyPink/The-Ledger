@@ -140,6 +140,7 @@ conflict between a team practice and a principle stated here is resolved in favo
 of the constitution.
 
 **Amendment procedure**:
+
 1. Propose the amendment in writing with rationale and impact assessment.
 2. Allow a minimum 48-hour review period for team comment.
 3. Obtain explicit approval from at least two senior contributors.
@@ -147,6 +148,7 @@ of the constitution.
    and propagate changes to all dependent templates.
 
 **Versioning policy**:
+
 - MAJOR: Backward-incompatible governance changes, principle removals, or
   redefinitions that invalidate prior compliance decisions.
 - MINOR: New principle or section added, or materially expanded guidance.
