@@ -97,12 +97,12 @@ notebook-photos/
 
 Four policies enforce per-user isolation:
 
-| Policy | Operation | Purpose |
-|--------|-----------|---------|
-| `photos_upload_own_folder` | INSERT | Users can only upload to their own folder (`{user_id}/...`) |
-| `photos_read_own_folder` | SELECT | Users can only read photos from their own folder |
-| `photos_update_own_folder` | UPDATE | Users can only replace their own photos |
-| `photos_delete_own_folder` | DELETE | Users can only delete their own photos |
+| Policy                     | Operation | Purpose                                                     |
+| -------------------------- | --------- | ----------------------------------------------------------- |
+| `photos_upload_own_folder` | INSERT    | Users can only upload to their own folder (`{user_id}/...`) |
+| `photos_read_own_folder`   | SELECT    | Users can only read photos from their own folder            |
+| `photos_update_own_folder` | UPDATE    | Users can only replace their own photos                     |
+| `photos_delete_own_folder` | DELETE    | Users can only delete their own photos                      |
 
 ### Key Security Features
 
@@ -172,6 +172,7 @@ You can test the policies work correctly by:
 ### "Bucket already exists" error
 
 If you see this error when creating the bucket:
+
 - The bucket may have been created previously
 - Check the Storage section in the dashboard
 - You can skip bucket creation and proceed to applying policies
@@ -179,6 +180,7 @@ If you see this error when creating the bucket:
 ### "Policy already exists" errors
 
 If you see errors about policies already existing:
+
 - The policies may have been applied previously
 - You can use `DROP POLICY IF EXISTS` before creating them
 - Or skip policy creation if they already exist and are correct
@@ -198,6 +200,7 @@ If you see errors about policies already existing:
 ### Files not uploading
 
 If users can't upload files after applying policies:
+
 - Check that the bucket is created and policies are applied
 - Verify the file path follows the correct format: `{user_id}/{page_id}/{timestamp}_{filename}`
 - Check that the file extension is in the allowed list
@@ -207,6 +210,7 @@ If users can't upload files after applying policies:
 ### Files not accessible
 
 If users can't access their uploaded files:
+
 - Ensure signed URLs are being generated server-side
 - Check the URL TTL hasn't expired
 - Verify the user ID in the path matches the authenticated user
@@ -219,6 +223,7 @@ If users can't access their uploaded files:
 The application will use this storage bucket as follows:
 
 1. **Upload** (Client → Storage):
+
    ```typescript
    // In PhotoUploadButton.tsx (T049)
    const path = `${userId}/${pageId}/${Date.now()}_${filename}`;
@@ -228,6 +233,7 @@ The application will use this storage bucket as follows:
    ```
 
 2. **Store metadata** (Client → Database):
+
    ```typescript
    // After successful upload
    await supabase.from('photos').insert({
@@ -239,6 +245,7 @@ The application will use this storage bucket as follows:
    ```
 
 3. **Generate signed URL** (Server):
+
    ```typescript
    // For displaying images
    const { data } = await supabase.storage
@@ -247,11 +254,10 @@ The application will use this storage bucket as follows:
    ```
 
 4. **Delete** (Client → Storage & Database):
+
    ```typescript
    // Remove from storage
-   await supabase.storage
-     .from('notebook-photos')
-     .remove([storagePath]);
+   await supabase.storage.from('notebook-photos').remove([storagePath]);
 
    // Remove metadata
    await supabase.from('photos').delete().eq('id', photoId);
@@ -275,7 +281,13 @@ if (file.size > MAX_FILE_SIZE) {
 Client-side validation (recommended):
 
 ```typescript
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic'];
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/heic',
+];
 
 if (!ALLOWED_TYPES.includes(file.type)) {
   toast.error('Please upload a valid image file');
@@ -305,6 +317,7 @@ After successfully configuring Supabase Storage:
 ## Reference
 
 For more details, see:
+
 - Storage policies SQL: `specs/001-ledger-notebook-app/contracts/storage-policies.sql`
 - Photo upload task: T049 in `specs/001-ledger-notebook-app/tasks.md`
 - Database schema: `specs/001-ledger-notebook-app/contracts/database-schema.sql`

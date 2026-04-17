@@ -9,15 +9,18 @@ This directory contains scripts for managing The Ledger database schema.
 Bash script to apply the database schema using PostgreSQL command-line tools.
 
 **Requirements:**
+
 - `psql` PostgreSQL client installed
 - Network access to Supabase
 
 **Usage:**
+
 ```bash
 SUPABASE_PASSWORD="your-password" ./scripts/apply-database-schema.sh
 ```
 
 **Options:**
+
 ```bash
 # Use a different Supabase URL
 SUPABASE_URL="your-project.supabase.co" \
@@ -30,9 +33,11 @@ SUPABASE_PASSWORD="your-password" \
 Node.js script with instructions for applying the schema.
 
 **Requirements:**
+
 - Node.js installed
 
 **Usage:**
+
 ```bash
 SUPABASE_PASSWORD="your-password" node scripts/apply-schema.js
 ```
@@ -42,6 +47,7 @@ This script provides detailed instructions for applying the schema using various
 ## Schema File Location
 
 The database schema is located at:
+
 ```
 specs/001-ledger-notebook-app/contracts/database-schema.sql
 ```
@@ -49,6 +55,7 @@ specs/001-ledger-notebook-app/contracts/database-schema.sql
 ## Documentation
 
 For detailed setup instructions, troubleshooting, and verification steps, see:
+
 - [Database Setup Guide](../docs/database-setup.md)
 
 ## Task T008 Reference

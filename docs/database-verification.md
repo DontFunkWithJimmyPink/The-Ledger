@@ -27,46 +27,54 @@ For each table above, verify RLS is enabled:
 Expected policies per table:
 
 ### notebooks
+
 - [ ] notebooks_select (FOR SELECT)
 - [ ] notebooks_insert (FOR INSERT)
 - [ ] notebooks_update (FOR UPDATE)
 - [ ] notebooks_delete (FOR DELETE)
 
 ### pages
+
 - [ ] pages_select (FOR SELECT)
 - [ ] pages_insert (FOR INSERT)
 - [ ] pages_update (FOR UPDATE)
 - [ ] pages_delete (FOR DELETE)
 
 ### tasks
+
 - [ ] tasks_select (FOR SELECT)
 - [ ] tasks_insert (FOR INSERT)
 - [ ] tasks_update (FOR UPDATE)
 - [ ] tasks_delete (FOR DELETE)
 
 ### reminders
+
 - [ ] reminders_select (FOR SELECT)
 - [ ] reminders_insert (FOR INSERT)
 - [ ] reminders_update (FOR UPDATE)
 - [ ] reminders_delete (FOR DELETE)
 
 ### labels
+
 - [ ] labels_select (FOR SELECT)
 - [ ] labels_insert (FOR INSERT)
 - [ ] labels_update (FOR UPDATE)
 - [ ] labels_delete (FOR DELETE)
 
 ### page_labels
+
 - [ ] page_labels_select (FOR SELECT)
 - [ ] page_labels_insert (FOR INSERT)
 - [ ] page_labels_delete (FOR DELETE)
 
 ### photos
+
 - [ ] photos_select (FOR SELECT)
 - [ ] photos_insert (FOR INSERT)
 - [ ] photos_delete (FOR DELETE)
 
 ### drawings
+
 - [ ] drawings_select (FOR SELECT)
 - [ ] drawings_insert (FOR INSERT)
 - [ ] drawings_update (FOR UPDATE)
@@ -214,6 +222,7 @@ ORDER BY ordinal_position;
 ```
 
 Expected columns:
+
 - [ ] id (uuid, NOT NULL, gen_random_uuid())
 - [ ] user_id (uuid, NOT NULL)
 - [ ] created_at (timestamp with time zone, NOT NULL, now())
@@ -228,36 +237,43 @@ ORDER BY ordinal_position;
 ```
 
 Expected columns:
+
 - [ ] id, notebook_id, title, content, sort_order, created_at, updated_at, search_vector
 
 ### tasks table
 
 Expected columns:
+
 - [ ] id, page_id, task_index, text, checked, due_at, sort_order, created_at, updated_at
 
 ### reminders table
 
 Expected columns:
+
 - [ ] id, user_id, task_id, page_id, fire_at, status, created_at
 
 ### labels table
 
 Expected columns:
+
 - [ ] id, user_id, name, color, created_at
 
 ### page_labels table
 
 Expected columns:
+
 - [ ] page_id, label_id
 
 ### photos table
 
 Expected columns:
+
 - [ ] id, page_id, user_id, storage_path, filename, mime_type, size_bytes, created_at
 
 ### drawings table
 
 Expected columns:
+
 - [ ] id, page_id, elements, app_state, created_at, updated_at
 
 ## ✅ Constraints Validation
