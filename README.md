@@ -40,9 +40,36 @@ PGPASSWORD="your-password" psql \
 
 For detailed instructions, troubleshooting, and verification steps, see [Database Setup Guide](docs/database-setup.md).
 
+## Storage Setup (T009)
+
+The Ledger uses Supabase Storage for photo uploads. After applying the database schema, configure the storage bucket.
+
+### Quick Setup
+
+1. **Create the storage bucket:**
+   ```bash
+   ./scripts/create-storage-bucket.sh
+   ```
+
+   Or manually via Supabase Dashboard:
+   - Navigate to: Storage → New bucket
+   - Bucket name: `notebook-photos`
+   - Public bucket: **Unchecked** (must be private)
+
+2. **Apply storage policies:**
+   ```bash
+   ./scripts/apply-storage-policies.sh
+   ```
+
+   Or manually via SQL Editor:
+   - Copy contents of `specs/001-ledger-notebook-app/contracts/storage-policies.sql`
+   - Paste and run in SQL Editor
+
+For detailed instructions, see [Storage Setup Guide](docs/storage-setup.md).
+
 ## What Gets Created
 
-The database schema includes:
+### Database Schema (T008)
 
 - **8 tables**: notebooks, pages, tasks, reminders, labels, page_labels, photos, drawings
 - **5 functions**: extract_tiptap_text, set_updated_at, create_notebook_for_user, search_pages, get_due_reminders
@@ -50,19 +77,36 @@ The database schema includes:
 - **Row Level Security (RLS)**: All tables secured with user-scoped policies
 - **Indexes**: Optimized for sorting, searching, and querying
 
+### Storage Configuration (T009)
+
+- **Storage bucket**: `notebook-photos` (private)
+- **4 RLS policies**: Per-user folder isolation for upload, read, update, delete
+- **Folder structure**: `{user_id}/{page_id}/{timestamp}_{filename}`
+- **File types**: jpg, jpeg, png, gif, webp, heic
+- **Size limit**: 10 MB per file (enforced client-side)
+
 ## Project Structure
 
 ```
 The-Ledger/
 ├── docs/                    # Documentation
-│   └── database-setup.md    # Database setup guide
+│   ├── database-setup.md    # Database setup guide
+│   ├── database-verification.md  # Database verification checklist
+│   ├── storage-setup.md     # Storage setup guide
+│   ├── storage-verification.md   # Storage verification checklist
+│   ├── T008-completion-summary.md  # Database task completion
+│   └── T009-completion-summary.md  # Storage task completion
 ├── scripts/                 # Utility scripts
-│   ├── apply-database-schema.sh  # Shell script to apply schema
+│   ├── apply-database-schema.sh   # Apply database schema
+│   ├── create-storage-bucket.sh   # Create storage bucket
+│   ├── apply-storage-policies.sh  # Apply storage policies
 │   ├── apply-schema.js      # Node.js helper script
 │   └── README.md            # Scripts documentation
 ├── specs/                   # Feature specifications
 │   └── 001-ledger-notebook-app/
 │       ├── contracts/       # Database schema and API contracts
+│       │   ├── database-schema.sql
+│       │   └── storage-policies.sql
 │       ├── plan.md          # Implementation plan
 │       ├── tasks.md         # Task breakdown
 │       └── quickstart.md    # Development setup guide
@@ -94,6 +138,7 @@ The-Ledger/
 3. Set up Supabase:
    - Create a project at [supabase.com](https://supabase.com)
    - Apply the database schema (see [Database Setup](#database-setup-t008) above)
+   - Configure storage bucket (see [Storage Setup](#storage-setup-t009) above)
    - Copy your project credentials
 
 4. Configure environment variables:
@@ -179,6 +224,9 @@ See [`src/index.js`](src/index.js) for the reference import used in this project
 ## Documentation
 
 - [Database Setup Guide](docs/database-setup.md) - Complete guide for setting up the database
+- [Database Verification](docs/database-verification.md) - Checklist for verifying database setup
+- [Storage Setup Guide](docs/storage-setup.md) - Complete guide for configuring storage
+- [Storage Verification](docs/storage-verification.md) - Checklist for verifying storage setup
 - [Quickstart Guide](specs/001-ledger-notebook-app/quickstart.md) - Development environment setup
 - [Implementation Plan](specs/001-ledger-notebook-app/plan.md) - Feature implementation details
 - [Tasks](specs/001-ledger-notebook-app/tasks.md) - Task breakdown and dependencies
