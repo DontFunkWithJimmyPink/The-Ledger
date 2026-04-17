@@ -130,7 +130,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T049 [P] [US4] Create PhotoUploadButton component in src/components/photos/PhotoUploadButton.tsx — renders a file `<input accept="image/*">`; validates file size ≤ 10485760 bytes (shows react-hot-toast error if exceeded — FR-019); uploads to `supabase.storage.from('notebook-photos').upload(\`${userId}/${pageId}/${Date.now()}_${filename}\`, file)`; inserts row in `photos` table; returns signed URL via `createSignedUrl` for Tiptap image insertion
+- [ ] T049 [P] [US4] Create PhotoUploadButton component in src/components/photos/PhotoUploadButton.tsx — renders a file `<input accept="image/*">`; validates file size ≤ 10485760 bytes (shows react-hot-toast error if exceeded — FR-019); uploads to `supabase.storage.from('notebook-photos').upload(\`${userId}/${pageId}/${Date.now()}_${filename}\`, file)`; inserts row in `photos`table; returns signed URL via`createSignedUrl` for Tiptap image insertion
 - [ ] T050 [P] [US4] Create PhotoLightbox component in src/components/photos/PhotoLightbox.tsx — Modal-based full-screen image viewer; accepts `src` and `alt`; triggered on click of inline Tiptap image node; includes close button and keyboard Escape handler
 - [ ] T051 [US4] Add Tiptap Image extension to PageEditor in src/components/editor/PageEditor.tsx — configure `@tiptap/extension-image` with `inline: true`; register click handler on image nodes to open PhotoLightbox
 - [ ] T052 [US4] Add photo upload button to EditorToolbar in src/components/editor/EditorToolbar.tsx — renders a camera/image icon button; on click opens PhotoUploadButton file chooser; on successful upload inserts signed URL into editor via `editor.chain().focus().setImage({ src: signedUrl }).run()`
@@ -230,15 +230,15 @@ Phase 1 (Setup)
 
 ### User Story Dependencies
 
-| Story | Depends On | Notes |
-|-------|-----------|-------|
-| US1 (Tasks) | Phase 2 complete | No story dependencies — can start immediately after foundation |
-| US2 (Journal) | Phase 2 complete | Shares PageEditor with US1; independently testable without tasks |
-| US3 (Reminders) | Phase 2 + US1 tasks table populated | Requires `tasks.due_at` and `reminders` table; depends on task entities |
-| US4 (Photos) | Phase 2 complete | Requires Supabase Storage bucket from T009; independent of tasks |
-| US5 (Drawing) | Phase 2 complete | Requires `drawings` table from T008; independent of tasks/photos |
-| US6 (Search/Sort) | Phase 2 + US1 pages exist | Requires `pages.search_vector` from schema; labels work independently |
-| US7 (Cross-device) | All stories complete | Validates sync of all content types; responsive audit applies to all |
+| Story              | Depends On                          | Notes                                                                   |
+| ------------------ | ----------------------------------- | ----------------------------------------------------------------------- |
+| US1 (Tasks)        | Phase 2 complete                    | No story dependencies — can start immediately after foundation          |
+| US2 (Journal)      | Phase 2 complete                    | Shares PageEditor with US1; independently testable without tasks        |
+| US3 (Reminders)    | Phase 2 + US1 tasks table populated | Requires `tasks.due_at` and `reminders` table; depends on task entities |
+| US4 (Photos)       | Phase 2 complete                    | Requires Supabase Storage bucket from T009; independent of tasks        |
+| US5 (Drawing)      | Phase 2 complete                    | Requires `drawings` table from T008; independent of tasks/photos        |
+| US6 (Search/Sort)  | Phase 2 + US1 pages exist           | Requires `pages.search_vector` from schema; labels work independently   |
+| US7 (Cross-device) | All stories complete                | Validates sync of all content types; responsive audit applies to all    |
 
 ### Within Each User Story
 
@@ -296,21 +296,22 @@ Task J: "T034 Add save status indicator in src/components/editor/PageEditor.tsx"
 
 ### Incremental Delivery
 
-| Step | Phases | Milestone |
-|------|--------|-----------|
-| 1 | Phase 1 + 2 | Foundation ready, auth works |
-| 2 | + Phase 3 (US1) | Task management MVP — deployable |
-| 3 | + Phase 4 (US2) | Journal writing added |
-| 4 | + Phase 5 (US3) | Reminders added — productivity complete |
-| 5 | + Phase 6 (US4) | Photos added |
-| 6 | + Phase 7 (US5) | Drawing added |
-| 7 | + Phase 8 (US6) | Search/sort/labels — full organisation |
-| 8 | + Phase 9 (US7) | Cross-device sync validated |
-| 9 | + Phase 10 | Polished, accessible, production-ready |
+| Step | Phases          | Milestone                               |
+| ---- | --------------- | --------------------------------------- |
+| 1    | Phase 1 + 2     | Foundation ready, auth works            |
+| 2    | + Phase 3 (US1) | Task management MVP — deployable        |
+| 3    | + Phase 4 (US2) | Journal writing added                   |
+| 4    | + Phase 5 (US3) | Reminders added — productivity complete |
+| 5    | + Phase 6 (US4) | Photos added                            |
+| 6    | + Phase 7 (US5) | Drawing added                           |
+| 7    | + Phase 8 (US6) | Search/sort/labels — full organisation  |
+| 8    | + Phase 9 (US7) | Cross-device sync validated             |
+| 9    | + Phase 10      | Polished, accessible, production-ready  |
 
 ### Parallel Team Strategy
 
 With multiple developers (after Phase 2 completes):
+
 - **Developer A**: US1 (Tasks) → US3 (Reminders)
 - **Developer B**: US2 (Journal) → US6 (Search/Sort)
 - **Developer C**: US4 (Photos) → US5 (Drawing)

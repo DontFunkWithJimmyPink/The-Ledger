@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "a web app that can be accessed from anywhere, can be hosted on aws and allows the user to add, sort tasks and notes and photos. The app is called The Ledger and acts as a cozy leather bound notebook in an app, where users can make to do lists, reminders, mark things as done, add photos and journal, draw out ideas and flows. Basically anything that can be done in a notebook can be done here."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 — Create and Manage Tasks & To-Do Lists (Priority: P1)
 
@@ -134,7 +134,7 @@ A user creates entries on their laptop, then opens The Ledger on their tablet or
 - What happens when a reminder fires but the user's browser tab is closed?
 - How does the app handle very long entries or pages with many embedded photos?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -169,7 +169,7 @@ A user creates entries on their laptop, then opens The Ledger on their tablet or
 - **Drawing**: A vector or raster canvas embedded in a page. Stores stroke data or a rendered image representing the user's sketch.
 - **Label**: A user-defined tag applied to one or more pages for organisational grouping.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

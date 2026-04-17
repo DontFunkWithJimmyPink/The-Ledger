@@ -37,7 +37,7 @@ In GitHub Actions workflows, the default `GITHUB_TOKEN` secret can be used direc
 ### Import example
 
 ```js
-const specKit = require("@github/spec-kit");
+const specKit = require('@github/spec-kit');
 ```
 
 See [`src/index.js`](src/index.js) for the reference import used in this project.

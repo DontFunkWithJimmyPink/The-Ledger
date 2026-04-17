@@ -45,16 +45,16 @@ horizontal scale via Supabase managed infra; ~50 pages, ~500 tasks per typical n
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-checked post-Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-checked post-Phase 1 design._
 
-| Principle | Assessment | Notes |
-|-----------|------------|-------|
-| **I — Simplicity First** | ✅ PASS | Managed Supabase eliminates custom server/infra. Polling replaces WebSocket complexity. No BFF layer — Next.js Route Handlers only where Supabase client cannot reach (auth callback). Excalidraw and Tiptap are purpose-built components, not custom-built. |
-| **II — User Security** | ✅ PASS | Supabase Row Level Security enforced on every table — queries are automatically filtered to the authenticated user's data. Storage bucket policies enforce per-user folder paths. `@supabase/ssr` cookie-based auth handles tokens securely; no tokens in localStorage. All inputs validated on the client and RLS-enforced on the server. |
-| **III — Code Quality** | ✅ PASS | TypeScript strict mode; ESLint + Prettier configured and enforced in CI. Named constants for polling intervals, file-size limits, debounce timing. Functions scoped to single responsibility. |
-| **IV — Testing Standards** | ✅ PASS | Jest + RTL for unit/component coverage ≥80%; Playwright for E2E critical user journeys (sign-up, create page, add task, upload photo, draw). CI gate: tests must pass before merge. |
-| **V — UX Consistency** | ✅ PASS | Single design system: TailwindCSS with a custom warm-earthy theme (leather browns, cream, warm serifs). All components drawn from the same `components/ui/` primitives. WCAG 2.1 AA validated on every new screen. |
-| **VI — Performance** | ✅ PASS | Supabase Edge Functions / CDN for DB queries; GIN index on `search_vector`; fractional indexing avoids bulk re-writes on reorder; photo size capped at 10 MB with client-side pre-validation; bundle size monitored via Next.js bundle analyser in CI. |
+| Principle                  | Assessment | Notes                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **I — Simplicity First**   | ✅ PASS    | Managed Supabase eliminates custom server/infra. Polling replaces WebSocket complexity. No BFF layer — Next.js Route Handlers only where Supabase client cannot reach (auth callback). Excalidraw and Tiptap are purpose-built components, not custom-built.                                                                               |
+| **II — User Security**     | ✅ PASS    | Supabase Row Level Security enforced on every table — queries are automatically filtered to the authenticated user's data. Storage bucket policies enforce per-user folder paths. `@supabase/ssr` cookie-based auth handles tokens securely; no tokens in localStorage. All inputs validated on the client and RLS-enforced on the server. |
+| **III — Code Quality**     | ✅ PASS    | TypeScript strict mode; ESLint + Prettier configured and enforced in CI. Named constants for polling intervals, file-size limits, debounce timing. Functions scoped to single responsibility.                                                                                                                                              |
+| **IV — Testing Standards** | ✅ PASS    | Jest + RTL for unit/component coverage ≥80%; Playwright for E2E critical user journeys (sign-up, create page, add task, upload photo, draw). CI gate: tests must pass before merge.                                                                                                                                                        |
+| **V — UX Consistency**     | ✅ PASS    | Single design system: TailwindCSS with a custom warm-earthy theme (leather browns, cream, warm serifs). All components drawn from the same `components/ui/` primitives. WCAG 2.1 AA validated on every new screen.                                                                                                                         |
+| **VI — Performance**       | ✅ PASS    | Supabase Edge Functions / CDN for DB queries; GIN index on `search_vector`; fractional indexing avoids bulk re-writes on reorder; photo size capped at 10 MB with client-side pre-validation; bundle size monitored via Next.js bundle analyser in CI.                                                                                     |
 
 **No complexity violations to log.** All decisions are straightforward applications of the chosen
 technology stack.
@@ -171,5 +171,5 @@ auth callback. Source code lives under `src/` following Next.js App Router conve
 > No constitution violations identified. Table left intentionally empty.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|--------------------------------------|
-| — | — | — |
+| --------- | ---------- | ------------------------------------ |
+| —         | —          | —                                    |
