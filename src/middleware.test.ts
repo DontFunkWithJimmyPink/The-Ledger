@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { middleware } from './middleware';
 
 // Mock @supabase/ssr
@@ -161,9 +162,9 @@ describe('middleware', () => {
     );
 
     const mockCookies = {
-      getAll: jest.fn().mockReturnValue([
-        { name: 'session-cookie', value: 'test-session' },
-      ]),
+      getAll: jest
+        .fn()
+        .mockReturnValue([{ name: 'session-cookie', value: 'test-session' }]),
       set: jest.fn(),
     };
 
