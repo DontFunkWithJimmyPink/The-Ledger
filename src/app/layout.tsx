@@ -1,9 +1,19 @@
 import type { Metadata } from 'next';
+import '@fontsource/lora/400.css';
+import '@fontsource/lora/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import Providers from '@/components/Providers';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'The Ledger',
-  description: 'Digital Notebook App',
+  title: {
+    default: 'The Ledger',
+    template: '%s | The Ledger',
+  },
+  description: 'Digital Notebook App — Journal, tasks, and notes in one place',
+  keywords: ['notebook', 'journal', 'tasks', 'notes', 'digital ledger'],
 };
 
 export default function RootLayout({
@@ -13,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
