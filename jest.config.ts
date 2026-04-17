@@ -25,9 +25,10 @@ const config: Config = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
-    '<rootDir>/tests/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/unit/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/integration/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/e2e/'],
   transformIgnorePatterns: [
     '/node_modules/',
     '^.+\\.module\\.(css|sass|scss)$',
