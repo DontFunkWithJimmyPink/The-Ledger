@@ -71,16 +71,16 @@ supabase db push --db-url "postgresql://postgres:20syPnkP76cRWS8H@db.fqnnpjnbles
 
 ### Tables
 
-| Table | Purpose | Key Features |
-|-------|---------|--------------|
-| **notebooks** | User's main notebook container | RLS enabled, auto-created on signup |
-| **pages** | Individual notebook pages | Full-text search, sort ordering, RLS |
-| **tasks** | Task items within pages | Checkbox state, due dates, RLS |
-| **reminders** | Task/page reminders | Fire time, status tracking, RLS |
-| **labels** | User-created labels | Color coding, RLS |
-| **page_labels** | Many-to-many page↔label | RLS |
-| **photos** | Uploaded images | 10MB size limit, RLS |
-| **drawings** | Excalidraw canvas data | Page-linked, RLS |
+| Table           | Purpose                        | Key Features                         |
+| --------------- | ------------------------------ | ------------------------------------ |
+| **notebooks**   | User's main notebook container | RLS enabled, auto-created on signup  |
+| **pages**       | Individual notebook pages      | Full-text search, sort ordering, RLS |
+| **tasks**       | Task items within pages        | Checkbox state, due dates, RLS       |
+| **reminders**   | Task/page reminders            | Fire time, status tracking, RLS      |
+| **labels**      | User-created labels            | Color coding, RLS                    |
+| **page_labels** | Many-to-many page↔label        | RLS                                  |
+| **photos**      | Uploaded images                | 10MB size limit, RLS                 |
+| **drawings**    | Excalidraw canvas data         | Page-linked, RLS                     |
 
 ### Functions
 
@@ -101,6 +101,7 @@ supabase db push --db-url "postgresql://postgres:20syPnkP76cRWS8H@db.fqnnpjnbles
 ### Row Level Security (RLS)
 
 All tables have RLS enabled with policies ensuring:
+
 - Users can only access their own data
 - Notebook-linked tables (pages, tasks, etc.) are scoped by notebook ownership
 - Label assignments respect both page and label ownership
@@ -108,6 +109,7 @@ All tables have RLS enabled with policies ensuring:
 ### Indexes
 
 Optimized for:
+
 - Page sorting (by `sort_order`, `created_at`, `updated_at`)
 - Full-text search (GIN index on `search_vector`)
 - Task due dates
@@ -120,6 +122,7 @@ After applying the schema, verify it worked:
 ### Check Tables Exist
 
 In Supabase Dashboard → Table Editor, you should see all 8 tables:
+
 - notebooks
 - pages
 - tasks
@@ -132,6 +135,7 @@ In Supabase Dashboard → Table Editor, you should see all 8 tables:
 ### Check RLS is Enabled
 
 In Supabase Dashboard → Table Editor → Select any table → Click "RLS" tab:
+
 - Should show "Row Level Security: Enabled"
 - Should show multiple policies (SELECT, INSERT, UPDATE, DELETE)
 
@@ -156,6 +160,7 @@ SELECT * FROM search_pages('test');
 ### "relation already exists" errors
 
 If you see errors about tables/functions already existing:
+
 - The schema may have been partially applied
 - You can either:
   1. Drop the existing objects manually
@@ -176,6 +181,7 @@ If you see errors about tables/functions already existing:
 ### RLS blocking all queries
 
 If you can't query tables after applying the schema:
+
 - RLS is working correctly! This is expected behavior
 - Queries will only work when authenticated as a user
 - The application will handle authentication via Supabase client

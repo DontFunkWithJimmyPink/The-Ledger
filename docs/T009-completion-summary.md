@@ -11,6 +11,7 @@
 ### 1. Documentation
 
 #### Storage Setup Guide (`docs/storage-setup.md`)
+
 - **Purpose**: Complete guide for configuring Supabase Storage
 - **Contents**:
   - Three setup methods (Dashboard, CLI, Helper Scripts)
@@ -22,6 +23,7 @@
   - Security best practices
 
 #### Storage Verification Guide (`docs/storage-verification.md`)
+
 - **Purpose**: Comprehensive checklist for verifying storage configuration
 - **Contents**:
   - Quick verification checklist
@@ -33,6 +35,7 @@
 ### 2. Helper Scripts
 
 #### Bucket Creation Script (`scripts/create-storage-bucket.sh`)
+
 - **Purpose**: Automate or guide bucket creation process
 - **Features**:
   - Detects Supabase CLI availability
@@ -42,6 +45,7 @@
   - Clear next steps after completion
 
 #### Storage Policies Script (`scripts/apply-storage-policies.sh`)
+
 - **Purpose**: Apply RLS policies to storage.objects table
 - **Features**:
   - Validates policies file exists
@@ -53,6 +57,7 @@
 ### 3. Storage Configuration Specifications
 
 #### Storage Policies SQL (already existed)
+
 - **Location**: `specs/001-ledger-notebook-app/contracts/storage-policies.sql`
 - **Contents**:
   - RLS enablement on storage.objects
@@ -121,6 +126,7 @@ The storage configuration integrates with:
 ### Quick Start
 
 1. **Create the Storage Bucket**:
+
    ```bash
    ./scripts/create-storage-bucket.sh
    ```
@@ -132,6 +138,7 @@ The storage configuration integrates with:
    - Click: Create bucket
 
 2. **Apply Storage Policies**:
+
    ```bash
    ./scripts/apply-storage-policies.sh
    ```

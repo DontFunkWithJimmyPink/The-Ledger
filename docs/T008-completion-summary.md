@@ -15,7 +15,9 @@ This task provides comprehensive documentation and tooling for applying the data
 ### 1. Documentation Created
 
 #### [`docs/database-setup.md`](../docs/database-setup.md)
+
 Complete guide for setting up the database schema with:
+
 - Three different application methods (SQL Editor, psql, Supabase CLI)
 - Detailed table/function/trigger descriptions
 - Step-by-step verification instructions
@@ -23,7 +25,9 @@ Complete guide for setting up the database schema with:
 - Connection details reference
 
 #### [`docs/database-verification.md`](../docs/database-verification.md)
+
 Comprehensive verification checklist including:
+
 - All 8 tables verification
 - 40+ RLS policies verification
 - 5 functions verification
@@ -35,25 +39,32 @@ Comprehensive verification checklist including:
 ### 2. Scripts Created
 
 #### [`scripts/apply-database-schema.sh`](../scripts/apply-database-schema.sh)
+
 Bash script for applying the schema via `psql`:
+
 - Colored output for better UX
 - Environment variable configuration
 - Error handling
 - Success confirmation with summary
 
 #### [`scripts/apply-schema.js`](../scripts/apply-schema.js)
+
 Node.js helper script that:
+
 - Provides instructions for all application methods
 - Validates environment
 - User-friendly error messages
 
 #### [`scripts/README.md`](../scripts/README.md)
+
 Documentation for all database scripts with usage examples.
 
 ### 3. Updated Repository Documentation
 
 #### [`README.md`](../README.md)
+
 Enhanced main README with:
+
 - Database setup section (T008)
 - Quick start guide
 - Project structure
@@ -65,6 +76,7 @@ Enhanced main README with:
 The `specs/001-ledger-notebook-app/contracts/database-schema.sql` file creates:
 
 ### Tables (8)
+
 1. **notebooks** - User notebook containers
 2. **pages** - Individual notebook pages with rich content
 3. **tasks** - Task items extracted from page content
@@ -75,6 +87,7 @@ The `specs/001-ledger-notebook-app/contracts/database-schema.sql` file creates:
 8. **drawings** - Excalidraw canvas state
 
 ### Functions (5)
+
 1. **extract_tiptap_text(jsonb)** - Extracts plain text from Tiptap JSON for search indexing
 2. **set_updated_at()** - Trigger function to auto-update timestamps
 3. **create_notebook_for_user()** - Auto-creates notebook on user signup
@@ -82,6 +95,7 @@ The `specs/001-ledger-notebook-app/contracts/database-schema.sql` file creates:
 5. **get_due_reminders()** - Fetches pending reminders for polling
 
 ### Triggers (5)
+
 1. **on_auth_user_created** - Creates notebook when user signs up
 2. **pages_set_updated_at** - Maintains updated_at on pages
 3. **pages_search_vector_trigger** - Maintains full-text search index
@@ -89,12 +103,14 @@ The `specs/001-ledger-notebook-app/contracts/database-schema.sql` file creates:
 5. **drawings_set_updated_at** - Maintains updated_at on drawings
 
 ### Security Features
+
 - **Row Level Security (RLS)** enabled on all 8 tables
 - **40+ RLS policies** ensuring users can only access their own data
 - **Cascade deletes** properly configured (e.g., deleting a page deletes its tasks, photos, drawings)
 - **Check constraints** for data validation (e.g., photo size limit, reminder status values)
 
 ### Performance Optimizations
+
 - **7 indexes** for common query patterns:
   - Page sorting (by sort_order, created_at, updated_at)
   - Full-text search (GIN index on search_vector)
@@ -147,19 +163,24 @@ Therefore, the schema must be applied manually by a developer with network acces
 ## Testing Strategy
 
 ### Pre-Application Testing
+
 - ✅ Schema file exists and is valid SQL
 - ✅ All required extensions are standard PostgreSQL/Supabase extensions
 - ✅ No syntax errors in SQL file
 
 ### Post-Application Testing
+
 See [`docs/database-verification.md`](../docs/database-verification.md) for:
+
 - Structural verification (tables, columns, constraints)
 - Security verification (RLS policies)
 - Functional verification (SQL tests for functions)
 - Integration verification (triggers work correctly)
 
 ### Application-Level Testing
+
 Once the application code is implemented (T010-T024), test:
+
 - User signup creates notebook automatically
 - Pages save with search indexing
 - Tasks autosave and sync
@@ -170,11 +191,14 @@ Once the application code is implemented (T010-T024), test:
 ## Dependencies
 
 ### Blocks
+
 This task (T008) blocks:
+
 - T010-T024: All foundational backend code
 - Phase 3-9: All user story implementations
 
 ### Depends On
+
 - ✅ T007: Source directory structure created
 - ✅ Supabase project created (external prerequisite)
 

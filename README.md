@@ -47,6 +47,7 @@ The Ledger uses Supabase Storage for photo uploads. After applying the database 
 ### Quick Setup
 
 1. **Create the storage bucket:**
+
    ```bash
    ./scripts/create-storage-bucket.sh
    ```
@@ -57,6 +58,7 @@ The Ledger uses Supabase Storage for photo uploads. After applying the database 
    - Public bucket: **Unchecked** (must be private)
 
 2. **Apply storage policies:**
+
    ```bash
    ./scripts/apply-storage-policies.sh
    ```
@@ -125,12 +127,14 @@ The-Ledger/
 ### Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/DontFunkWithJimmyPink/The-Ledger.git
    cd The-Ledger
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -142,6 +146,7 @@ The-Ledger/
    - Copy your project credentials
 
 4. Configure environment variables:
+
    ```bash
    cp .env.local.example .env.local
    # Edit .env.local with your Supabase credentials

@@ -20,7 +20,11 @@ const https = require('https');
 // Configuration
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'fqnnpjnblesdubpjsbof';
 const PASSWORD = process.env.SUPABASE_PASSWORD;
-const SCHEMA_FILE = path.join(__dirname, '..', 'specs/001-ledger-notebook-app/contracts/database-schema.sql');
+const SCHEMA_FILE = path.join(
+  __dirname,
+  '..',
+  'specs/001-ledger-notebook-app/contracts/database-schema.sql'
+);
 
 // Colors for terminal output
 const colors = {
@@ -38,7 +42,9 @@ async function applySchema() {
   // Validate inputs
   if (!PASSWORD) {
     log('red', 'Error: SUPABASE_PASSWORD environment variable is required');
-    console.log('Usage: SUPABASE_PASSWORD=<password> node scripts/apply-schema.js');
+    console.log(
+      'Usage: SUPABASE_PASSWORD=<password> node scripts/apply-schema.js'
+    );
     process.exit(1);
   }
 
@@ -58,11 +64,15 @@ async function applySchema() {
   log('yellow', 'Database Schema Application');
   console.log('');
   console.log('This script requires network access to your Supabase instance.');
-  console.log('If you are in a restricted environment (CI/CD, corporate network),');
+  console.log(
+    'If you are in a restricted environment (CI/CD, corporate network),'
+  );
   console.log('please use one of these alternative methods:');
   console.log('');
   console.log('1. Supabase SQL Editor (Recommended):');
-  console.log('   - Visit: https://app.supabase.com/project/' + PROJECT_REF + '/sql');
+  console.log(
+    '   - Visit: https://app.supabase.com/project/' + PROJECT_REF + '/sql'
+  );
   console.log('   - Copy and paste the contents of: ' + SCHEMA_FILE);
   console.log('   - Click "Run" to execute');
   console.log('');
@@ -73,10 +83,15 @@ async function applySchema() {
   console.log('     -f ' + SCHEMA_FILE);
   console.log('');
   console.log('3. Use the provided shell script:');
-  console.log('   SUPABASE_PASSWORD="' + PASSWORD + '" ./scripts/apply-database-schema.sh');
+  console.log(
+    '   SUPABASE_PASSWORD="' + PASSWORD + '" ./scripts/apply-database-schema.sh'
+  );
   console.log('');
 
-  log('green', 'Schema file is ready to be applied using one of the methods above.');
+  log(
+    'green',
+    'Schema file is ready to be applied using one of the methods above.'
+  );
   console.log('');
   console.log('For detailed instructions, see: docs/database-setup.md');
 }

@@ -5,6 +5,7 @@ This document provides a comprehensive checklist to verify that Supabase Storage
 ## Overview
 
 Task **T009** configures:
+
 - Private storage bucket: `notebook-photos`
 - Row Level Security (RLS) policies for per-user folder isolation
 
@@ -33,6 +34,7 @@ WHERE schemaname = 'storage' AND tablename = 'objects';
 ```
 
 **Expected result**:
+
 ```
 tablename | rowsecurity
 ----------+-------------
@@ -50,20 +52,24 @@ Filter by bucket: `notebook-photos`
 You should see exactly **4 policies**:
 
 #### Policy 1: photos_upload_own_folder
+
 - [ ] **Operation**: INSERT
 - [ ] **WITH CHECK clause**: Contains `auth.uid()::text = (storage.foldername(name))[1]`
 - [ ] **Extension check**: Validates file extensions (jpg, jpeg, png, gif, webp, heic)
 
 #### Policy 2: photos_read_own_folder
+
 - [ ] **Operation**: SELECT
 - [ ] **USING clause**: Contains `auth.uid()::text = (storage.foldername(name))[1]`
 
 #### Policy 3: photos_update_own_folder
+
 - [ ] **Operation**: UPDATE
 - [ ] **USING clause**: Contains `auth.uid()::text = (storage.foldername(name))[1]`
 - [ ] **WITH CHECK clause**: Contains `auth.uid()::text = (storage.foldername(name))[1]`
 
 #### Policy 4: photos_delete_own_folder
+
 - [ ] **Operation**: DELETE
 - [ ] **USING clause**: Contains `auth.uid()::text = (storage.foldername(name))[1]`
 
@@ -98,6 +104,7 @@ ORDER BY policyname;
 **Objective**: Verify that RLS policies correctly isolate user folders
 
 **Prerequisites**:
+
 - Two test users created in Supabase Auth
 - Supabase client configured in browser console or test script
 
@@ -108,14 +115,20 @@ ORDER BY policyname;
    - User B: `test-user-b@example.com`
 
 2. **Authenticate as User A**:
+
    ```javascript
-   const { data: { user } } = await supabase.auth.getUser();
+   const {
+     data: { user },
+   } = await supabase.auth.getUser();
    console.log('User A ID:', user.id);
    ```
 
 3. **Upload a file as User A**:
+
    ```javascript
-   const testFile = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
+   const testFile = new File(['test content'], 'test.jpg', {
+     type: 'image/jpeg',
+   });
    const path = `${user.id}/test-page-id/test.jpg`;
 
    const { data, error } = await supabase.storage
@@ -129,6 +142,7 @@ ORDER BY policyname;
    - [ ] File appears in storage at the correct path
 
 4. **Try to read the file as User A**:
+
    ```javascript
    const { data, error } = await supabase.storage
      .from('notebook-photos')
@@ -140,14 +154,18 @@ ORDER BY policyname;
    - [ ] List succeeds and shows the uploaded file
 
 5. **Sign out and authenticate as User B**:
+
    ```javascript
    await supabase.auth.signOut();
    // Sign in as User B
-   const { data: { user: userB } } = await supabase.auth.getUser();
+   const {
+     data: { user: userB },
+   } = await supabase.auth.getUser();
    console.log('User B ID:', userB.id);
    ```
 
 6. **Try to read User A's folder as User B**:
+
    ```javascript
    // Try to list User A's files
    const { data, error } = await supabase.storage
@@ -160,6 +178,7 @@ ORDER BY policyname;
    - [ ] List returns empty array or error (User B should not see User A's files)
 
 7. **Try to upload to User A's folder as User B**:
+
    ```javascript
    const testFile = new File(['malicious'], 'hack.jpg', { type: 'image/jpeg' });
    const path = `${userAId}/test-page-id/hack.jpg`; // User A's folder
@@ -178,6 +197,7 @@ ORDER BY policyname;
    - Optionally delete test users
 
 **Result**:
+
 - [ ] ✅ Users can only access their own folders
 - [ ] ✅ Cross-user access is blocked by RLS policies
 
@@ -190,6 +210,7 @@ ORDER BY policyname;
 1. **Authenticate as test user**
 
 2. **Try to upload an allowed file type (JPEG)**:
+
    ```javascript
    const jpgFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
    const path = `${userId}/page-id/${Date.now()}_test.jpg`;
@@ -202,6 +223,7 @@ ORDER BY policyname;
    - [ ] Upload succeeds
 
 3. **Try to upload a disallowed file type (PDF)**:
+
    ```javascript
    const pdfFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
    const path = `${userId}/page-id/${Date.now()}_test.pdf`;
@@ -219,6 +241,7 @@ ORDER BY policyname;
    - [ ] WebP: succeeds
 
 **Result**:
+
 - [ ] ✅ Only allowed image types can be uploaded
 - [ ] ✅ Disallowed file types are rejected
 
@@ -231,6 +254,7 @@ ORDER BY policyname;
 1. **Authenticate as test user**
 
 2. **Try to upload with correct folder structure**:
+
    ```javascript
    const path = `${userId}/page-id-123/${Date.now()}_photo.jpg`;
    // Upload succeeds (verified in Test 1)
@@ -239,6 +263,7 @@ ORDER BY policyname;
    - [ ] Upload succeeds
 
 3. **Try to upload without user ID folder**:
+
    ```javascript
    const path = `page-id-123/${Date.now()}_photo.jpg`;
    const { data, error } = await supabase.storage
@@ -249,6 +274,7 @@ ORDER BY policyname;
    - [ ] Upload fails (no user ID in path)
 
 4. **Try to upload to root**:
+
    ```javascript
    const path = `photo.jpg`;
    const { data, error } = await supabase.storage
@@ -259,6 +285,7 @@ ORDER BY policyname;
    - [ ] Upload fails (no folder structure)
 
 **Result**:
+
 - [ ] ✅ Folder structure `{userId}/{pageId}/{filename}` is required
 - [ ] ✅ Invalid paths are rejected
 
@@ -293,6 +320,7 @@ ORDER BY cmd;
 ```
 
 **Expected result**:
+
 ```
 cmd    | policy_count
 -------+--------------
@@ -315,6 +343,7 @@ WHERE name = 'notebook-photos';
 ```
 
 **Expected result**:
+
 ```
 name             | public
 -----------------+--------
@@ -363,6 +392,7 @@ Once the application code is implemented (T049-T054), verify:
 **Cause**: The bucket hasn't been created yet
 
 **Solution**:
+
 1. Run `./scripts/create-storage-bucket.sh`
 2. Or create manually via dashboard: Storage → New bucket
 
@@ -371,6 +401,7 @@ Once the application code is implemented (T049-T054), verify:
 **Cause**: RLS policies are blocking the operation
 
 **Check**:
+
 1. User is authenticated: `auth.uid()` returns the user's ID
 2. Storage path starts with user's ID: `{userId}/...`
 3. File extension is in allowed list
@@ -382,6 +413,7 @@ Once the application code is implemented (T049-T054), verify:
 **Cause**: RLS is enabled but policies are missing
 
 **Solution**:
+
 1. Run `./scripts/apply-storage-policies.sh`
 2. Or apply manually via SQL Editor
 
@@ -390,6 +422,7 @@ Once the application code is implemented (T049-T054), verify:
 **Cause**: Policy logic may be incorrect
 
 **Check**:
+
 1. Inspect policy `qual` and `with_check` clauses in SQL
 2. Verify `storage.foldername()` function is working correctly
 3. Test with SQL: `SELECT storage.foldername('user-id/page-id/file.jpg');`
