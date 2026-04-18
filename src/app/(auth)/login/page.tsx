@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
@@ -22,10 +23,11 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
       if (signInError) {
         setError(signInError.message);

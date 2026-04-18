@@ -149,15 +149,17 @@ describe('LoginPage', () => {
 
   it('should disable form during submission', async () => {
     const { createClient } = require('@/lib/supabase/client');
-    const mockSignIn = jest.fn().mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () => resolve({ data: { session: {} }, error: null }),
-            100
+    const mockSignIn = jest
+      .fn()
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(
+              () => resolve({ data: { session: {} }, error: null }),
+              100
+            )
           )
-        )
-    );
+      );
 
     createClient.mockReturnValue({
       auth: {
@@ -177,7 +179,9 @@ describe('LoginPage', () => {
     await user.click(submitButton);
 
     // Check that button text changes and inputs are disabled
-    expect(screen.getByRole('button', { name: 'Signing in...' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Signing in...' })
+    ).toBeDisabled();
     expect(emailInput).toBeDisabled();
     expect(passwordInput).toBeDisabled();
   });

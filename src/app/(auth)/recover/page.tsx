@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import type { FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
@@ -196,8 +197,8 @@ export default function RecoverPage() {
 
           <div className="rounded-md bg-green-50 p-4">
             <p className="text-sm text-green-800">
-              Your password has been successfully updated. Redirecting you to your
-              notebook...
+              Your password has been successfully updated. Redirecting you to
+              your notebook...
             </p>
           </div>
         </div>
