@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { PageListItem } from '@/components/layout';
 import { Button } from '@/components/ui';
 import { generateKeyBetween } from '@/lib/utils/fractional-index';
 import type { Page } from '@/types';
+import { PageListWrapper } from './PageListWrapper';
 
 /**
  * Notebook Home Page - Server Component
@@ -155,11 +155,7 @@ export default async function NotebookPage() {
 
       {/* Page List */}
       {pages && pages.length > 0 ? (
-        <div className="space-y-3">
-          {pages.map((page) => (
-            <PageListItem key={page.id} page={page as Page} />
-          ))}
-        </div>
+        <PageListWrapper pages={pages as Page[]} />
       ) : (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-ink-500 text-lg mb-4">
