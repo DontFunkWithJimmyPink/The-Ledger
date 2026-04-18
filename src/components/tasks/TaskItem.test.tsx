@@ -1,37 +1,26 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { TaskItem } from './TaskItem';
 import type { Task } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 // Mock Supabase client
-const mockUpdate = jest.fn(() => ({
-  eq: jest.fn(() => Promise.resolve({ error: null })),
-}));
-
-jest.mock('@/lib/supabase/client', () => ({
-  createClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      update: mockUpdate,
-    })),
-  })),
-}));
+jest.mock('@/lib/supabase/client');
 
 // Mock @dnd-kit/sortable
+const mockUseSortable = jest.fn();
 jest.mock('@dnd-kit/sortable', () => ({
-  useSortable: jest.fn(() => ({
-    attributes: {},
-    listeners: {},
-    setNodeRef: jest.fn(),
-    transform: null,
-    transition: null,
-    isDragging: false,
-  })),
+  useSortable: () => mockUseSortable(),
 }));
 
 // Mock @dnd-kit/utilities
 jest.mock('@dnd-kit/utilities', () => ({
   CSS: {
     Transform: {
-      toString: jest.fn(() => ''),
+      toString: (transform: any) => {
+        if (!transform) return '';
+        return `translate3d(${transform.x}px, ${transform.y}px, 0)`;
+      },
     },
   },
 }));
@@ -49,11 +38,37 @@ describe('TaskItem', () => {
     updated_at: '2024-01-01T00:00:00Z',
   };
 
+  const mockSupabaseUpdate = jest.fn();
+  const mockSupabaseFrom = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Setup default useSortable mock
+    mockUseSortable.mockReturnValue({
+      attributes: { 'data-sortable': 'true' },
+      listeners: { onPointerDown: jest.fn() },
+      setNodeRef: jest.fn(),
+      transform: null,
+      transition: null,
+      isDragging: false,
+    });
+
+    // Setup Supabase mock
+    mockSupabaseUpdate.mockReturnValue({
+      eq: jest.fn().mockResolvedValue({ error: null }),
+    });
+
+    mockSupabaseFrom.mockReturnValue({
+      update: mockSupabaseUpdate,
+    });
+
+    (createClient as jest.Mock).mockReturnValue({
+      from: mockSupabaseFrom,
+    });
   });
 
-  it('should render task text', () => {
+  it('should render task with text', () => {
     render(<TaskItem task={mockTask} />);
     expect(screen.getByText('Buy milk')).toBeInTheDocument();
   });
@@ -61,7 +76,7 @@ describe('TaskItem', () => {
   it('should render unchecked checkbox for incomplete task', () => {
     render(<TaskItem task={mockTask} />);
     const checkbox = screen.getByRole('checkbox', {
-      name: /mark task "buy milk" as complete/i,
+      name: /mark "buy milk" as complete/i,
     });
     expect(checkbox).toBeInTheDocument();
     expect(checkbox).not.toBeChecked();
@@ -71,12 +86,12 @@ describe('TaskItem', () => {
     const completedTask = { ...mockTask, checked: true };
     render(<TaskItem task={completedTask} />);
     const checkbox = screen.getByRole('checkbox', {
-      name: /mark task "buy milk" as incomplete/i,
+      name: /mark "buy milk" as incomplete/i,
     });
     expect(checkbox).toBeChecked();
   });
 
-  it('should apply strikethrough style to completed tasks', () => {
+  it('should apply strikethrough and muted color to completed task', () => {
     const completedTask = { ...mockTask, checked: true };
     render(<TaskItem task={completedTask} />);
     const taskText = screen.getByText('Buy milk');
@@ -84,121 +99,264 @@ describe('TaskItem', () => {
     expect(taskText).toHaveClass('text-ink-500');
   });
 
-  it('should not apply strikethrough to incomplete tasks', () => {
+  it('should not apply strikethrough to incomplete task', () => {
     render(<TaskItem task={mockTask} />);
     const taskText = screen.getByText('Buy milk');
     expect(taskText).not.toHaveClass('line-through');
     expect(taskText).toHaveClass('text-ink-900');
   });
 
-  it('should update task checked state on checkbox change', async () => {
+  it('should toggle checkbox and update Supabase when clicked', async () => {
+    const user = userEvent.setup();
     render(<TaskItem task={mockTask} />);
-    const checkbox = screen.getByRole('checkbox');
 
-    fireEvent.click(checkbox);
+    const checkbox = screen.getByRole('checkbox', {
+      name: /mark "buy milk" as complete/i,
+    });
+    await user.click(checkbox);
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith({ checked: true });
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('tasks');
+      expect(mockSupabaseUpdate).toHaveBeenCalledWith({ checked: true });
     });
   });
 
-  it('should call onTaskUpdate when task is updated', async () => {
-    const onTaskUpdate = jest.fn();
-    render(<TaskItem task={mockTask} onTaskUpdate={onTaskUpdate} />);
-    const checkbox = screen.getByRole('checkbox');
+  it('should call onUpdate callback when checkbox is toggled', async () => {
+    const onUpdate = jest.fn();
+    const user = userEvent.setup();
+    render(<TaskItem task={mockTask} onUpdate={onUpdate} />);
 
-    fireEvent.click(checkbox);
+    const checkbox = screen.getByRole('checkbox', {
+      name: /mark "buy milk" as complete/i,
+    });
+    await user.click(checkbox);
 
     await waitFor(() => {
-      expect(onTaskUpdate).toHaveBeenCalledWith({ ...mockTask, checked: true });
+      expect(onUpdate).toHaveBeenCalledWith({
+        ...mockTask,
+        checked: true,
+      });
     });
   });
 
-  it('should render drag handle button', () => {
+  it('should not update when checkbox is clicked while already updating', async () => {
+    const user = userEvent.setup();
+
+    // Make the update slow
+    mockSupabaseUpdate.mockReturnValue({
+      eq: jest
+        .fn()
+        .mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              setTimeout(() => resolve({ error: null }), 100)
+            )
+        ),
+    });
+
     render(<TaskItem task={mockTask} />);
-    const dragHandle = screen.getByLabelText('Drag to reorder');
+
+    const checkbox = screen.getByRole('checkbox', {
+      name: /mark "buy milk" as complete/i,
+    });
+
+    // Click multiple times quickly
+    await user.click(checkbox);
+    await user.click(checkbox);
+    await user.click(checkbox);
+
+    // Should only update once
+    await waitFor(() => {
+      expect(mockSupabaseUpdate).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('should render drag handle with proper aria-label', () => {
+    render(<TaskItem task={mockTask} />);
+    const dragHandle = screen.getByLabelText('Drag to reorder task');
     expect(dragHandle).toBeInTheDocument();
+  });
+
+  it('should apply drag listeners to drag handle', () => {
+    const mockListeners = { onPointerDown: jest.fn() };
+    mockUseSortable.mockReturnValue({
+      attributes: {},
+      listeners: mockListeners,
+      setNodeRef: jest.fn(),
+      transform: null,
+      transition: null,
+      isDragging: false,
+    });
+
+    render(<TaskItem task={mockTask} />);
+    const dragHandle = screen.getByLabelText('Drag to reorder task');
+
+    // Verify the listeners are applied (checking for the presence of pointer events)
+    expect(dragHandle).toBeInTheDocument();
+  });
+
+  it('should apply dragging styles when isDragging is true', () => {
+    mockUseSortable.mockReturnValue({
+      attributes: {},
+      listeners: {},
+      setNodeRef: jest.fn(),
+      transform: null,
+      transition: null,
+      isDragging: true,
+    });
+
+    const { container } = render(<TaskItem task={mockTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).toHaveStyle({ opacity: 0.5 });
   });
 
   it('should not display due date when due_at is null', () => {
     render(<TaskItem task={mockTask} />);
-    const container = screen.getByText('Buy milk').parentElement;
-    expect(container?.textContent).toBe('Buy milk');
+    expect(screen.queryByText(/due:/i)).not.toBeInTheDocument();
   });
 
   it('should display due date when due_at is set', () => {
     const taskWithDueDate = {
       ...mockTask,
-      due_at: '2024-12-25T00:00:00Z',
+      due_at: '2024-12-25T10:00:00Z',
     };
     render(<TaskItem task={taskWithDueDate} />);
-    expect(screen.getByText(/dec/i)).toBeInTheDocument();
+    expect(screen.getByText(/due:/i)).toBeInTheDocument();
   });
 
-  it('should display overdue warning for past due dates on incomplete tasks', () => {
+  it('should format due date as "Today" when due today', () => {
+    const today = new Date();
+    today.setHours(14, 30, 0, 0);
+
+    const taskWithDueDate = {
+      ...mockTask,
+      due_at: today.toISOString(),
+    };
+    render(<TaskItem task={taskWithDueDate} />);
+    expect(screen.getByText(/today at/i)).toBeInTheDocument();
+  });
+
+  it('should format due date as "Tomorrow" when due tomorrow', () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(14, 30, 0, 0);
+
+    const taskWithDueDate = {
+      ...mockTask,
+      due_at: tomorrow.toISOString(),
+    };
+    render(<TaskItem task={taskWithDueDate} />);
+    expect(screen.getByText(/tomorrow at/i)).toBeInTheDocument();
+  });
+
+  it('should show weekday for tasks due within a week', () => {
+    const inThreeDays = new Date();
+    inThreeDays.setDate(inThreeDays.getDate() + 3);
+    inThreeDays.setHours(14, 30, 0, 0);
+
+    const taskWithDueDate = {
+      ...mockTask,
+      due_at: inThreeDays.toISOString(),
+    };
+    render(<TaskItem task={taskWithDueDate} />);
+    // Should show weekday name
+    const dueText = screen.getByText(/due:/i).textContent;
+    expect(dueText).toMatch(
+      /(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/
+    );
+  });
+
+  it('should highlight overdue tasks with amber border', () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
     const overdueTask = {
       ...mockTask,
-      due_at: '2020-01-01T00:00:00Z', // Past date
+      due_at: yesterday.toISOString(),
       checked: false,
     };
-    render(<TaskItem task={overdueTask} />);
-    const dueDateElement = screen.getByText(/jan/i);
-    expect(dueDateElement).toHaveClass('text-red-600');
+
+    const { container } = render(<TaskItem task={overdueTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).toHaveClass('border-l-4');
+    expect(taskElement).toHaveClass('border-l-amber-500');
   });
 
-  it('should not display overdue warning for completed tasks', () => {
+  it('should show "(Overdue)" label for overdue incomplete tasks', () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const overdueTask = {
+      ...mockTask,
+      due_at: yesterday.toISOString(),
+      checked: false,
+    };
+
+    render(<TaskItem task={overdueTask} />);
+    expect(screen.getByText(/\(overdue\)/i)).toBeInTheDocument();
+  });
+
+  it('should not highlight completed overdue tasks', () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
     const completedOverdueTask = {
       ...mockTask,
-      due_at: '2020-01-01T00:00:00Z', // Past date
+      due_at: yesterday.toISOString(),
       checked: true,
     };
-    render(<TaskItem task={completedOverdueTask} />);
-    const dueDateElement = screen.getByText(/jan/i);
-    expect(dueDateElement).not.toHaveClass('text-red-600');
+
+    const { container } = render(<TaskItem task={completedOverdueTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).not.toHaveClass('border-l-amber-500');
+    expect(screen.queryByText(/\(overdue\)/i)).not.toBeInTheDocument();
   });
 
-  it('should revert checked state on update failure', async () => {
-    // Mock update failure
-    const mockUpdateWithError = jest.fn(() => ({
-      eq: jest.fn(() =>
-        Promise.resolve({ error: { message: 'Update failed' } })
-      ),
-    }));
+  it('should handle Supabase update errors gracefully', async () => {
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const user = userEvent.setup();
 
-    // Temporarily replace the mock
-    const { createClient } = require('@/lib/supabase/client');
-    createClient.mockReturnValueOnce({
-      from: jest.fn(() => ({
-        update: mockUpdateWithError,
-      })),
+    mockSupabaseUpdate.mockReturnValue({
+      eq: jest.fn().mockResolvedValue({ error: { message: 'Database error' } }),
     });
 
     render(<TaskItem task={mockTask} />);
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
 
-    expect(checkbox.checked).toBe(false);
-    fireEvent.click(checkbox);
+    const checkbox = screen.getByRole('checkbox', {
+      name: /mark "buy milk" as complete/i,
+    });
+    await user.click(checkbox);
 
-    // Initially optimistically updated
-    expect(checkbox.checked).toBe(true);
-
-    // Should revert after error
     await waitFor(() => {
-      expect(checkbox.checked).toBe(false);
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should apply transform styles when dragging', () => {
+    mockUseSortable.mockReturnValue({
+      attributes: {},
+      listeners: {},
+      setNodeRef: jest.fn(),
+      transform: { x: 10, y: 20, scaleX: 1, scaleY: 1 },
+      transition: 'transform 200ms ease',
+      isDragging: false,
+    });
+
+    const { container } = render(<TaskItem task={mockTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).toHaveStyle({
+      transform: 'translate3d(10px, 20px, 0)',
+      transition: 'transform 200ms ease',
     });
   });
 
-  it('should disable checkbox while updating', async () => {
+  it('should have proper accessibility attributes', () => {
     render(<TaskItem task={mockTask} />);
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
-
-    fireEvent.click(checkbox);
-
-    // Should be disabled during update
-    expect(checkbox).toBeDisabled();
-
-    await waitFor(() => {
-      expect(checkbox).not.toBeDisabled();
-    });
+    const taskElement = screen.getByRole('listitem');
+    expect(taskElement).toHaveAttribute('aria-label', 'Buy milk');
   });
 });

@@ -2,34 +2,28 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import type { Task } from '@/types';
+import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 
 export interface TaskItemProps {
   task: Task;
-  onTaskUpdate?: (task: Task) => void;
+  onUpdate?: (task: Task) => void;
 }
 
 /**
- * TaskItem - Individual task row with checkbox and drag handle
+ * TaskItem Component
  *
- * Renders a checkbox that toggles the checked state, task text,
- * and due date display. Uses @dnd-kit/sortable for drag-and-drop reordering.
- *
- * Completed tasks are visually distinguished with strikethrough and muted color.
- *
- * @example
- * ```tsx
- * <TaskItem
- *   task={task}
- *   onTaskUpdate={(updatedTask) => console.log('Task updated', updatedTask)}
- * />
- * ```
+ * Renders a single task item with:
+ * - Checkbox that toggles checked state via Supabase update
+ * - Task text display
+ * - Due date display area (if due_at exists)
+ * - Drag handle via @dnd-kit/sortable
+ * - Visual distinction for completed tasks (strikethrough + muted color)
  */
-export function TaskItem({ task, onTaskUpdate }: TaskItemProps) {
-  const [isChecked, setIsChecked] = useState(task.checked);
+export function TaskItem({ task, onUpdate }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const supabase = createClient();
 
   const {
     attributes,
@@ -38,7 +32,9 @@ export function TaskItem({ task, onTaskUpdate }: TaskItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: task.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,105 +42,144 @@ export function TaskItem({ task, onTaskUpdate }: TaskItemProps) {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleCheckboxChange = async (checked: boolean) => {
-    setIsChecked(checked);
+  const handleCheckboxChange = async () => {
+    if (isUpdating) return;
+
     setIsUpdating(true);
+    const newCheckedState = !task.checked;
 
     try {
-      const supabase = createClient();
       const { error } = await supabase
         .from('tasks')
-        .update({ checked })
+        .update({ checked: newCheckedState })
         .eq('id', task.id);
 
       if (error) {
-        console.error('Failed to update task checked state:', error);
-        // Revert optimistic update
-        setIsChecked(!checked);
-      } else {
-        // Notify parent of update
-        onTaskUpdate?.({ ...task, checked });
+        console.error('Failed to update task:', error);
+        return;
+      }
+
+      // Notify parent component of the update
+      if (onUpdate) {
+        onUpdate({ ...task, checked: newCheckedState });
       }
     } catch (err) {
-      console.error('Failed to update task checked state:', err);
-      // Revert optimistic update
-      setIsChecked(!checked);
+      console.error('Failed to update task:', err);
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const formatDueDate = (dueAt: string | null) => {
-    if (!dueAt) return null;
-
-    const date = new Date(dueAt);
-    const now = new Date();
-    const isOverdue = date < now && !isChecked;
-
-    const formattedDate = date.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
-    });
-
-    return (
-      <span
-        className={`ml-2 text-xs ${
-          isOverdue ? 'text-red-600 font-medium' : 'text-ink-500'
-        }`}
-      >
-        {isOverdue && '⚠️ '}
-        {formattedDate}
-      </span>
-    );
-  };
+  // Check if task is overdue
+  const isOverdue =
+    task.due_at && !task.checked && new Date(task.due_at) < new Date();
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 py-2 px-3 bg-cream-50 rounded hover:bg-cream-100 transition-colors"
+      className={`
+        flex items-start gap-3 px-4 py-3 rounded-md border border-leather-300 bg-cream-50
+        ${isDragging ? 'shadow-lg' : 'shadow-sm'}
+        ${isOverdue ? 'border-l-4 border-l-amber-500' : ''}
+      `}
+      role="listitem"
+      aria-label={task.text}
     >
-      {/* Drag handle */}
+      {/* Drag Handle */}
       <button
+        type="button"
+        className="cursor-grab active:cursor-grabbing text-leather-500 hover:text-leather-700 mt-1"
+        aria-label="Drag to reorder task"
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-ink-500 hover:text-ink-900 p-1"
-        aria-label="Drag to reorder"
       >
         <svg
           width="16"
           height="16"
           viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          aria-hidden="true"
         >
-          <path
-            d="M6 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm7-10a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
-            fill="currentColor"
-          />
+          <circle cx="4" cy="4" r="1.5" />
+          <circle cx="4" cy="8" r="1.5" />
+          <circle cx="4" cy="12" r="1.5" />
+          <circle cx="12" cy="4" r="1.5" />
+          <circle cx="12" cy="8" r="1.5" />
+          <circle cx="12" cy="12" r="1.5" />
         </svg>
       </button>
 
       {/* Checkbox */}
       <input
         type="checkbox"
-        checked={isChecked}
-        onChange={(e) => handleCheckboxChange(e.target.checked)}
+        checked={task.checked}
+        onChange={handleCheckboxChange}
         disabled={isUpdating}
-        className="w-4 h-4 text-leather-700 bg-cream-50 border-ink-500 rounded focus:ring-leather-500 focus:ring-2 cursor-pointer disabled:opacity-50"
-        aria-label={`Mark task "${task.text}" as ${isChecked ? 'incomplete' : 'complete'}`}
+        className="mt-1 w-4 h-4 rounded border-leather-500 text-leather-700 focus:ring-2 focus:ring-leather-500 focus:ring-offset-2 cursor-pointer disabled:opacity-50"
+        aria-label={`Mark "${task.text}" as ${task.checked ? 'incomplete' : 'complete'}`}
       />
 
-      {/* Task text */}
-      <span
-        className={`flex-1 text-sm font-sans ${isChecked ? 'line-through text-ink-500' : 'text-ink-900'}`}
-      >
-        {task.text}
-      </span>
+      {/* Task Content */}
+      <div className="flex-1 min-w-0">
+        {/* Task Text */}
+        <p
+          className={`
+            text-sm leading-relaxed
+            ${task.checked ? 'line-through text-ink-500' : 'text-ink-900'}
+          `}
+        >
+          {task.text}
+        </p>
 
-      {/* Due date display */}
-      {formatDueDate(task.due_at)}
+        {/* Due Date Display */}
+        {task.due_at && (
+          <div
+            className={`
+              mt-1 text-xs
+              ${isOverdue && !task.checked ? 'text-amber-700 font-medium' : 'text-ink-500'}
+            `}
+          >
+            Due: {formatDueDate(task.due_at)}
+            {isOverdue && !task.checked && ' (Overdue)'}
+          </div>
+        )}
+      </div>
     </div>
   );
+}
+
+/**
+ * Format due date for display
+ * Returns a human-readable date string
+ */
+function formatDueDate(dueAt: string): string {
+  const date = new Date(dueAt);
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  // If today
+  if (diffDays === 0) {
+    return `Today at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  }
+
+  // If tomorrow
+  if (diffDays === 1) {
+    return `Tomorrow at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  }
+
+  // If within a week
+  if (diffDays > 0 && diffDays <= 7) {
+    return `${date.toLocaleDateString('en-US', { weekday: 'long' })} at ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  }
+
+  // Default: full date
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
