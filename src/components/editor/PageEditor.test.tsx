@@ -565,10 +565,6 @@ describe('PageEditor - Inline Title Editing (T037)', () => {
     });
 
     it('should handle Supabase update errors gracefully', () => {
-      const mockToastError = toast.error as jest.MockedFunction<
-        typeof toast.error
-      >;
-
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
 
       const titleInput = screen.getByDisplayValue(
