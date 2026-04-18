@@ -35,12 +35,19 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
   const supabase = createClient();
 
   // Initialize Tiptap editor
+  // T035: StarterKit configuration ensures all required extensions are enabled:
+  // - heading (levels 1-3) - explicitly configured below
+  // - bold, italic, blockquote, bulletList, orderedList, hardBreak, horizontalRule
+  //   are all enabled by default in StarterKit (not explicitly disabled)
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
         },
+        // All other StarterKit extensions enabled by default:
+        // bold, italic, blockquote, bulletList, orderedList, hardBreak,
+        // horizontalRule, paragraph, text, code, codeBlock, strike, history, etc.
       }),
       TaskList,
       CustomTaskItem.configure({
