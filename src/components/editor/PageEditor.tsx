@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { extractTaskItems } from '@/lib/utils/content';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
+import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import type { Page } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -181,6 +182,9 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
           placeholder="Untitled"
         />
       </div>
+
+      {/* Editor Toolbar */}
+      <EditorToolbar editor={editor} />
 
       {/* Save status indicator */}
       <div className="px-4 py-2 border-b border-leather-300 bg-cream-100">
