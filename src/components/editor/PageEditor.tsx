@@ -3,13 +3,13 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
-import TaskItem from '@tiptap/extension-task-item';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { extractTaskItems } from '@/lib/utils/content';
+import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import type { Page } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -21,9 +21,10 @@ export interface PageEditorProps {
 /**
  * PageEditor Component
  *
- * Client component that initializes Tiptap editor with StarterKit, TaskList, TaskItem,
- * Image, and Placeholder extensions. Wires content changes to useAutosave for debounced
- * saving. Handles inline title editing with debounced updates.
+ * Client component that initializes Tiptap editor with StarterKit, TaskList,
+ * CustomTaskItem (with dueDate support), Image, and Placeholder extensions.
+ * Wires content changes to useAutosave for debounced saving. Handles inline
+ * title editing with debounced updates.
  */
 export function PageEditor({ pageId, initialPage }: PageEditorProps) {
   const [title, setTitle] = useState<string>(initialPage.title);
@@ -41,7 +42,7 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
         },
       }),
       TaskList,
-      TaskItem.configure({
+      CustomTaskItem.configure({
         nested: true,
       }),
       Image,
