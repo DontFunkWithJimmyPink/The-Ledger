@@ -498,4 +498,247 @@ describe('useAutosave', () => {
       });
     });
   });
+
+  describe('jitter functionality', () => {
+    beforeEach(() => {
+      // Mock Math.random for deterministic tests
+      jest.spyOn(Math, 'random');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should use exact delay when jitter is 0 (default)', async () => {
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() => useAutosave({ onSave, delay: 500 }));
+
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Should not fire before 500ms
+      act(() => {
+        jest.advanceTimersByTime(499);
+      });
+      expect(onSave).not.toHaveBeenCalled();
+
+      // Should fire at exactly 500ms
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should apply positive jitter correctly', async () => {
+      // Mock Math.random to return 0.75 (will add +25ms to a 100ms jitter)
+      (Math.random as jest.Mock).mockReturnValue(0.75);
+
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() =>
+        useAutosave({ onSave, delay: 500, jitter: 100 })
+      );
+
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Calculate expected delay: 500 + (0.75 - 0.5) * 100 = 500 + 25 = 525ms
+      act(() => {
+        jest.advanceTimersByTime(524);
+      });
+      expect(onSave).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should apply negative jitter correctly', async () => {
+      // Mock Math.random to return 0.25 (will subtract 25ms from a 100ms jitter)
+      (Math.random as jest.Mock).mockReturnValue(0.25);
+
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() =>
+        useAutosave({ onSave, delay: 500, jitter: 100 })
+      );
+
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Calculate expected delay: 500 + (0.25 - 0.5) * 100 = 500 - 25 = 475ms
+      act(() => {
+        jest.advanceTimersByTime(474);
+      });
+      expect(onSave).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should ensure final delay is never negative', async () => {
+      // Mock Math.random to return 0 (maximum negative jitter)
+      (Math.random as jest.Mock).mockReturnValue(0);
+
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      // Use small delay with large jitter to test edge case
+      const { result } = renderHook(() =>
+        useAutosave({ onSave, delay: 10, jitter: 100 })
+      );
+
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Even with large negative jitter, delay should be at least 0
+      // Expected: max(0, 10 + (0 - 0.5) * 100) = max(0, -40) = 0
+      act(() => {
+        jest.advanceTimersByTime(0);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should apply different jitter on each trigger', async () => {
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() =>
+        useAutosave({ onSave, delay: 500, jitter: 100 })
+      );
+
+      // First trigger with random = 0.75 (+25ms jitter)
+      (Math.random as jest.Mock).mockReturnValueOnce(0.75);
+      act(() => {
+        result.current.trigger();
+        jest.advanceTimersByTime(525);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Second trigger with random = 0.25 (-25ms jitter)
+      (Math.random as jest.Mock).mockReturnValueOnce(0.25);
+      act(() => {
+        result.current.trigger();
+        jest.advanceTimersByTime(475);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('should work correctly with custom delay and jitter values', async () => {
+      // Mock Math.random to return 0.5 (no jitter adjustment)
+      (Math.random as jest.Mock).mockReturnValue(0.5);
+
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() =>
+        useAutosave({ onSave, delay: 1000, jitter: 200 })
+      );
+
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Calculate expected delay: 1000 + (0.5 - 0.5) * 200 = 1000ms
+      act(() => {
+        jest.advanceTimersByTime(999);
+      });
+      expect(onSave).not.toHaveBeenCalled();
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should prevent coordinated request storms with multiple concurrent instances', async () => {
+      // Create three separate autosave instances with jitter
+      const onSave1 = jest.fn().mockResolvedValue(undefined);
+      const onSave2 = jest.fn().mockResolvedValue(undefined);
+      const onSave3 = jest.fn().mockResolvedValue(undefined);
+
+      // Mock different random values for each instance
+      (Math.random as jest.Mock)
+        .mockReturnValueOnce(0.25) // Instance 1: -25ms jitter (475ms total)
+        .mockReturnValueOnce(0.5) // Instance 2: 0ms jitter (500ms total)
+        .mockReturnValueOnce(0.75); // Instance 3: +25ms jitter (525ms total)
+
+      const { result: result1 } = renderHook(() =>
+        useAutosave({ onSave: onSave1, delay: 500, jitter: 100 })
+      );
+      const { result: result2 } = renderHook(() =>
+        useAutosave({ onSave: onSave2, delay: 500, jitter: 100 })
+      );
+      const { result: result3 } = renderHook(() =>
+        useAutosave({ onSave: onSave3, delay: 500, jitter: 100 })
+      );
+
+      // Trigger all three at the same time (simulating multiple open pages)
+      act(() => {
+        result1.current.trigger();
+        result2.current.trigger();
+        result3.current.trigger();
+      });
+
+      // At 474ms: no saves should have fired yet
+      act(() => {
+        jest.advanceTimersByTime(474);
+      });
+      expect(onSave1).not.toHaveBeenCalled();
+      expect(onSave2).not.toHaveBeenCalled();
+      expect(onSave3).not.toHaveBeenCalled();
+
+      // At 475ms: first instance should fire
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      await waitFor(() => {
+        expect(onSave1).toHaveBeenCalledTimes(1);
+      });
+      expect(onSave2).not.toHaveBeenCalled();
+      expect(onSave3).not.toHaveBeenCalled();
+
+      // At 500ms: second instance should fire
+      act(() => {
+        jest.advanceTimersByTime(25);
+      });
+      await waitFor(() => {
+        expect(onSave2).toHaveBeenCalledTimes(1);
+      });
+      expect(onSave3).not.toHaveBeenCalled();
+
+      // At 525ms: third instance should fire
+      act(() => {
+        jest.advanceTimersByTime(25);
+      });
+      await waitFor(() => {
+        expect(onSave3).toHaveBeenCalledTimes(1);
+      });
+
+      // Verify all saves completed at different times (no coordinated storm)
+      expect(onSave1).toHaveBeenCalledTimes(1);
+      expect(onSave2).toHaveBeenCalledTimes(1);
+      expect(onSave3).toHaveBeenCalledTimes(1);
+    });
+  });
 });

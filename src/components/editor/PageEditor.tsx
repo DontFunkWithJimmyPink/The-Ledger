@@ -137,6 +137,7 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       }
     },
     delay: 500,
+    jitter: 100, // Add ±50ms jitter to prevent request storms when multiple pages are open
   });
 
   // Trigger autosave when content changes
