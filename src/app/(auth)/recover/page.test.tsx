@@ -155,7 +155,9 @@ describe('RecoverPage', () => {
       render(<RecoverPage />);
 
       const newPasswordInput = screen.getByLabelText('New password');
-      const confirmPasswordInput = screen.getByLabelText('Confirm new password');
+      const confirmPasswordInput = screen.getByLabelText(
+        'Confirm new password'
+      );
       const submitButton = screen.getByRole('button', {
         name: 'Update password',
       });
@@ -185,7 +187,9 @@ describe('RecoverPage', () => {
       render(<RecoverPage />);
 
       const newPasswordInput = screen.getByLabelText('New password');
-      const confirmPasswordInput = screen.getByLabelText('Confirm new password');
+      const confirmPasswordInput = screen.getByLabelText(
+        'Confirm new password'
+      );
       const submitButton = screen.getByRole('button', {
         name: 'Update password',
       });
@@ -204,7 +208,9 @@ describe('RecoverPage', () => {
       render(<RecoverPage />);
 
       const newPasswordInput = screen.getByLabelText('New password');
-      const confirmPasswordInput = screen.getByLabelText('Confirm new password');
+      const confirmPasswordInput = screen.getByLabelText(
+        'Confirm new password'
+      );
       const submitButton = screen.getByRole('button', {
         name: 'Update password',
       });
@@ -236,7 +242,9 @@ describe('RecoverPage', () => {
       render(<RecoverPage />);
 
       const newPasswordInput = screen.getByLabelText('New password');
-      const confirmPasswordInput = screen.getByLabelText('Confirm new password');
+      const confirmPasswordInput = screen.getByLabelText(
+        'Confirm new password'
+      );
       const submitButton = screen.getByRole('button', {
         name: 'Update password',
       });
@@ -267,7 +275,9 @@ describe('RecoverPage', () => {
     render(<RecoverPage />);
 
     const emailInput = screen.getByLabelText('Email address');
-    const submitButton = screen.getByRole('button', { name: 'Send reset link' });
+    const submitButton = screen.getByRole('button', {
+      name: 'Send reset link',
+    });
 
     await user.type(emailInput, 'test@example.com');
     await user.click(submitButton);

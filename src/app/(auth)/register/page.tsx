@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
@@ -77,8 +78,8 @@ export default function RegisterPage() {
 
           <div className="rounded-md bg-green-50 p-4">
             <p className="text-sm text-green-800">
-              We've sent you an email with a confirmation link. Please check your
-              inbox and click the link to activate your account.
+              We've sent you an email with a confirmation link. Please check
+              your inbox and click the link to activate your account.
             </p>
           </div>
 

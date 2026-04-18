@@ -152,12 +152,14 @@ describe('RegisterPage', () => {
 
   it('should disable form during submission', async () => {
     const { createClient } = require('@/lib/supabase/client');
-    const mockSignUp = jest.fn().mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve({ data: { user: {} }, error: null }), 100)
-        )
-    );
+    const mockSignUp = jest
+      .fn()
+      .mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ data: { user: {} }, error: null }), 100)
+          )
+      );
 
     createClient.mockReturnValue({
       auth: {

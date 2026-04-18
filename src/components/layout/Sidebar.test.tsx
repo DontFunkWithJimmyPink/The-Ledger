@@ -20,7 +20,9 @@ describe('Sidebar', () => {
   it('should render navigation items', () => {
     render(<Sidebar />);
     expect(screen.getByRole('link', { name: /notebook/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /reminders/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /reminders/i })
+    ).toBeInTheDocument();
   });
 
   it('should highlight active navigation item', () => {

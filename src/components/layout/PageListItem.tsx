@@ -20,7 +20,8 @@ function formatRelativeTime(dateString: string): string {
 
   if (diffSeconds < 60) return 'Just now';
   if (diffMinutes < 60) return `${diffMinutes} min ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  if (diffHours < 24)
+    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
   if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 
   // For older dates, show formatted date
