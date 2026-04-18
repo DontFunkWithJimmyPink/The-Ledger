@@ -10,7 +10,9 @@ interface ChainMock {
   toggleItalic: jest.Mock;
   toggleHeading: jest.Mock;
   toggleBulletList: jest.Mock;
+  toggleOrderedList: jest.Mock;
   toggleTaskList: jest.Mock;
+  toggleBlockquote: jest.Mock;
   run: jest.Mock;
 }
 
@@ -30,7 +32,9 @@ describe('EditorToolbar', () => {
       toggleItalic: jest.fn().mockReturnThis(),
       toggleHeading: jest.fn().mockReturnThis(),
       toggleBulletList: jest.fn().mockReturnThis(),
+      toggleOrderedList: jest.fn().mockReturnThis(),
       toggleTaskList: jest.fn().mockReturnThis(),
+      toggleBlockquote: jest.fn().mockReturnThis(),
       run: jest.fn(),
     };
 
@@ -55,7 +59,9 @@ describe('EditorToolbar', () => {
     expect(screen.getByLabelText('Toggle heading 1')).toBeInTheDocument();
     expect(screen.getByLabelText('Toggle heading 2')).toBeInTheDocument();
     expect(screen.getByLabelText('Toggle bullet list')).toBeInTheDocument();
+    expect(screen.getByLabelText('Toggle ordered list')).toBeInTheDocument();
     expect(screen.getByLabelText('Toggle task list')).toBeInTheDocument();
+    expect(screen.getByLabelText('Toggle block quote')).toBeInTheDocument();
   });
 
   it('should return null when editor is null', () => {
@@ -151,6 +157,34 @@ describe('EditorToolbar', () => {
     expect(editor._chainMock.run).toHaveBeenCalled();
   });
 
+  it('should call toggleOrderedList when Ordered List button is clicked', async () => {
+    const editor = createMockEditor();
+    const user = userEvent.setup();
+    render(<EditorToolbar editor={editor} />);
+
+    const orderedListButton = screen.getByLabelText('Toggle ordered list');
+    await user.click(orderedListButton);
+
+    expect(editor.chain).toHaveBeenCalled();
+    expect(editor._chainMock.focus).toHaveBeenCalled();
+    expect(editor._chainMock.toggleOrderedList).toHaveBeenCalled();
+    expect(editor._chainMock.run).toHaveBeenCalled();
+  });
+
+  it('should call toggleBlockquote when Block Quote button is clicked', async () => {
+    const editor = createMockEditor();
+    const user = userEvent.setup();
+    render(<EditorToolbar editor={editor} />);
+
+    const blockQuoteButton = screen.getByLabelText('Toggle block quote');
+    await user.click(blockQuoteButton);
+
+    expect(editor.chain).toHaveBeenCalled();
+    expect(editor._chainMock.focus).toHaveBeenCalled();
+    expect(editor._chainMock.toggleBlockquote).toHaveBeenCalled();
+    expect(editor._chainMock.run).toHaveBeenCalled();
+  });
+
   it('should highlight Bold button when bold is active', () => {
     const editor = createMockEditor({ bold: true });
     render(<EditorToolbar editor={editor} />);
@@ -197,6 +231,22 @@ describe('EditorToolbar', () => {
 
     const taskListButton = screen.getByLabelText('Toggle task list');
     expect(taskListButton).toHaveClass('bg-cream-200');
+  });
+
+  it('should highlight Ordered List button when orderedList is active', () => {
+    const editor = createMockEditor({ orderedList: true });
+    render(<EditorToolbar editor={editor} />);
+
+    const orderedListButton = screen.getByLabelText('Toggle ordered list');
+    expect(orderedListButton).toHaveClass('bg-cream-200');
+  });
+
+  it('should highlight Block Quote button when blockquote is active', () => {
+    const editor = createMockEditor({ blockquote: true });
+    render(<EditorToolbar editor={editor} />);
+
+    const blockQuoteButton = screen.getByLabelText('Toggle block quote');
+    expect(blockQuoteButton).toHaveClass('bg-cream-200');
   });
 
   it('should not highlight buttons when nothing is active', () => {

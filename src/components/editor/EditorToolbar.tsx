@@ -12,7 +12,7 @@ export interface EditorToolbarProps {
  *
  * Renders formatting buttons for the Tiptap editor using editor.chain() commands.
  * Shows active state via editor.isActive() for visual feedback.
- * Supports Bold, Italic, Heading 1/2, BulletList, and TaskList toggles.
+ * Supports Bold, Italic, Heading 1/2, BulletList, OrderedList, TaskList, and BlockQuote toggles.
  */
 export function EditorToolbar({ editor }: EditorToolbarProps) {
   if (!editor) {
@@ -97,6 +97,20 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <span>•</span>
       </Button>
 
+      {/* Ordered List */}
+      <Button
+        variant="ghost"
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        className={`px-3 py-1 min-w-0 ${
+          editor.isActive('orderedList') ? 'bg-cream-200' : ''
+        }`}
+        type="button"
+        aria-label="Toggle ordered list"
+        title="Ordered List (Ctrl+Shift+7)"
+      >
+        <span>1.</span>
+      </Button>
+
       {/* Task List */}
       <Button
         variant="ghost"
@@ -109,6 +123,23 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         title="Task List (Ctrl+Shift+9)"
       >
         <span>☑</span>
+      </Button>
+
+      {/* Divider */}
+      <div className="w-px h-6 bg-leather-300 mx-1" />
+
+      {/* Block Quote */}
+      <Button
+        variant="ghost"
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={`px-3 py-1 min-w-0 ${
+          editor.isActive('blockquote') ? 'bg-cream-200' : ''
+        }`}
+        type="button"
+        aria-label="Toggle block quote"
+        title="Block Quote (Ctrl+Shift+B)"
+      >
+        <span>&ldquo;</span>
       </Button>
     </div>
   );
