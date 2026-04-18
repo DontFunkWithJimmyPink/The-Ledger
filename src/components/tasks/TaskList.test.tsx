@@ -3,7 +3,7 @@ import { TaskList } from './TaskList';
 import type { Task } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { generateKeyBetween } from '@/lib/utils/fractional-index';
-import { DragEndEvent } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/client');
@@ -28,7 +28,9 @@ jest.mock('@dnd-kit/sortable', () => ({
 }));
 
 // Mock @dnd-kit/core
-const mockDndContext: { current: { onDragEnd?: (event: DragEndEvent) => void } } = { current: {} };
+const mockDndContext: {
+  current: { onDragEnd?: (event: DragEndEvent) => void };
+} = { current: {} };
 jest.mock('@dnd-kit/core', () => ({
   DndContext: ({ children, onDragEnd }: any) => {
     mockDndContext.current = { onDragEnd };
@@ -153,8 +155,17 @@ describe('TaskList', () => {
     render(<TaskList tasks={mockTasks} />);
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-1', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       activatorEvent: {} as any,
       collisions: null,
@@ -174,7 +185,11 @@ describe('TaskList', () => {
     render(<TaskList tasks={mockTasks} />);
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
       over: null,
       delta: { x: 0, y: 0 },
       activatorEvent: {} as any,
@@ -196,8 +211,17 @@ describe('TaskList', () => {
 
     // Drag task-2 to the beginning (before task-1)
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-2', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-1', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-2',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: -50 },
       activatorEvent: {} as any,
       collisions: null,
@@ -223,8 +247,17 @@ describe('TaskList', () => {
 
     // Drag task-1 to the end (after task-3)
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-3', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-3',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: 100 },
       activatorEvent: {} as any,
       collisions: null,
@@ -249,8 +282,17 @@ describe('TaskList', () => {
 
     // Drag task-3 between task-1 and task-2
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-3', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-2', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-3',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-2',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: -50 },
       activatorEvent: {} as any,
       collisions: null,
@@ -275,8 +317,17 @@ describe('TaskList', () => {
     render(<TaskList tasks={mockTasks} onTasksReorder={onTasksReorder} />);
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-2', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-2',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: 50 },
       activatorEvent: {} as any,
       collisions: null,
@@ -305,8 +356,17 @@ describe('TaskList', () => {
     render(<TaskList tasks={mockTasks} />);
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-2', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-2',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: 50 },
       activatorEvent: {} as any,
       collisions: null,
@@ -340,8 +400,17 @@ describe('TaskList', () => {
     render(<TaskList tasks={mockTasks} />);
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'task-1', data: { current: {} }, rect: { current: { initial: null, translated: null } } },
-      over: { id: 'task-2', data: { current: {} }, rect: {} as ClientRect, disabled: false },
+      active: {
+        id: 'task-1',
+        data: { current: {} },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'task-2',
+        data: { current: {} },
+        rect: {} as ClientRect,
+        disabled: false,
+      },
       delta: { x: 0, y: 50 },
       activatorEvent: {} as any,
       collisions: null,
