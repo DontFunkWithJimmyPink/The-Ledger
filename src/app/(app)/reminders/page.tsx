@@ -76,16 +76,16 @@ export default async function RemindersPage() {
       page_id: string | null;
       fire_at: string;
       status: string;
-      tasks?: { text: string } | null;
-      pages?: { title: string } | null;
+      tasks: { text: string }[] | null;
+      pages: { title: string }[] | null;
     }) => ({
       id: reminder.id,
       task_id: reminder.task_id,
       page_id: reminder.page_id,
       fire_at: reminder.fire_at,
       status: reminder.status,
-      task_text: reminder.tasks?.text || null,
-      page_title: reminder.pages?.title || null,
+      task_text: reminder.tasks?.[0]?.text || null,
+      page_title: reminder.pages?.[0]?.title || null,
     })
   );
 
