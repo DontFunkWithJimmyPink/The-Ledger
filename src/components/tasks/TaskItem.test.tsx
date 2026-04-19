@@ -267,12 +267,12 @@ describe('TaskItem', () => {
   });
 
   it('should highlight overdue tasks with amber border', () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    const sixHoursAgo = new Date();
+    sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
 
     const overdueTask = {
       ...mockTask,
-      due_at: yesterday.toISOString(),
+      due_at: sixHoursAgo.toISOString(),
       checked: false,
     };
 
@@ -310,6 +310,60 @@ describe('TaskItem', () => {
     const taskElement = container.querySelector('[role="listitem"]');
     expect(taskElement).not.toHaveClass('border-l-amber-500');
     expect(screen.queryByText(/\(overdue\)/i)).not.toBeInTheDocument();
+  });
+
+  it('should highlight severely overdue tasks (24+ hours) with red border', () => {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    const severelyOverdueTask = {
+      ...mockTask,
+      due_at: twoDaysAgo.toISOString(),
+      checked: false,
+    };
+
+    const { container } = render(<TaskItem task={severelyOverdueTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).toHaveClass('border-l-4');
+    expect(taskElement).toHaveClass('border-l-red-500');
+    expect(taskElement).not.toHaveClass('border-l-amber-500');
+  });
+
+  it('should show red text for severely overdue tasks', () => {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    const severelyOverdueTask = {
+      ...mockTask,
+      due_at: twoDaysAgo.toISOString(),
+      checked: false,
+    };
+
+    render(<TaskItem task={severelyOverdueTask} />);
+    const dueText = screen.getByText(/due:/i);
+    expect(dueText).toHaveClass('text-red-700');
+    expect(dueText).toHaveClass('font-medium');
+  });
+
+  it('should use amber for recently overdue tasks (less than 24 hours)', () => {
+    const twelveHoursAgo = new Date();
+    twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);
+
+    const recentlyOverdueTask = {
+      ...mockTask,
+      due_at: twelveHoursAgo.toISOString(),
+      checked: false,
+    };
+
+    const { container } = render(<TaskItem task={recentlyOverdueTask} />);
+    const taskElement = container.querySelector('[role="listitem"]');
+    expect(taskElement).toHaveClass('border-l-4');
+    expect(taskElement).toHaveClass('border-l-amber-500');
+    expect(taskElement).not.toHaveClass('border-l-red-500');
+
+    const dueText = screen.getByText(/due:/i);
+    expect(dueText).toHaveClass('text-amber-700');
+    expect(dueText).not.toHaveClass('text-red-700');
   });
 
   it('should handle Supabase update errors gracefully', async () => {

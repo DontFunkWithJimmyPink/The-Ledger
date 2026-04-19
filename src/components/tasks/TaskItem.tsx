@@ -71,8 +71,16 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
   };
 
   // Check if task is overdue
-  const isOverdue =
-    task.due_at && !task.checked && new Date(task.due_at) < new Date();
+  const now = new Date();
+  const isOverdue = task.due_at && !task.checked && new Date(task.due_at) < now;
+
+  // Calculate how long the task has been overdue
+  const overdueHours = isOverdue
+    ? (now.getTime() - new Date(task.due_at).getTime()) / (1000 * 60 * 60)
+    : 0;
+
+  // Use red for severely overdue (24+ hours), amber for recently overdue
+  const isSeverelyOverdue = overdueHours >= 24;
 
   return (
     <div
@@ -81,7 +89,7 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
       className={`
         flex items-start gap-3 px-4 py-3 rounded-md border border-leather-300 bg-cream-50
         ${isDragging ? 'shadow-lg' : 'shadow-sm'}
-        ${isOverdue ? 'border-l-4 border-l-amber-500' : ''}
+        ${isSeverelyOverdue ? 'border-l-4 border-l-red-500' : isOverdue ? 'border-l-4 border-l-amber-500' : ''}
       `}
       role="listitem"
       aria-label={task.text}
@@ -137,7 +145,13 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
           <div
             className={`
               mt-1 text-xs
-              ${isOverdue && !task.checked ? 'text-amber-700 font-medium' : 'text-ink-500'}
+              ${
+                isSeverelyOverdue
+                  ? 'text-red-700 font-medium'
+                  : isOverdue && !task.checked
+                    ? 'text-amber-700 font-medium'
+                    : 'text-ink-500'
+              }
             `}
           >
             Due: {formatDueDate(task.due_at)}
