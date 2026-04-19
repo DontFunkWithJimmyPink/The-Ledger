@@ -19,6 +19,13 @@ export interface UseAutosaveOptions {
    * @default 500
    */
   delay?: number;
+  /**
+   * Jitter amount in milliseconds to add randomness to the delay
+   * This helps prevent request storms when multiple pages are open
+   * The actual delay will be: delay ± (jitter / 2)
+   * @default 0
+   */
+  jitter?: number;
 }
 
 /**
@@ -44,6 +51,7 @@ export interface UseAutosaveReturn {
  *
  * Features:
  * - Debounces save operations by the specified delay (default 500ms)
+ * - Adds optional jitter to prevent request storms when multiple pages are open
  * - Exposes current save status: 'idle' | 'saving' | 'saved' | 'error'
  * - Retries once after 2 seconds on failure
  * - Emits 'error' status after retry failure for toast display
@@ -55,6 +63,7 @@ export interface UseAutosaveReturn {
  *     await supabase.from('pages').update({ content }).eq('id', pageId);
  *   },
  *   delay: 500,
+ *   jitter: 100, // Optional: Adds ±50ms randomness to prevent coordinated saves
  * });
  *
  * // Trigger autosave when content changes
@@ -73,6 +82,7 @@ export interface UseAutosaveReturn {
 export function useAutosave({
   onSave,
   delay = 500,
+  jitter = 0,
 }: UseAutosaveOptions): UseAutosaveReturn {
   const [status, setStatus] = useState<AutosaveStatus>('idle');
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -129,7 +139,7 @@ export function useAutosave({
   }, [onSave]);
 
   /**
-   * Trigger a save operation (debounced)
+   * Trigger a save operation (debounced with jitter)
    */
   const trigger = useCallback(() => {
     // Clear existing debounce timer
@@ -151,11 +161,16 @@ export function useAutosave({
       setStatus('idle');
     }
 
+    // Calculate delay with jitter to prevent request storms
+    // Jitter adds randomness: delay ± (jitter / 2)
+    const jitterAmount = jitter > 0 ? (Math.random() - 0.5) * jitter : 0;
+    const finalDelay = Math.max(0, delay + jitterAmount);
+
     // Schedule the save operation
     debounceTimerRef.current = setTimeout(() => {
       executeSave();
-    }, delay);
-  }, [delay, executeSave, status]);
+    }, finalDelay);
+  }, [delay, jitter, executeSave, status]);
 
   /**
    * Reset the status to idle
