@@ -11,6 +11,7 @@
 Task T032 specifies the following implementation:
 
 > Wire full autosave cycle in src/components/editor/PageEditor.tsx — on every Tiptap `onUpdate`:
+>
 > 1. debounce-save `pages.content`
 > 2. call `extractTaskItems`
 > 3. upsert all task rows via `from('tasks').upsert(...)`
@@ -32,6 +33,7 @@ onUpdate: ({ editor }) => {
 ```
 
 **Status**: ✅ Implemented
+
 - Tiptap editor fires `onUpdate` on every content change
 - Extracts JSON content and updates React state
 - State change triggers autosave flow via useEffect
@@ -73,6 +75,7 @@ useEffect(() => {
 ```
 
 **Status**: ✅ Implemented
+
 - Uses `useAutosave` hook with 500ms debounce delay
 - Updates `pages.content` and `updated_at` timestamp
 - Implements retry logic (1 retry after 2 seconds)
@@ -91,12 +94,14 @@ const activeIndexes = taskItems.map((item) => item.index);
 ```
 
 **Status**: ✅ Implemented
+
 - Calls `extractTaskItems()` utility function on every save
 - Extracts all task items from Tiptap JSON content
 - Returns array of `{ index, text, checked }` objects
 - Maintains global index counter across all taskLists
 
 **Supporting Implementation**: `src/lib/utils/content.ts:141-193`
+
 - Recursively walks Tiptap JSON tree
 - Extracts all `taskItem` nodes from `taskList` containers
 - Handles nested content and edge cases
@@ -132,12 +137,14 @@ if (taskItems.length > 0) {
 ```
 
 **Status**: ✅ Implemented
+
 - Maps extracted tasks to database row format
 - Uses `upsert()` with conflict resolution on `(page_id, task_index)`
 - Preserves existing task IDs when updating
 - Includes all required fields: `page_id`, `task_index`, `text`, `checked`, `sort_order`
 
 **Database Schema Support**: `specs/001-ledger-notebook-app/contracts/database-schema.sql:178-200`
+
 - Composite unique constraint `(page_id, task_index)` enables upsert
 - Automatic `updated_at` trigger on modification
 - RLS policies enforce user access control
@@ -174,6 +181,7 @@ if (activeIndexes.length > 0) {
 ```
 
 **Status**: ✅ Implemented
+
 - Deletes tasks no longer present in editor content
 - Uses `.not('task_index', 'in', ...)` with activeIndexes array
 - Handles edge case: deletes all tasks if taskItems array is empty
@@ -188,6 +196,7 @@ if (activeIndexes.length > 0) {
 **Location**: `src/lib/hooks/use-autosave.ts`
 
 **Features**:
+
 - 500ms debounce delay (configurable)
 - Automatic retry on first failure (2 second delay)
 - Status tracking: 'idle' | 'saving' | 'saved' | 'error'
@@ -199,6 +208,7 @@ if (activeIndexes.length > 0) {
 **Location**: `src/lib/utils/content.ts:141-193`
 
 **Features**:
+
 - Recursive tree walking algorithm
 - Global task index counter across all taskLists
 - Plain text extraction via `extractTiptapText()`
@@ -226,6 +236,7 @@ if (activeIndexes.length > 0) {
 ```
 
 **Status**: ✅ Implemented
+
 - Displays real-time save status
 - Shows error state with user-friendly message
 - Includes toast notification on persistent error (lines 167-171)
@@ -237,12 +248,14 @@ if (activeIndexes.length > 0) {
 ### Unit Tests
 
 **Content Utility Tests**: ✅ All 34 tests passing
+
 ```bash
 Test Suites: 1 passed, 1 total
 Tests:       34 passed, 34 total
 ```
 
 **Autosave Hook Tests**: ✅ All 18 tests passing
+
 ```bash
 Test Suites: 1 passed, 1 total
 Tests:       18 passed, 18 total
@@ -251,6 +264,7 @@ Tests:       18 passed, 18 total
 ### Test Coverage Areas
 
 **extractTaskItems** tests verify:
+
 - Single taskList extraction
 - Multiple taskLists with global indexing
 - Nested content handling
@@ -259,6 +273,7 @@ Tests:       18 passed, 18 total
 - Checked state handling
 
 **useAutosave** tests verify:
+
 - Debounce timing (500ms delay)
 - Successful save flow
 - Retry logic on failure
@@ -308,6 +323,7 @@ Second Failure → Status = 'error', show toast
 **All requirements for T032 are fully implemented and tested.**
 
 The autosave cycle correctly:
+
 1. ✅ Captures Tiptap onUpdate events
 2. ✅ Debounces content saves with 500ms delay
 3. ✅ Extracts task items using extractTaskItems()
