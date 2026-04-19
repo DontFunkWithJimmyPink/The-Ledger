@@ -17,20 +17,24 @@ The save status indicator has been **fully implemented** in `src/components/edit
 The save status indicator is positioned between the `EditorToolbar` and the `EditorContent`, appearing directly below the toolbar as specified:
 
 ```tsx
-{/* Editor Toolbar */}
-<EditorToolbar editor={editor} />
+{
+  /* Editor Toolbar */
+}
+<EditorToolbar editor={editor} />;
 
-{/* Save status indicator */}
+{
+  /* Save status indicator */
+}
 <div className="px-4 py-2 border-b border-leather-300 bg-cream-100">
-  <div className="flex items-center gap-2">
-    {/* Status messages here */}
-  </div>
-</div>
+  <div className="flex items-center gap-2">{/* Status messages here */}</div>
+</div>;
 
-{/* Editor content */}
+{
+  /* Editor content */
+}
 <div className="flex-1 overflow-y-auto bg-cream-50">
   <EditorContent editor={editor} />
-</div>
+</div>;
 ```
 
 ### ✅ Requirement 2: Display "Saving…" when saving
@@ -38,9 +42,11 @@ The save status indicator is positioned between the `EditorToolbar` and the `Edi
 **Location**: `src/components/editor/PageEditor.tsx:192-194`
 
 ```tsx
-{contentStatus === 'saving' && (
-  <span className="text-xs text-ink-500">Saving…</span>
-)}
+{
+  contentStatus === 'saving' && (
+    <span className="text-xs text-ink-500">Saving…</span>
+  );
+}
 ```
 
 ### ✅ Requirement 3: Display "Saved" when saved
@@ -48,9 +54,11 @@ The save status indicator is positioned between the `EditorToolbar` and the `Edi
 **Location**: `src/components/editor/PageEditor.tsx:195-197`
 
 ```tsx
-{contentStatus === 'saved' && (
-  <span className="text-xs text-ink-500">Saved</span>
-)}
+{
+  contentStatus === 'saved' && (
+    <span className="text-xs text-ink-500">Saved</span>
+  );
+}
 ```
 
 ### ✅ Requirement 4: Display "Save failed — retrying" on error
@@ -58,9 +66,11 @@ The save status indicator is positioned between the `EditorToolbar` and the `Edi
 **Location**: `src/components/editor/PageEditor.tsx:198-200`
 
 ```tsx
-{contentStatus === 'error' && (
-  <span className="text-xs text-red-600">Save failed — retrying</span>
-)}
+{
+  contentStatus === 'error' && (
+    <span className="text-xs text-red-600">Save failed — retrying</span>
+  );
+}
 ```
 
 Note: Error status uses `text-red-600` class to distinguish it from successful states.
