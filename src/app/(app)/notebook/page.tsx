@@ -47,7 +47,7 @@ export default async function NotebookPage() {
   // Fetch all pages for this notebook, ordered by sort_order
   const { data: pages, error: pagesError } = await supabase
     .from('pages')
-    .select('id, title, sort_order, updated_at, created_at')
+    .select('id, title, content, sort_order, updated_at, created_at')
     .eq('notebook_id', notebook.id)
     .order('sort_order');
 
