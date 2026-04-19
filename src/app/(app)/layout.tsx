@@ -1,4 +1,5 @@
 import { Sidebar, TopBar } from '@/components/layout';
+import { ReminderPoller } from '@/components/reminders';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,6 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
+
+      {/* ReminderPoller - polls for due reminders app-wide */}
+      <ReminderPoller />
     </div>
   );
 }
