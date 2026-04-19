@@ -40,6 +40,7 @@ describe('TaskItem', () => {
 
   const mockSupabaseUpdate = jest.fn();
   const mockSupabaseFrom = jest.fn();
+  const mockRemindersUpdate = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -54,13 +55,26 @@ describe('TaskItem', () => {
       isDragging: false,
     });
 
-    // Setup Supabase mock
+    // Setup Supabase mock for tasks update
     mockSupabaseUpdate.mockReturnValue({
       eq: jest.fn().mockResolvedValue({ error: null }),
     });
 
-    mockSupabaseFrom.mockReturnValue({
-      update: mockSupabaseUpdate,
+    // Setup Supabase mock for reminders update
+    mockRemindersUpdate.mockReturnValue({
+      eq: jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: null }),
+      }),
+    });
+
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'tasks') {
+        return { update: mockSupabaseUpdate };
+      }
+      if (table === 'reminders') {
+        return { update: mockRemindersUpdate };
+      }
+      return { update: jest.fn() };
     });
 
     (createClient as jest.Mock).mockReturnValue({
@@ -412,5 +426,118 @@ describe('TaskItem', () => {
     render(<TaskItem task={mockTask} />);
     const taskElement = screen.getByRole('listitem');
     expect(taskElement).toHaveAttribute('aria-label', 'Buy milk');
+  });
+
+  describe('Auto-dismiss reminders on task completion', () => {
+    it('should dismiss pending reminders when task is marked as complete', async () => {
+      const user = userEvent.setup();
+      const mockEq1 = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: null }),
+      });
+
+      mockRemindersUpdate.mockReturnValue({
+        eq: mockEq1,
+      });
+
+      render(<TaskItem task={mockTask} />);
+
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mark "buy milk" as complete/i,
+      });
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(mockSupabaseFrom).toHaveBeenCalledWith('reminders');
+        expect(mockRemindersUpdate).toHaveBeenCalledWith({
+          status: 'dismissed',
+        });
+        expect(mockEq1).toHaveBeenCalledWith('task_id', 'task-1');
+      });
+
+      // Verify both eq calls were made (task_id and status filters)
+      const eqCalls = mockEq1.mock.results[0].value.eq;
+      expect(eqCalls).toHaveBeenCalledWith('status', 'pending');
+    });
+
+    it('should not dismiss reminders when task is unchecked', async () => {
+      const user = userEvent.setup();
+      const completedTask = { ...mockTask, checked: true };
+      render(<TaskItem task={completedTask} />);
+
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mark "buy milk" as incomplete/i,
+      });
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        expect(mockSupabaseFrom).toHaveBeenCalledWith('tasks');
+        // Should NOT call reminders table when unchecking
+        expect(mockSupabaseFrom).not.toHaveBeenCalledWith('reminders');
+      });
+    });
+
+    it('should continue with task update even if reminder dismissal fails', async () => {
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const onUpdate = jest.fn();
+      const user = userEvent.setup();
+
+      // Make reminder update fail
+      mockRemindersUpdate.mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({
+            error: { message: 'Reminder update failed' },
+          }),
+        }),
+      });
+
+      render(<TaskItem task={mockTask} onUpdate={onUpdate} />);
+
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mark "buy milk" as complete/i,
+      });
+      await user.click(checkbox);
+
+      // Task update should still succeed and notify parent
+      await waitFor(() => {
+        expect(onUpdate).toHaveBeenCalledWith({
+          ...mockTask,
+          checked: true,
+        });
+      });
+
+      // Should log the reminder error
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to dismiss reminders:',
+        { message: 'Reminder update failed' }
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should only dismiss pending reminders, not dismissed or snoozed ones', async () => {
+      const user = userEvent.setup();
+      const mockEq1 = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ error: null }),
+      });
+
+      mockRemindersUpdate.mockReturnValue({
+        eq: mockEq1,
+      });
+
+      render(<TaskItem task={mockTask} />);
+
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mark "buy milk" as complete/i,
+      });
+      await user.click(checkbox);
+
+      await waitFor(() => {
+        // Verify the status filter is for 'pending' only
+        const eqCalls = mockEq1.mock.results[0].value.eq;
+        expect(eqCalls).toHaveBeenCalledWith('status', 'pending');
+      });
+    });
   });
 });

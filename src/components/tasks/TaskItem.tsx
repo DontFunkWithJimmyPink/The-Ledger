@@ -16,6 +16,7 @@ export interface TaskItemProps {
  *
  * Renders a single task item with:
  * - Checkbox that toggles checked state via Supabase update
+ * - Auto-dismiss pending reminders when task is marked as complete
  * - Task text display
  * - Due date display area (if due_at exists)
  * - Drag handle via @dnd-kit/sortable
@@ -57,6 +58,20 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
       if (error) {
         console.error('Failed to update task:', error);
         return;
+      }
+
+      // Auto-dismiss pending reminders when task is marked as complete
+      if (newCheckedState) {
+        const { error: reminderError } = await supabase
+          .from('reminders')
+          .update({ status: 'dismissed' })
+          .eq('task_id', task.id)
+          .eq('status', 'pending');
+
+        if (reminderError) {
+          console.error('Failed to dismiss reminders:', reminderError);
+          // Don't return - task was updated successfully, reminder dismissal is non-critical
+        }
       }
 
       // Notify parent component of the update
