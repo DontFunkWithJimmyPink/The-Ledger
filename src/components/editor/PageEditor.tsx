@@ -6,11 +6,14 @@ import TaskList from '@tiptap/extension-task-list';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { extractTaskItems } from '@/lib/utils/content';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 import type { Page } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -32,7 +35,10 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
   const [content, setContent] = useState<Record<string, any>>(
     initialPage.content
   );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   // Initialize Tiptap editor
   // T035: StarterKit configuration ensures all required extensions are enabled:
@@ -178,17 +184,47 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
     }
   }, [contentStatus]);
 
+  // Handle page deletion
+  const handleDeletePage = async () => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase.from('pages').delete().eq('id', pageId);
+
+      if (error) {
+        console.error('Failed to delete page:', error);
+        toast.error('Failed to delete page');
+        setIsDeleting(false);
+        return;
+      }
+
+      toast.success('Page deleted');
+      router.push('/notebook');
+    } catch (err) {
+      console.error('Error deleting page:', err);
+      toast.error('Failed to delete page');
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Title input with inline editing */}
-      <div className="border-b border-leather-300 px-4 py-4">
+      <div className="border-b border-leather-300 px-4 py-4 flex items-center justify-between">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full text-3xl font-serif font-bold text-ink-900 bg-transparent border-none focus:outline-none focus:ring-0 placeholder-ink-500"
+          className="flex-1 text-3xl font-serif font-bold text-ink-900 bg-transparent border-none focus:outline-none focus:ring-0 placeholder-ink-500"
           placeholder="Untitled"
         />
+        <Button
+          variant="ghost"
+          onClick={() => setIsDeleteModalOpen(true)}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          aria-label="Delete page"
+        >
+          Delete
+        </Button>
       </div>
 
       {/* Editor Toolbar */}
@@ -213,6 +249,38 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       <div className="flex-1 overflow-y-auto bg-cream-50">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Delete confirmation modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Delete Page"
+      >
+        <div className="space-y-4">
+          <p className="text-ink-900">
+            Are you sure you want to delete this page? This action cannot be
+            undone. All associated tasks, drawings, and photos will also be
+            deleted.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setIsDeleteModalOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleDeletePage}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 focus-visible:ring-red-600"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
