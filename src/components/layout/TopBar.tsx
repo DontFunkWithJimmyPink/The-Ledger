@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui';
+import { ReminderBell } from '@/components/reminders';
 import toast from 'react-hot-toast';
 
 export interface TopBarProps {
@@ -54,17 +54,8 @@ export function TopBar({ className = '' }: TopBarProps) {
 
       {/* Right Section: Reminder Bell + User Menu */}
       <div className="flex items-center gap-4">
-        {/* Reminder Bell Placeholder */}
-        <button
-          type="button"
-          className="relative p-2 text-ink-900 hover:bg-cream-200 rounded-md transition-colors"
-          aria-label="Reminders"
-          title="Reminders coming soon"
-        >
-          <span className="text-xl">🔔</span>
-          {/* Badge placeholder for reminder count */}
-          <span className="sr-only">Reminders</span>
-        </button>
+        {/* Reminder Bell */}
+        <ReminderBell />
 
         {/* User Menu */}
         <div className="relative">

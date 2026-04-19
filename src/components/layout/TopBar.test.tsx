@@ -23,6 +23,14 @@ jest.mock('react-hot-toast', () => {
   };
 });
 
+jest.mock('@/components/reminders/ReminderBell', () => ({
+  ReminderBell: () => (
+    <button type="button" aria-label="Reminders">
+      🔔
+    </button>
+  ),
+}));
+
 describe('TopBar', () => {
   const mockPush = jest.fn();
   const mockRefresh = jest.fn();
