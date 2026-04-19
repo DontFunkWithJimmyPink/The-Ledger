@@ -25,7 +25,15 @@ describe('PageListItem', () => {
     id: 'page-123',
     notebook_id: 'notebook-456',
     title: 'Test Page Title',
-    content: {},
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: 'This is some preview content.' }],
+        },
+      ],
+    },
     sort_order: 'a0',
     created_at: new Date('2026-04-01T10:00:00Z').toISOString(),
     updated_at: new Date('2026-04-15T15:30:00Z').toISOString(),
@@ -46,6 +54,45 @@ describe('PageListItem', () => {
     render(<PageListItem page={mockPage} />);
     const updateText = screen.getByText(/Updated/);
     expect(updateText).toBeInTheDocument();
+  });
+
+  it('should render content preview', () => {
+    render(<PageListItem page={mockPage} />);
+    expect(
+      screen.getByText('This is some preview content.')
+    ).toBeInTheDocument();
+  });
+
+  it('should not render preview for empty content', () => {
+    const emptyPage = { ...mockPage, content: {} };
+    render(<PageListItem page={emptyPage} />);
+    expect(
+      screen.queryByText('This is some preview content.')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should truncate long preview text', () => {
+    const longContentPage = {
+      ...mockPage,
+      content: {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              {
+                type: 'text',
+                text: 'This is a very long piece of content that should be truncated because it exceeds the maximum preview length of 100 characters.',
+              },
+            ],
+          },
+        ],
+      },
+    };
+    render(<PageListItem page={longContentPage} />);
+    const preview = screen.getByText(/This is a very long piece/);
+    expect(preview.textContent).toContain('...');
+    expect(preview.textContent!.length).toBeLessThanOrEqual(104); // 100 + '...'
   });
 
   it('should link to the correct page URL', () => {

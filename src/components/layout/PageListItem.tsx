@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Page } from '@/types';
+import { extractTiptapText, truncateText } from '@/lib/utils/content';
 
 export interface PageListItemProps {
   page: Page;
@@ -33,6 +34,10 @@ function formatRelativeTime(dateString: string): string {
 }
 
 export function PageListItem({ page, className = '' }: PageListItemProps) {
+  // Extract and truncate preview text
+  const plainText = extractTiptapText(page.content);
+  const preview = truncateText(plainText, 100);
+
   return (
     <Link
       href={`/notebook/${page.id}`}
@@ -49,6 +54,13 @@ export function PageListItem({ page, className = '' }: PageListItemProps) {
           <p className="mt-1 text-xs text-ink-500 font-sans">
             Updated {formatRelativeTime(page.updated_at)}
           </p>
+
+          {/* Content Preview */}
+          {preview && (
+            <p className="mt-2 text-sm text-ink-600 font-sans line-clamp-2">
+              {preview}
+            </p>
+          )}
         </div>
 
         {/* Visual indicator (chevron or arrow) */}

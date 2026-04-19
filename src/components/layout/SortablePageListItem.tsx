@@ -4,6 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Link from 'next/link';
 import type { Page } from '@/types';
+import { extractTiptapText, truncateText } from '@/lib/utils/content';
 
 export interface SortablePageListItemProps {
   page: Page;
@@ -66,6 +67,10 @@ export function SortablePageListItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Extract and truncate preview text
+  const plainText = extractTiptapText(page.content);
+  const preview = truncateText(plainText, 100);
+
   return (
     <div
       ref={setNodeRef}
@@ -116,6 +121,13 @@ export function SortablePageListItem({
             <p className="mt-1 text-xs text-ink-500 font-sans">
               Updated {formatRelativeTime(page.updated_at)}
             </p>
+
+            {/* Content Preview */}
+            {preview && (
+              <p className="mt-2 text-sm text-ink-600 font-sans line-clamp-2">
+                {preview}
+              </p>
+            )}
           </div>
 
           {/* Visual indicator (chevron) */}

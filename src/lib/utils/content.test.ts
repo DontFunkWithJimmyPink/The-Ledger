@@ -1,6 +1,38 @@
-import { extractTiptapText, extractTaskItems } from './content';
+import { extractTiptapText, extractTaskItems, truncateText } from './content';
 
 describe('content utility', () => {
+  describe('truncateText', () => {
+    it('should return text as-is if shorter than maxLength', () => {
+      expect(truncateText('Short text', 20)).toBe('Short text');
+    });
+
+    it('should return text as-is if equal to maxLength', () => {
+      expect(truncateText('Exactly ten', 11)).toBe('Exactly ten');
+    });
+
+    it('should truncate text longer than maxLength and add ellipsis', () => {
+      expect(
+        truncateText('This is a very long text that needs truncating', 20)
+      ).toBe('This is a very long...');
+    });
+
+    it('should handle empty string', () => {
+      expect(truncateText('', 10)).toBe('');
+    });
+
+    it('should trim whitespace before adding ellipsis', () => {
+      expect(truncateText('Hello world    ', 8)).toBe('Hello wo...');
+    });
+
+    it('should handle maxLength of 0', () => {
+      expect(truncateText('Hello', 0)).toBe('...');
+    });
+
+    it('should handle maxLength of 1', () => {
+      expect(truncateText('Hello', 1)).toBe('H...');
+    });
+  });
+
   describe('extractTiptapText', () => {
     it('should return empty string for null content', () => {
       expect(extractTiptapText(null)).toBe('');

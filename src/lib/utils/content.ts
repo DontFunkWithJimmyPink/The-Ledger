@@ -93,6 +93,24 @@ export function extractTiptapText(content: Record<string, any> | null): string {
 }
 
 /**
+ * Truncate text to a maximum length with ellipsis.
+ *
+ * @param text - The text to truncate
+ * @param maxLength - Maximum length of the text before truncation
+ * @returns Truncated text with ellipsis if needed
+ *
+ * @example
+ * truncateText('Hello world', 8); // Returns 'Hello...'
+ * truncateText('Short', 10); // Returns 'Short'
+ */
+export function truncateText(text: string, maxLength: number): string {
+  if (!text || text.length <= maxLength) {
+    return text;
+  }
+  return text.slice(0, maxLength).trim() + '...';
+}
+
+/**
  * Extract task items from Tiptap JSON content.
  *
  * Walks the content tree and extracts all taskItem nodes with their index,
