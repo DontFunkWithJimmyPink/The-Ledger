@@ -29,6 +29,25 @@ jest.mock('@/components/editor/EditorToolbar', () => ({
   EditorToolbar: jest.fn(() => <div data-testid="editor-toolbar" />),
 }));
 
+jest.mock('@/components/photos/PhotoLightbox', () => ({
+  PhotoLightbox: jest.fn(({ isOpen, onClose, src, alt }) =>
+    isOpen ? (
+      <div data-testid="photo-lightbox">
+        <img src={src} alt={alt} data-testid="lightbox-image" />
+        <button onClick={onClose} data-testid="lightbox-close">
+          Close
+        </button>
+      </div>
+    ) : null
+  ),
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+  })),
+}));
+
 describe('PageEditor - Save Status Indicator', () => {
   const mockPage: Page = {
     id: 'test-page-id',
@@ -599,6 +618,269 @@ describe('PageEditor - Inline Title Editing (T037)', () => {
 
       // Title input should be a text input (implicit role)
       expect(titleInput).toHaveAttribute('type', 'text');
+    });
+  });
+});
+
+describe('PageEditor - Image Extension and PhotoLightbox (T051)', () => {
+  const mockPage: Page = {
+    id: 'test-page-id',
+    notebook_id: 'test-notebook-id',
+    title: 'Test Page',
+    content: { type: 'doc', content: [] },
+    sort_order: '0',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  };
+
+  const mockUseAutosave = useAutosave as jest.MockedFunction<
+    typeof useAutosave
+  >;
+  const mockUseEditor = jest.requireMock('@tiptap/react')
+    .useEditor as jest.MockedFunction<any>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Default mock for useAutosave
+    mockUseAutosave.mockReturnValue({
+      status: 'idle',
+      trigger: jest.fn(),
+      reset: jest.fn(),
+    });
+  });
+
+  describe('Image extension configuration', () => {
+    it('should configure Image extension with inline: true', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Verify useEditor was called with Image extension configured
+      expect(mockUseEditor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          extensions: expect.arrayContaining([
+            expect.objectContaining({
+              name: 'image',
+            }),
+          ]),
+        })
+      );
+    });
+  });
+
+  describe('PhotoLightbox integration', () => {
+    it('should render PhotoLightbox component', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      const { PhotoLightbox } = jest.requireMock(
+        '@/components/photos/PhotoLightbox'
+      );
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Verify PhotoLightbox was rendered
+      expect(PhotoLightbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isOpen: false,
+          src: '',
+          alt: '',
+        }),
+        {}
+      );
+    });
+
+    it('should initially render PhotoLightbox as closed', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      expect(screen.queryByTestId('photo-lightbox')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Image click handler', () => {
+    it('should register handleClickOn in editorProps', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Verify handleClickOn was registered
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      expect(editorConfig.editorProps.handleClickOn).toBeDefined();
+      expect(typeof editorConfig.editorProps.handleClickOn).toBe('function');
+    });
+
+    it('should open PhotoLightbox when image node is clicked', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Get the handleClickOn function
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      const handleClickOn = editorConfig.editorProps.handleClickOn;
+
+      // Mock event
+      const mockEvent = {
+        preventDefault: jest.fn(),
+      };
+
+      // Mock image node
+      const mockNode = {
+        type: { name: 'image' },
+        attrs: {
+          src: 'https://example.com/photo.jpg',
+          alt: 'Test Photo',
+        },
+      };
+
+      // Call handleClickOn
+      const result = handleClickOn(null, 0, mockNode, 0, mockEvent);
+
+      expect(result).toBe(true);
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+    });
+
+    it('should set lightbox state with image src and alt when clicked', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      const { rerender } = render(
+        <PageEditor pageId={mockPage.id} initialPage={mockPage} />
+      );
+
+      // Get the handleClickOn function
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      const handleClickOn = editorConfig.editorProps.handleClickOn;
+
+      // Mock event
+      const mockEvent = {
+        preventDefault: jest.fn(),
+      };
+
+      // Mock image node
+      const mockNode = {
+        type: { name: 'image' },
+        attrs: {
+          src: 'https://example.com/photo.jpg',
+          alt: 'Test Photo',
+        },
+      };
+
+      // Call handleClickOn
+      handleClickOn(null, 0, mockNode, 0, mockEvent);
+
+      // Force re-render to update PhotoLightbox props
+      rerender(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Verify PhotoLightbox is now open with correct props
+      const lightbox = screen.getByTestId('photo-lightbox');
+      expect(lightbox).toBeInTheDocument();
+
+      const image = screen.getByTestId('lightbox-image');
+      expect(image).toHaveAttribute('src', 'https://example.com/photo.jpg');
+      expect(image).toHaveAttribute('alt', 'Test Photo');
+    });
+
+    it('should use empty alt text if not provided', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Get the handleClickOn function
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      const handleClickOn = editorConfig.editorProps.handleClickOn;
+
+      // Mock event
+      const mockEvent = {
+        preventDefault: jest.fn(),
+      };
+
+      // Mock image node without alt text
+      const mockNode = {
+        type: { name: 'image' },
+        attrs: {
+          src: 'https://example.com/photo.jpg',
+        },
+      };
+
+      // Call handleClickOn
+      handleClickOn(null, 0, mockNode, 0, mockEvent);
+
+      // Verify alt is empty string
+      const { PhotoLightbox } = jest.requireMock(
+        '@/components/photos/PhotoLightbox'
+      );
+      const lastCall = PhotoLightbox.mock.calls[PhotoLightbox.mock.calls.length - 1];
+      expect(lastCall[0].alt).toBe('');
+    });
+
+    it('should not handle click for non-image nodes', () => {
+      mockUseEditor.mockReturnValue(null);
+
+      render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Get the handleClickOn function
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      const handleClickOn = editorConfig.editorProps.handleClickOn;
+
+      // Mock event
+      const mockEvent = {
+        preventDefault: jest.fn(),
+      };
+
+      // Mock paragraph node
+      const mockNode = {
+        type: { name: 'paragraph' },
+        attrs: {},
+      };
+
+      // Call handleClickOn
+      const result = handleClickOn(null, 0, mockNode, 0, mockEvent);
+
+      expect(result).toBe(false);
+      expect(mockEvent.preventDefault).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('PhotoLightbox close functionality', () => {
+    it('should close PhotoLightbox when close handler is called', async () => {
+      mockUseEditor.mockReturnValue(null);
+
+      const { rerender } = render(
+        <PageEditor pageId={mockPage.id} initialPage={mockPage} />
+      );
+
+      // Get the handleClickOn function and simulate image click
+      const editorConfig = mockUseEditor.mock.calls[0][0];
+      const handleClickOn = editorConfig.editorProps.handleClickOn;
+
+      const mockEvent = {
+        preventDefault: jest.fn(),
+      };
+
+      const mockNode = {
+        type: { name: 'image' },
+        attrs: {
+          src: 'https://example.com/photo.jpg',
+          alt: 'Test Photo',
+        },
+      };
+
+      // Click image to open lightbox
+      handleClickOn(null, 0, mockNode, 0, mockEvent);
+
+      // Re-render to reflect state change
+      rerender(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
+
+      // Verify lightbox is open
+      expect(screen.getByTestId('photo-lightbox')).toBeInTheDocument();
+
+      // Click close button
+      const closeButton = screen.getByTestId('lightbox-close');
+      fireEvent.click(closeButton);
+
+      // Verify lightbox is closed
+      expect(screen.queryByTestId('photo-lightbox')).not.toBeInTheDocument();
     });
   });
 });
