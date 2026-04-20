@@ -29,6 +29,7 @@ export function EditorToolbar({ editor, pageId }: EditorToolbarProps) {
       .setImage({
         src: metadata.signedUrl,
         alt: metadata.filename,
+        // @ts-expect-error - Custom attributes not in base Image type
         'data-photo-id': metadata.id,
         'data-storage-path': metadata.storagePath,
       })
