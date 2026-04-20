@@ -14,6 +14,7 @@ import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import type { Page } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -37,6 +38,11 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    alt: string;
+  }>({ src: '', alt: '' });
   const supabase = createClient();
   const router = useRouter();
 
@@ -59,7 +65,9 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       CustomTaskItem.configure({
         nested: true,
       }),
-      Image,
+      Image.configure({
+        inline: true,
+      }),
       Placeholder.configure({
         placeholder: 'Start writing…',
       }),
@@ -73,6 +81,17 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       attributes: {
         class:
           'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none min-h-[400px] p-4',
+      },
+      handleClickOn: (view, pos, node, nodePos, event) => {
+        if (node.type.name === 'image') {
+          event.preventDefault();
+          const src = node.attrs.src as string;
+          const alt = (node.attrs.alt as string) || '';
+          setLightboxImage({ src, alt });
+          setLightboxOpen(true);
+          return true;
+        }
+        return false;
       },
     },
   });
@@ -281,6 +300,14 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
           </div>
         </div>
       </Modal>
+
+      {/* Photo Lightbox */}
+      <PhotoLightbox
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        src={lightboxImage.src}
+        alt={lightboxImage.alt}
+      />
     </div>
   );
 }
