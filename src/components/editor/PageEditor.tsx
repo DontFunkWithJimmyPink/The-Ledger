@@ -6,6 +6,7 @@ import TaskList from '@tiptap/extension-task-list';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { extractTaskItems } from '@/lib/utils/content';
@@ -15,12 +16,26 @@ import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
-import type { Page } from '@/types';
+import { SkeletonCanvas } from '@/components/drawing/SkeletonCanvas';
+import type { Page, Drawing } from '@/types';
 import toast from 'react-hot-toast';
+
+// Dynamically import DrawingCanvas with SSR disabled (required for Excalidraw)
+const DrawingCanvas = dynamic(
+  () =>
+    import('@/components/drawing/DrawingCanvas').then((mod) => ({
+      default: mod.DrawingCanvas,
+    })),
+  {
+    loading: () => <SkeletonCanvas />,
+    ssr: false,
+  }
+);
 
 export interface PageEditorProps {
   pageId: string;
   initialPage: Page;
+  initialDrawing: Drawing | null;
 }
 
 /**
@@ -29,15 +44,21 @@ export interface PageEditorProps {
  * Client component that initializes Tiptap editor with StarterKit, TaskList,
  * CustomTaskItem (with dueDate support), Image, and Placeholder extensions.
  * Wires content changes to useAutosave for debounced saving. Handles inline
- * title editing with debounced updates.
+ * title editing with debounced updates. Supports DrawingCanvas integration
+ * with toggle button to add/hide drawings.
  */
-export function PageEditor({ pageId, initialPage }: PageEditorProps) {
+export function PageEditor({
+  pageId,
+  initialPage,
+  initialDrawing,
+}: PageEditorProps) {
   const [title, setTitle] = useState<string>(initialPage.title);
   const [content, setContent] = useState<Record<string, any>>(
     initialPage.content
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDrawing, setShowDrawing] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<{
     src: string;
@@ -285,7 +306,22 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       </div>
 
       {/* Editor Toolbar */}
-      <EditorToolbar editor={editor} pageId={pageId} />
+      <div className="border-b border-leather-300">
+        <EditorToolbar editor={editor} pageId={pageId} />
+        {/* Add Drawing toggle button */}
+        <div className="px-4 py-2 border-t border-leather-300 bg-cream-100">
+          <Button
+            variant="ghost"
+            onClick={() => setShowDrawing(!showDrawing)}
+            className={`px-3 py-1 min-w-0 ${showDrawing ? 'bg-cream-200' : ''}`}
+            type="button"
+            aria-label="Toggle drawing canvas"
+            title="Add Drawing"
+          >
+            <span>{showDrawing ? 'Hide Drawing' : 'Add Drawing'}</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Save status indicator */}
       <div className="px-4 py-2 border-b border-leather-300 bg-cream-100">
@@ -306,6 +342,17 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       <div className="flex-1 overflow-y-auto bg-cream-50">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Drawing Canvas - conditionally rendered when showDrawing is true */}
+      {showDrawing && (
+        <div className="px-4 py-4 bg-cream-50 border-t border-leather-300">
+          <DrawingCanvas
+            pageId={pageId}
+            initialElements={initialDrawing?.elements || []}
+            initialAppState={initialDrawing?.app_state || {}}
+          />
+        </div>
+      )}
 
       {/* Delete confirmation modal */}
       <Modal
