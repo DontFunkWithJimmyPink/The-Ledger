@@ -90,7 +90,7 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
   const isOverdue = task.due_at && !task.checked && new Date(task.due_at) < now;
 
   // Calculate how long the task has been overdue
-  const overdueHours = isOverdue
+  const overdueHours = isOverdue && task.due_at
     ? (now.getTime() - new Date(task.due_at).getTime()) / (1000 * 60 * 60)
     : 0;
 
