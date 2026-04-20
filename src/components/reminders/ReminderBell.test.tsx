@@ -135,6 +135,28 @@ describe('ReminderBell', () => {
     expect(button).toHaveClass('custom-class');
   });
 
+  it('should use initialCount prop as initial state', () => {
+    render(<ReminderBell initialCount={7} />);
+
+    // Should show badge with initial count immediately
+    const badge = screen.getByText('7');
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('should fetch count even when initialCount is provided', async () => {
+    mockEq.mockResolvedValue({ count: 10, error: null });
+    render(<ReminderBell initialCount={5} />);
+
+    // Initial count should show first
+    expect(screen.getByText('5')).toBeInTheDocument();
+
+    // After fetch completes, count should update
+    await waitFor(() => {
+      expect(screen.getByText('10')).toBeInTheDocument();
+      expect(screen.queryByText('5')).not.toBeInTheDocument();
+    });
+  });
+
   it('should show large count numbers', async () => {
     mockEq.mockResolvedValue({ count: 99, error: null });
     render(<ReminderBell />);

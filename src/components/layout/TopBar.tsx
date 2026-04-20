@@ -8,9 +8,13 @@ import toast from 'react-hot-toast';
 
 export interface TopBarProps {
   className?: string;
+  initialReminderCount?: number;
 }
 
-export function TopBar({ className = '' }: TopBarProps) {
+export function TopBar({
+  className = '',
+  initialReminderCount = 0,
+}: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
@@ -55,7 +59,7 @@ export function TopBar({ className = '' }: TopBarProps) {
       {/* Right Section: Reminder Bell + User Menu */}
       <div className="flex items-center gap-4">
         {/* Reminder Bell */}
-        <ReminderBell />
+        <ReminderBell initialCount={initialReminderCount} />
 
         {/* User Menu */}
         <div className="relative">

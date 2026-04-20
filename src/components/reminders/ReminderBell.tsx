@@ -7,10 +7,14 @@ import { Badge } from '@/components/ui/Badge';
 
 export interface ReminderBellProps {
   className?: string;
+  initialCount?: number;
 }
 
-export function ReminderBell({ className = '' }: ReminderBellProps) {
-  const [pendingCount, setPendingCount] = useState(0);
+export function ReminderBell({
+  className = '',
+  initialCount = 0,
+}: ReminderBellProps) {
+  const [pendingCount, setPendingCount] = useState(initialCount);
   const router = useRouter();
   const supabase = createClient();
 
