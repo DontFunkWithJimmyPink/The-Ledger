@@ -56,7 +56,16 @@ describe('PhotoUploadButton', () => {
     });
 
     // Setup Supabase from mock
-    mockSupabaseInsert.mockResolvedValue({ error: null });
+    const mockSupabaseSelect = jest.fn();
+    mockSupabaseInsert.mockReturnValue({
+      select: mockSupabaseSelect,
+    });
+    mockSupabaseSelect.mockReturnValue({
+      single: jest.fn().mockResolvedValue({
+        data: { id: 'photo-123' },
+        error: null,
+      }),
+    });
     mockSupabaseFrom.mockImplementation((table: string) => {
       if (table === 'photos') {
         return {
@@ -279,6 +288,12 @@ describe('PhotoUploadButton', () => {
         type: 'image/jpeg',
       });
 
+      // Mock the insert to return a photo ID
+      mockSupabaseInsert.mockResolvedValue({
+        data: { id: 'photo-123' },
+        error: null,
+      });
+
       await user.upload(fileInput, testFile);
 
       await waitFor(() => {
@@ -297,7 +312,16 @@ describe('PhotoUploadButton', () => {
 
     it('should clean up storage file if database insert fails', async () => {
       const user = userEvent.setup();
-      mockSupabaseInsert.mockResolvedValue({ error: { message: 'Insert error' } });
+      const mockSingleFail = jest.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'Insert error' },
+      });
+      const mockSelectFail = jest.fn().mockReturnValue({
+        single: mockSingleFail,
+      });
+      mockSupabaseInsert.mockReturnValue({
+        select: mockSelectFail,
+      });
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
@@ -345,7 +369,7 @@ describe('PhotoUploadButton', () => {
       });
     });
 
-    it('should call onUploadSuccess with signed URL and filename', async () => {
+    it('should call onUploadSuccess with photo metadata', async () => {
       const user = userEvent.setup();
       render(
         <PhotoUploadButton
@@ -360,10 +384,14 @@ describe('PhotoUploadButton', () => {
       await user.upload(fileInput, testFile);
 
       await waitFor(() => {
-        expect(mockOnUploadSuccess).toHaveBeenCalledWith(
-          'https://example.com/signed-url',
-          'test.jpg'
-        );
+        expect(mockOnUploadSuccess).toHaveBeenCalledWith({
+          id: 'photo-123',
+          storagePath: expect.stringMatching(
+            new RegExp(`^${mockUserId}/${mockPageId}/\\d+_test\\.jpg$`)
+          ),
+          signedUrl: 'https://example.com/signed-url',
+          filename: 'test.jpg',
+        });
       });
     });
 

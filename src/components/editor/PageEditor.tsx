@@ -3,7 +3,6 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
-import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,6 +10,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { extractTaskItems } from '@/lib/utils/content';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
+import { CustomImage } from '@/components/editor/extensions/CustomImage';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -42,6 +42,9 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
   const [lightboxImage, setLightboxImage] = useState<{
     src: string;
     alt: string;
+    photoId?: string;
+    storagePath?: string;
+    nodePos?: number;
   }>({ src: '', alt: '' });
   const supabase = createClient();
   const router = useRouter();
@@ -65,7 +68,7 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       CustomTaskItem.configure({
         nested: true,
       }),
-      Image.configure({
+      CustomImage.configure({
         inline: true,
       }),
       Placeholder.configure({
@@ -87,7 +90,9 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
           event.preventDefault();
           const src = node.attrs.src as string;
           const alt = (node.attrs.alt as string) || '';
-          setLightboxImage({ src, alt });
+          const photoId = node.attrs['data-photo-id'] as string | undefined;
+          const storagePath = node.attrs['data-storage-path'] as string | undefined;
+          setLightboxImage({ src, alt, photoId, storagePath, nodePos });
           setLightboxOpen(true);
           return true;
         }
@@ -203,6 +208,39 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
     }
   }, [contentStatus]);
 
+  // Handle photo deletion from lightbox
+  const handlePhotoDelete = () => {
+    if (!editor || lightboxImage.nodePos === undefined) return;
+
+    // Find and delete the image node from the editor
+    const { state } = editor;
+    const { doc } = state;
+
+    // Search for the image node with matching attributes
+    let foundPos: number | null = null;
+    doc.descendants((node, pos) => {
+      if (
+        node.type.name === 'image' &&
+        node.attrs['data-photo-id'] === lightboxImage.photoId
+      ) {
+        foundPos = pos;
+        return false; // Stop searching
+      }
+      return true;
+    });
+
+    if (foundPos !== null) {
+      // Delete the image node
+      editor
+        .chain()
+        .focus()
+        .deleteRange({ from: foundPos, to: foundPos + 1 })
+        .run();
+
+      // The content change will trigger autosave automatically
+    }
+  };
+
   // Handle page deletion
   const handleDeletePage = async () => {
     setIsDeleting(true);
@@ -307,6 +345,9 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
         onClose={() => setLightboxOpen(false)}
         src={lightboxImage.src}
         alt={lightboxImage.alt}
+        photoId={lightboxImage.photoId}
+        storagePath={lightboxImage.storagePath}
+        onDelete={handlePhotoDelete}
       />
     </div>
   );

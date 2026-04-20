@@ -9,12 +9,22 @@ jest.mock('@/components/photos/PhotoUploadButton', () => ({
     onUploadSuccess,
   }: {
     pageId: string;
-    onUploadSuccess?: (signedUrl: string, filename: string) => void;
+    onUploadSuccess?: (metadata: {
+      id: string;
+      storagePath: string;
+      signedUrl: string;
+      filename: string;
+    }) => void;
   }) => (
     <button
       data-testid="photo-upload-button"
       onClick={() =>
-        onUploadSuccess?.('https://example.com/photo.jpg', 'photo.jpg')
+        onUploadSuccess?.({
+          id: 'photo-123',
+          storagePath: 'user/page/123_photo.jpg',
+          signedUrl: 'https://example.com/photo.jpg',
+          filename: 'photo.jpg',
+        })
       }
     >
       📷
@@ -298,6 +308,9 @@ describe('EditorToolbar', () => {
     expect(editor._chainMock.focus).toHaveBeenCalled();
     expect(editor._chainMock.setImage).toHaveBeenCalledWith({
       src: 'https://example.com/photo.jpg',
+      alt: 'photo.jpg',
+      'data-photo-id': 'photo-123',
+      'data-storage-path': 'user/page/123_photo.jpg',
     });
     expect(editor._chainMock.run).toHaveBeenCalled();
   });
