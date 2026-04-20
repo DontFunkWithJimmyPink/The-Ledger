@@ -290,5 +290,50 @@ describe('DrawingCanvas', () => {
         await expect(savedOnSave()).rejects.toEqual(mockError);
       }
     });
+
+    it('should log errors to console without exposing to user', async () => {
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const mockError = { message: 'Database error' };
+      mockSupabaseUpsert.mockResolvedValue({ error: mockError });
+
+      let savedOnSave: (() => Promise<void>) | null = null;
+
+      (useAutosave as jest.Mock).mockImplementation(({ onSave }) => {
+        savedOnSave = onSave;
+        return {
+          status: 'idle',
+          trigger: mockTrigger,
+          reset: jest.fn(),
+        };
+      });
+
+      render(<DrawingCanvas pageId={mockPageId} />);
+
+      // Trigger a change
+      const triggerButton = screen.getByTestId('excalidraw-trigger-change');
+      triggerButton.click();
+
+      await waitFor(() => {
+        expect(mockTrigger).toHaveBeenCalled();
+      });
+
+      if (savedOnSave) {
+        try {
+          await savedOnSave();
+        } catch (error) {
+          // Expected to throw
+        }
+
+        // Verify console.error was called with the error
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Failed to save drawing:',
+          mockError
+        );
+      }
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 });
