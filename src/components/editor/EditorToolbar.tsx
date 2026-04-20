@@ -2,7 +2,7 @@
 
 import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/Button';
-import { PhotoUploadButton } from '@/components/photos/PhotoUploadButton';
+import { PhotoUploadButton, type PhotoMetadata } from '@/components/photos/PhotoUploadButton';
 
 export interface EditorToolbarProps {
   editor: Editor | null;
@@ -22,8 +22,17 @@ export function EditorToolbar({ editor, pageId }: EditorToolbarProps) {
     return null;
   }
 
-  const handlePhotoUpload = (signedUrl: string) => {
-    editor.chain().focus().setImage({ src: signedUrl }).run();
+  const handlePhotoUpload = (metadata: PhotoMetadata) => {
+    editor
+      .chain()
+      .focus()
+      .setImage({
+        src: metadata.signedUrl,
+        alt: metadata.filename,
+        'data-photo-id': metadata.id,
+        'data-storage-path': metadata.storagePath,
+      })
+      .run();
   };
 
   return (

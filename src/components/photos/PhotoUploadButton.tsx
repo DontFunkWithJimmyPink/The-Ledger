@@ -5,9 +5,16 @@ import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 
+export interface PhotoMetadata {
+  id: string;
+  storagePath: string;
+  signedUrl: string;
+  filename: string;
+}
+
 export interface PhotoUploadButtonProps {
   pageId: string;
-  onUploadSuccess?: (signedUrl: string, filename: string) => void;
+  onUploadSuccess?: (metadata: PhotoMetadata) => void;
 }
 
 const MAX_FILE_SIZE = 10485760; // 10 MB in bytes (FR-019)
@@ -80,16 +87,20 @@ export function PhotoUploadButton({
       }
 
       // Insert record in photos table
-      const { error: insertError } = await supabase.from('photos').insert({
-        page_id: pageId,
-        user_id: user.id,
-        storage_path: storagePath,
-        filename: file.name,
-        mime_type: file.type,
-        size_bytes: file.size,
-      });
+      const { data: photoData, error: insertError } = await supabase
+        .from('photos')
+        .insert({
+          page_id: pageId,
+          user_id: user.id,
+          storage_path: storagePath,
+          filename: file.name,
+          mime_type: file.type,
+          size_bytes: file.size,
+        })
+        .select('id')
+        .single();
 
-      if (insertError) {
+      if (insertError || !photoData) {
         console.error('Failed to insert photo record:', insertError);
         // Try to clean up the uploaded file
         await supabase.storage.from('notebook-photos').remove([storagePath]);
@@ -113,7 +124,12 @@ export function PhotoUploadButton({
 
       // Notify parent component of successful upload
       if (onUploadSuccess) {
-        onUploadSuccess(signedUrlData.signedUrl, file.name);
+        onUploadSuccess({
+          id: photoData.id,
+          storagePath,
+          signedUrl: signedUrlData.signedUrl,
+          filename: file.name,
+        });
       }
 
       toast.success('Photo uploaded');
