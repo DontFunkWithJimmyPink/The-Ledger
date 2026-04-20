@@ -247,7 +247,7 @@ export function PageEditor({ pageId, initialPage }: PageEditorProps) {
       </div>
 
       {/* Editor Toolbar */}
-      <EditorToolbar editor={editor} />
+      <EditorToolbar editor={editor} pageId={pageId} />
 
       {/* Save status indicator */}
       <div className="px-4 py-2 border-b border-leather-300 bg-cream-100">
