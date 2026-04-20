@@ -2,9 +2,11 @@
 
 import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/Button';
+import { PhotoUploadButton } from '@/components/photos/PhotoUploadButton';
 
 export interface EditorToolbarProps {
   editor: Editor | null;
+  pageId: string;
 }
 
 /**
@@ -12,12 +14,17 @@ export interface EditorToolbarProps {
  *
  * Renders formatting buttons for the Tiptap editor using editor.chain() commands.
  * Shows active state via editor.isActive() for visual feedback.
- * Supports Bold, Italic, Heading 1/2, BulletList, OrderedList, TaskList, and BlockQuote toggles.
+ * Supports Bold, Italic, Heading 1/2, BulletList, OrderedList, TaskList, BlockQuote toggles,
+ * and Photo Upload which inserts images via editor.chain().focus().setImage().
  */
-export function EditorToolbar({ editor }: EditorToolbarProps) {
+export function EditorToolbar({ editor, pageId }: EditorToolbarProps) {
   if (!editor) {
     return null;
   }
+
+  const handlePhotoUpload = (signedUrl: string) => {
+    editor.chain().focus().setImage({ src: signedUrl }).run();
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-1 px-4 py-2 border-b border-leather-300 bg-cream-100">
@@ -141,6 +148,12 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <span>&ldquo;</span>
       </Button>
+
+      {/* Divider */}
+      <div className="w-px h-6 bg-leather-300 mx-1" />
+
+      {/* Photo Upload */}
+      <PhotoUploadButton pageId={pageId} onUploadSuccess={handlePhotoUpload} />
     </div>
   );
 }
