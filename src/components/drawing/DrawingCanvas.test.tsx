@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { DrawingCanvas } from './DrawingCanvas';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
+import type { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import type { AppState } from '@excalidraw/excalidraw/types/types';
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/client');
@@ -73,7 +75,9 @@ describe('DrawingCanvas', () => {
     });
 
     it('should render with initial elements', () => {
-      const initialElements = [{ id: 'elem-1', type: 'rectangle' }];
+      const initialElements = [
+        { id: 'elem-1', type: 'rectangle' },
+      ] as ExcalidrawElement[];
       render(
         <DrawingCanvas pageId={mockPageId} initialElements={initialElements} />
       );
@@ -83,7 +87,9 @@ describe('DrawingCanvas', () => {
     });
 
     it('should render with initial app state', () => {
-      const initialAppState = { zoom: 1.5, viewBackgroundColor: '#fff' };
+      const initialAppState = {
+        viewBackgroundColor: '#fff',
+      } as Partial<AppState>;
       render(
         <DrawingCanvas pageId={mockPageId} initialAppState={initialAppState} />
       );
@@ -189,10 +195,10 @@ describe('DrawingCanvas', () => {
 
   describe('Supabase Integration', () => {
     it('should call upsert with correct parameters on save', async () => {
-      let savedOnSave: (() => Promise<void>) | null = null;
+      let savedOnSave: (() => Promise<void>) | undefined;
 
       (useAutosave as jest.Mock).mockImplementation(({ onSave }) => {
-        savedOnSave = onSave;
+        savedOnSave = onSave as () => Promise<void>;
         return {
           status: 'idle',
           trigger: mockTrigger,
@@ -228,10 +234,10 @@ describe('DrawingCanvas', () => {
     });
 
     it('should include updated_at timestamp in upsert', async () => {
-      let savedOnSave: (() => Promise<void>) | null = null;
+      let savedOnSave: (() => Promise<void>) | undefined;
 
       (useAutosave as jest.Mock).mockImplementation(({ onSave }) => {
-        savedOnSave = onSave;
+        savedOnSave = onSave as () => Promise<void>;
         return {
           status: 'idle',
           trigger: mockTrigger,
@@ -265,10 +271,10 @@ describe('DrawingCanvas', () => {
       const mockError = { message: 'Database error' };
       mockSupabaseUpsert.mockResolvedValue({ error: mockError });
 
-      let savedOnSave: (() => Promise<void>) | null = null;
+      let savedOnSave: (() => Promise<void>) | undefined;
 
       (useAutosave as jest.Mock).mockImplementation(({ onSave }) => {
-        savedOnSave = onSave;
+        savedOnSave = onSave as () => Promise<void>;
         return {
           status: 'idle',
           trigger: mockTrigger,
@@ -298,10 +304,10 @@ describe('DrawingCanvas', () => {
       const mockError = { message: 'Database error' };
       mockSupabaseUpsert.mockResolvedValue({ error: mockError });
 
-      let savedOnSave: (() => Promise<void>) | null = null;
+      let savedOnSave: (() => Promise<void>) | undefined;
 
       (useAutosave as jest.Mock).mockImplementation(({ onSave }) => {
-        savedOnSave = onSave;
+        savedOnSave = onSave as () => Promise<void>;
         return {
           status: 'idle',
           trigger: mockTrigger,
