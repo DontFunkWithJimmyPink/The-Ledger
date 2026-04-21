@@ -35,7 +35,7 @@ const DrawingCanvas = dynamic(
 export interface PageEditorProps {
   pageId: string;
   initialPage: Page;
-  initialDrawing: Drawing | null;
+  initialDrawing?: Drawing | null;
 }
 
 /**
@@ -50,7 +50,7 @@ export interface PageEditorProps {
 export function PageEditor({
   pageId,
   initialPage,
-  initialDrawing,
+  initialDrawing = null,
 }: PageEditorProps) {
   const [title, setTitle] = useState<string>(initialPage.title);
   const [content, setContent] = useState<Record<string, any>>(

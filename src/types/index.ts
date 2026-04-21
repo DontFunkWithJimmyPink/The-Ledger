@@ -8,6 +8,9 @@
  * All interfaces map column-for-column to their corresponding database tables.
  */
 
+import type { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import type { AppState } from '@excalidraw/excalidraw/types/types';
+
 /**
  * Notebook
  *
@@ -118,8 +121,8 @@ export interface Photo {
 export interface Drawing {
   id: string; // uuid
   page_id: string; // uuid, FK → pages.id (UNIQUE - 1:1 relationship)
-  elements: Record<string, any>[]; // jsonb - array of Excalidraw element objects
-  app_state: Record<string, any>; // jsonb - Excalidraw AppState (zoom, scroll, theme)
+  elements: ExcalidrawElement[]; // jsonb - array of Excalidraw element objects
+  app_state: Partial<AppState>; // jsonb - Excalidraw AppState (zoom, scroll, theme)
   created_at: string; // timestamptz (ISO 8601 string)
   updated_at: string; // timestamptz (ISO 8601 string)
 }

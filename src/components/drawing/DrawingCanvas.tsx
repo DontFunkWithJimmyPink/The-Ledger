@@ -9,8 +9,8 @@ import type { AppState } from '@excalidraw/excalidraw/types/types';
 
 export interface DrawingCanvasProps {
   pageId: string;
-  initialElements?: Record<string, any>[];
-  initialAppState?: Record<string, any>;
+  initialElements?: ExcalidrawElement[];
+  initialAppState?: Partial<AppState>;
 }
 
 /**
@@ -40,10 +40,8 @@ export function DrawingCanvas({
   initialAppState = {},
 }: DrawingCanvasProps) {
   const supabase = createClient();
-  const [elements, setElements] =
-    useState<Record<string, any>[]>(initialElements);
-  const [appState, setAppState] =
-    useState<Record<string, any>>(initialAppState);
+  const [elements, setElements] = useState<ExcalidrawElement[]>(initialElements);
+  const [appState, setAppState] = useState<Partial<AppState>>(initialAppState);
 
   // Autosave drawing changes
   const { status, trigger } = useAutosave({
@@ -78,16 +76,16 @@ export function DrawingCanvas({
     newElements: readonly ExcalidrawElement[],
     newAppState: AppState
   ) => {
-    setElements([...newElements] as unknown as Record<string, any>[]);
-    setAppState(newAppState as Record<string, any>);
+    setElements([...newElements]);
+    setAppState(newAppState);
   };
 
   return (
     <div className="relative w-full h-[500px] border border-leather-300 rounded-lg overflow-hidden">
       <Excalidraw
         initialData={{
-          elements: initialElements as ExcalidrawElement[],
-          appState: initialAppState as Partial<AppState>,
+          elements: initialElements,
+          appState: initialAppState,
         }}
         onChange={handleChange}
       />
