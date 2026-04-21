@@ -12,11 +12,12 @@ import { PageListWrapper } from './PageListWrapper';
  * Renders list of PageListItem components.
  * Includes "New Page" button that creates a new page and redirects to it.
  * Supports URL search params for sorting: sortBy and direction
+ * Supports URL search param for search: q (keyword search)
  */
 export default async function NotebookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sortBy?: string; direction?: string }>;
+  searchParams: Promise<{ sortBy?: string; direction?: string; q?: string }>;
 }) {
   const supabase = await createClient();
   const params = await searchParams;
@@ -60,13 +61,29 @@ export default async function NotebookPage({
       | undefined) || 'sort_order';
   const direction = (params.direction as 'asc' | 'desc' | undefined) || 'asc';
   const ascending = direction === 'asc';
+  const searchQuery = params.q?.trim() || '';
 
-  // Fetch all pages for this notebook, ordered by selected criteria
-  const { data: pages, error: pagesError } = await supabase
-    .from('pages')
-    .select('id, title, content, sort_order, updated_at, created_at')
-    .eq('notebook_id', notebook.id)
-    .order(sortBy, { ascending });
+  // Fetch pages: use search RPC if query exists, otherwise fetch all pages
+  let pages: Page[] | null = null;
+  let pagesError = null;
+
+  if (searchQuery) {
+    // Use RPC search function for keyword search
+    const { data, error } = await supabase.rpc('search_pages', {
+      search_query: searchQuery,
+    });
+    pages = data as Page[] | null;
+    pagesError = error;
+  } else {
+    // Fetch all pages for this notebook, ordered by selected criteria
+    const { data, error } = await supabase
+      .from('pages')
+      .select('id, title, content, sort_order, updated_at, created_at')
+      .eq('notebook_id', notebook.id)
+      .order(sortBy, { ascending });
+    pages = data as Page[] | null;
+    pagesError = error;
+  }
 
   if (pagesError) {
     return (
@@ -172,31 +189,39 @@ export default async function NotebookPage({
 
       {/* Page List */}
       {pages && pages.length > 0 ? (
-        <PageListWrapper pages={pages as Page[]} />
+        <PageListWrapper pages={pages as Page[]} searchQuery={searchQuery} />
       ) : (
         <div className="flex flex-col items-center justify-center py-16">
-          <p className="text-ink-500 text-lg mb-4">
-            Your notebook is empty — create your first page
-          </p>
-          <form action={createNewPage}>
-            <Button type="submit" variant="primary">
-              <svg
-                className="w-5 h-5 mr-2 -ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Create First Page
-            </Button>
-          </form>
+          {searchQuery ? (
+            <p className="text-ink-500 text-lg mb-4">
+              No pages found for &apos;{searchQuery}&apos;
+            </p>
+          ) : (
+            <>
+              <p className="text-ink-500 text-lg mb-4">
+                Your notebook is empty — create your first page
+              </p>
+              <form action={createNewPage}>
+                <Button type="submit" variant="primary">
+                  <svg
+                    className="w-5 h-5 mr-2 -ml-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Create First Page
+                </Button>
+              </form>
+            </>
+          )}
         </div>
       )}
     </div>
