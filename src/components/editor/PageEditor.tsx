@@ -17,7 +17,8 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { SkeletonCanvas } from '@/components/drawing/SkeletonCanvas';
-import type { Page, Drawing } from '@/types';
+import { PageLabelAssigner } from '@/components/labels/PageLabelAssigner';
+import type { Page, Drawing, Label } from '@/types';
 import toast from 'react-hot-toast';
 
 // Dynamically import DrawingCanvas with SSR disabled (required for Excalidraw)
@@ -36,6 +37,8 @@ export interface PageEditorProps {
   pageId: string;
   initialPage: Page;
   initialDrawing?: Drawing | null;
+  allLabels?: Label[];
+  assignedLabels?: Label[];
 }
 
 /**
@@ -51,6 +54,8 @@ export function PageEditor({
   pageId,
   initialPage,
   initialDrawing = null,
+  allLabels = [],
+  assignedLabels = [],
 }: PageEditorProps) {
   const [title, setTitle] = useState<string>(initialPage.title);
   const [content, setContent] = useState<Record<string, any>>(
@@ -305,6 +310,15 @@ export function PageEditor({
         >
           Delete
         </Button>
+      </div>
+
+      {/* Label assignment section */}
+      <div className="border-b border-leather-300 px-4 py-3 bg-cream-50">
+        <PageLabelAssigner
+          pageId={pageId}
+          allLabels={allLabels}
+          assignedLabels={assignedLabels}
+        />
       </div>
 
       {/* Editor Toolbar */}
