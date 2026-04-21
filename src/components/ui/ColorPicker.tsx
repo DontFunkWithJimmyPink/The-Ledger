@@ -61,6 +61,9 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className="w-full flex items-center justify-between px-3 py-2 text-sm font-sans bg-cream-200 text-ink-900 border border-leather-500 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-leather-700"
+          aria-label="Select color"
+          aria-expanded={isOpen}
+          aria-haspopup="true"
         >
           <div className="flex items-center gap-2">
             <div className={`w-4 h-4 rounded ${selectedColor?.bg}`} />
@@ -71,6 +74,7 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -92,6 +96,7 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                   className={`p-2 rounded hover:bg-cream-100 transition-colors ${
                     color.value === value ? 'ring-2 ring-leather-700' : ''
                   }`}
+                  aria-label={color.name}
                   title={color.name}
                 >
                   <div

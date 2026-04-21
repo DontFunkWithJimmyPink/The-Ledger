@@ -27,6 +27,7 @@ const config: Config = {
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
     '<rootDir>/tests/unit/**/*.{spec,test}.{js,jsx,ts,tsx}',
     '<rootDir>/tests/integration/**/*.{spec,test}.{js,jsx,ts,tsx}',
+    '<rootDir>/tests/accessibility/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/e2e/'],
   transformIgnorePatterns: [
