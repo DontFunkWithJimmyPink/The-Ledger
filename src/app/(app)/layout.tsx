@@ -1,6 +1,6 @@
-import { Sidebar, TopBar } from '@/components/layout';
 import { ReminderPoller } from '@/components/reminders';
 import { createClient } from '@/lib/supabase/server';
+import { AppLayoutClient } from './AppLayoutClient';
 
 /**
  * App layout that wraps all authenticated pages
@@ -30,21 +30,12 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex h-screen bg-cream-50">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Top Bar */}
-        <TopBar initialReminderCount={initialReminderCount} />
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
-
+    <>
+      <AppLayoutClient initialReminderCount={initialReminderCount}>
+        {children}
+      </AppLayoutClient>
       {/* ReminderPoller - polls for due reminders app-wide */}
       <ReminderPoller />
-    </div>
+    </>
   );
 }
