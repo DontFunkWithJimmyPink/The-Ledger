@@ -10,7 +10,10 @@ import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
 import { usePolling } from '@/lib/hooks/use-polling';
+import { useSessionRestore } from '@/lib/hooks/use-session-restore';
 import { extractTaskItems } from '@/lib/utils/content';
+import { isAuthError } from '@/lib/utils/auth-errors';
+import { storeEditorContent, clearEditorContent } from '@/lib/utils/session-storage';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import { CustomImage } from '@/components/editor/extensions/CustomImage';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
@@ -63,9 +66,14 @@ export function PageEditor({
   allLabels = [],
   assignedLabels = [],
 }: PageEditorProps) {
-  const [title, setTitle] = useState<string>(initialPage.title);
-  const [content, setContent] = useState<Record<string, any>>(
-    initialPage.content
+  // Check for restored content from sessionStorage (after re-login)
+  const { restoredContent, clearStored } = useSessionRestore(pageId);
+
+  const [title, setTitle] = useState<string>(
+    restoredContent?.title || initialPage.title
+  );
+  const [content, setContent] = useState<Record<string, unknown>>(
+    restoredContent?.content || initialPage.content
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -109,7 +117,7 @@ export function PageEditor({
         placeholder: 'Start writing…',
       }),
     ],
-    content: initialPage.content,
+    content: restoredContent?.content || initialPage.content,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       setContent(json);
@@ -143,6 +151,15 @@ export function PageEditor({
     },
   });
 
+  // Show toast when content is restored from sessionStorage
+  useEffect(() => {
+    if (restoredContent) {
+      toast.success('Unsaved changes restored after re-login');
+      // Clear the stored content after successful restoration
+      clearStored();
+    }
+  }, [restoredContent, clearStored]);
+
   // Autosave content changes
   const {
     status: contentStatus,
@@ -150,70 +167,114 @@ export function PageEditor({
     retry: retryContentSave,
   } = useAutosave({
     onSave: async () => {
-      // Update page content
-      const newUpdatedAt = new Date().toISOString();
-      const { error: pageError } = await supabase
-        .from('pages')
-        .update({
-          content,
-          updated_at: newUpdatedAt,
-        })
-        .eq('id', pageId);
+      try {
+        // Update page content
+        const newUpdatedAt = new Date().toISOString();
+        const { error: pageError } = await supabase
+          .from('pages')
+          .update({
+            content,
+            updated_at: newUpdatedAt,
+          })
+          .eq('id', pageId);
 
-      if (pageError) {
-        console.error('Failed to save page content:', pageError);
-        throw pageError;
-      }
+        if (pageError) {
+          // Check if this is an auth error (401/403)
+          if (isAuthError(pageError)) {
+            // Store editor content in sessionStorage before redirecting
+            storeEditorContent(pageId, content, title);
+            toast.error('Session expired. Redirecting to login...');
 
-      // Update local updated_at timestamp after successful save
-      setUpdatedAt(newUpdatedAt);
+            // Redirect to login with current page as the return URL
+            router.push(`/login?next=/notebook/${pageId}`);
+            return;
+          }
 
-      // Extract and sync tasks
-      const taskItems = extractTaskItems(content);
-      const activeIndexes = taskItems.map((item) => item.index);
-
-      // Upsert tasks
-      if (taskItems.length > 0) {
-        const tasksToUpsert = taskItems.map((item, idx) => ({
-          page_id: pageId,
-          task_index: item.index,
-          text: item.text,
-          checked: item.checked,
-          sort_order: `${idx}`, // Simple ordering for now
-        }));
-
-        const { error: upsertError } = await supabase
-          .from('tasks')
-          .upsert(tasksToUpsert, {
-            onConflict: 'page_id,task_index',
-          });
-
-        if (upsertError) {
-          console.error('Failed to upsert tasks:', upsertError);
+          console.error('Failed to save page content:', pageError);
+          throw pageError;
         }
-      }
 
-      // Delete orphaned tasks
-      if (activeIndexes.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('tasks')
-          .delete()
-          .eq('page_id', pageId)
-          .not('task_index', 'in', `(${activeIndexes.join(',')})`);
+        // Update local updated_at timestamp after successful save
+        setUpdatedAt(newUpdatedAt);
 
-        if (deleteError) {
-          console.error('Failed to delete orphaned tasks:', deleteError);
+        // Extract and sync tasks
+        const taskItems = extractTaskItems(content);
+        const activeIndexes = taskItems.map((item) => item.index);
+
+        // Upsert tasks
+        if (taskItems.length > 0) {
+          const tasksToUpsert = taskItems.map((item, idx) => ({
+            page_id: pageId,
+            task_index: item.index,
+            text: item.text,
+            checked: item.checked,
+            sort_order: `${idx}`, // Simple ordering for now
+          }));
+
+          const { error: upsertError } = await supabase
+            .from('tasks')
+            .upsert(tasksToUpsert, {
+              onConflict: 'page_id,task_index',
+            });
+
+          if (upsertError) {
+            // Check for auth error on task upsert
+            if (isAuthError(upsertError)) {
+              storeEditorContent(pageId, content, title);
+              toast.error('Session expired. Redirecting to login...');
+              router.push(`/login?next=/notebook/${pageId}`);
+              return;
+            }
+            console.error('Failed to upsert tasks:', upsertError);
+          }
         }
-      } else {
-        // No active tasks, delete all tasks for this page
-        const { error: deleteAllError } = await supabase
-          .from('tasks')
-          .delete()
-          .eq('page_id', pageId);
 
-        if (deleteAllError) {
-          console.error('Failed to delete all tasks:', deleteAllError);
+        // Delete orphaned tasks
+        if (activeIndexes.length > 0) {
+          const { error: deleteError } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('page_id', pageId)
+            .not('task_index', 'in', `(${activeIndexes.join(',')})`);
+
+          if (deleteError) {
+            // Check for auth error on task deletion
+            if (isAuthError(deleteError)) {
+              storeEditorContent(pageId, content, title);
+              toast.error('Session expired. Redirecting to login...');
+              router.push(`/login?next=/notebook/${pageId}`);
+              return;
+            }
+            console.error('Failed to delete orphaned tasks:', deleteError);
+          }
+        } else {
+          // No active tasks, delete all tasks for this page
+          const { error: deleteAllError } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('page_id', pageId);
+
+          if (deleteAllError) {
+            // Check for auth error on task deletion
+            if (isAuthError(deleteAllError)) {
+              storeEditorContent(pageId, content, title);
+              toast.error('Session expired. Redirecting to login...');
+              router.push(`/login?next=/notebook/${pageId}`);
+              return;
+            }
+            console.error('Failed to delete all tasks:', deleteAllError);
+          }
         }
+      } catch (error) {
+        // Catch any unexpected errors
+        if (isAuthError(error)) {
+          storeEditorContent(pageId, content, title);
+          toast.error('Session expired. Redirecting to login...');
+          router.push(`/login?next=/notebook/${pageId}`);
+          return;
+        }
+        // Re-throw non-auth errors for retry logic
+        throw error;
       }
     },
     delay: 500,
@@ -243,6 +304,13 @@ export function PageEditor({
         .single();
 
       if (error) {
+        // Check for auth error during polling
+        if (isAuthError(error)) {
+          storeEditorContent(pageId, content, title);
+          toast.error('Session expired. Redirecting to login...');
+          router.push(`/login?next=/notebook/${pageId}`);
+          return;
+        }
         console.error('Failed to poll page content:', error);
         return;
       }
@@ -261,9 +329,16 @@ export function PageEditor({
         }
       }
     } catch (err) {
+      // Check for auth error in caught exceptions
+      if (isAuthError(err)) {
+        storeEditorContent(pageId, content, title);
+        toast.error('Session expired. Redirecting to login...');
+        router.push(`/login?next=/notebook/${pageId}`);
+        return;
+      }
       console.error('Error polling page content:', err);
     }
-  }, [supabase, pageId, isEditorFocused, updatedAt, editor]);
+  }, [supabase, pageId, isEditorFocused, updatedAt, editor, content, title, router]);
 
   // Poll for page updates every 30 seconds
   usePolling(pollPageContent, {
@@ -282,13 +357,20 @@ export function PageEditor({
         .eq('id', pageId);
 
       if (error) {
+        // Check for auth error on title update
+        if (isAuthError(error)) {
+          storeEditorContent(pageId, content, title);
+          toast.error('Session expired. Redirecting to login...');
+          router.push(`/login?next=/notebook/${pageId}`);
+          return;
+        }
         console.error('Failed to update title:', error);
         toast.error('Failed to update title');
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [title, pageId, supabase, initialPage.title]);
+  }, [title, pageId, supabase, initialPage.title, content, router]);
 
   // Update browser title
   useEffect(() => {
@@ -384,6 +466,13 @@ export function PageEditor({
       const { error } = await supabase.from('pages').delete().eq('id', pageId);
 
       if (error) {
+        // Check for auth error on page deletion
+        if (isAuthError(error)) {
+          // Don't store content when deleting - user wanted to delete anyway
+          toast.error('Session expired. Redirecting to login...');
+          router.push('/login');
+          return;
+        }
         console.error('Failed to delete page:', error);
         toast.error('Failed to delete page');
         setIsDeleting(false);
@@ -393,6 +482,12 @@ export function PageEditor({
       toast.success('Page deleted');
       router.push('/notebook');
     } catch (err) {
+      // Check for auth error in caught exceptions
+      if (isAuthError(err)) {
+        toast.error('Session expired. Redirecting to login...');
+        router.push('/login');
+        return;
+      }
       console.error('Error deleting page:', err);
       toast.error('Failed to delete page');
       setIsDeleting(false);
