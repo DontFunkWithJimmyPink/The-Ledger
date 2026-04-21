@@ -44,6 +44,11 @@ export interface UseAutosaveReturn {
    * Reset the status to idle
    */
   reset: () => void;
+  /**
+   * Manually retry a failed save operation
+   * This is useful for retry buttons in error toast notifications
+   */
+  retry: () => void;
 }
 
 /**
@@ -189,9 +194,32 @@ export function useAutosave({
     setStatus('idle');
   }, []);
 
+  /**
+   * Manually retry a failed save operation
+   * Clears any pending timers and immediately attempts to save
+   */
+  const retry = useCallback(() => {
+    // Clear any existing timers
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
+    // Reset retry count to allow another retry if this fails
+    retryCountRef.current = 0;
+
+    // Execute save immediately
+    executeSave();
+  }, [executeSave]);
+
   return {
     status,
     trigger,
     reset,
+    retry,
   };
 }

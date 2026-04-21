@@ -741,4 +741,167 @@ describe('useAutosave', () => {
       expect(onSave3).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('manual retry', () => {
+    it('should allow manual retry after error state', async () => {
+      const onSave = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('First error'))
+        .mockRejectedValueOnce(new Error('Second error'))
+        .mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useAutosave({ onSave }));
+
+      // Trigger autosave - will fail twice and enter error state
+      act(() => {
+        result.current.trigger();
+        jest.advanceTimersByTime(500); // Debounce
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Fast-forward to automatic retry
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(2);
+        expect(result.current.status).toBe('error');
+      });
+
+      // Now manually retry
+      act(() => {
+        result.current.retry();
+      });
+
+      // Should immediately attempt save (no debounce)
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(3);
+        expect(result.current.status).toBe('saved');
+      });
+    });
+
+    it('should reset retry count when using manual retry', async () => {
+      const onSave = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('First error'))
+        .mockRejectedValueOnce(new Error('Second error'))
+        .mockRejectedValueOnce(new Error('Third error'))
+        .mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useAutosave({ onSave }));
+
+      // Trigger autosave - will fail twice and enter error state
+      act(() => {
+        result.current.trigger();
+        jest.advanceTimersByTime(500);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Fast-forward to automatic retry
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(2);
+        expect(result.current.status).toBe('error');
+      });
+
+      // Manual retry - resets retry count, so should retry once more if it fails
+      act(() => {
+        result.current.retry();
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(3);
+        expect(result.current.status).toBe('saving');
+      });
+
+      // Fast-forward for automatic retry after manual retry failure
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(4);
+        expect(result.current.status).toBe('saved');
+      });
+    });
+
+    it('should immediately execute save without debounce on manual retry', async () => {
+      const onSave = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Error'))
+        .mockRejectedValueOnce(new Error('Error'))
+        .mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useAutosave({ onSave, delay: 1000 }));
+
+      // Trigger initial save
+      act(() => {
+        result.current.trigger();
+        jest.advanceTimersByTime(1000);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Fast-forward to automatic retry
+      act(() => {
+        jest.advanceTimersByTime(2000);
+      });
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(2);
+        expect(result.current.status).toBe('error');
+      });
+
+      // Manual retry should execute immediately (no 1000ms debounce)
+      const callCount = onSave.mock.calls.length;
+      act(() => {
+        result.current.retry();
+      });
+
+      // Should have been called without advancing timers
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(callCount + 1);
+      });
+    });
+
+    it('should clear pending timers on manual retry', async () => {
+      const onSave = jest.fn().mockResolvedValue(undefined);
+      const { result } = renderHook(() => useAutosave({ onSave, delay: 1000 }));
+
+      // Start a debounced save
+      act(() => {
+        result.current.trigger();
+      });
+
+      // Before debounce completes, call retry
+      act(() => {
+        result.current.retry();
+      });
+
+      // Should execute immediately
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledTimes(1);
+      });
+
+      // Advance past original debounce time - should not trigger again
+      act(() => {
+        jest.advanceTimersByTime(1000);
+      });
+
+      // Still only one call
+      expect(onSave).toHaveBeenCalledTimes(1);
+    });
+  });
 });

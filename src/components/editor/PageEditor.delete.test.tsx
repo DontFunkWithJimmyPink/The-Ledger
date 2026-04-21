@@ -85,6 +85,7 @@ describe('PageEditor - Delete Functionality', () => {
       status: 'idle',
       trigger: jest.fn(),
       reset: jest.fn(),
+      retry: jest.fn(),
     });
 
     // Reset delete mock chain
