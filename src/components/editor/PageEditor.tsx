@@ -4,11 +4,12 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { useAutosave } from '@/lib/hooks/use-autosave';
+import { usePolling } from '@/lib/hooks/use-polling';
 import { extractTaskItems } from '@/lib/utils/content';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import { CustomImage } from '@/components/editor/extensions/CustomImage';
@@ -49,6 +50,11 @@ export interface PageEditorProps {
  * Wires content changes to useAutosave for debounced saving. Handles inline
  * title editing with debounced updates. Supports DrawingCanvas integration
  * with toggle button to add/hide drawings.
+ *
+ * T068: Implements 30-second polling to sync editor content across devices.
+ * Polling pauses when editor is focused (user is actively typing). On each
+ * unfocused tick, refetches page content and updates editor if server version
+ * is newer than local state (based on updated_at timestamp comparison).
  */
 export function PageEditor({
   pageId,
@@ -72,6 +78,8 @@ export function PageEditor({
     storagePath?: string;
     nodePos?: number;
   }>({ src: '', alt: '' });
+  const [isEditorFocused, setIsEditorFocused] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<string>(initialPage.updated_at);
   const supabase = createClient();
   const router = useRouter();
 
@@ -106,6 +114,12 @@ export function PageEditor({
       const json = editor.getJSON();
       setContent(json);
     },
+    onFocus: () => {
+      setIsEditorFocused(true);
+    },
+    onBlur: () => {
+      setIsEditorFocused(false);
+    },
     editorProps: {
       attributes: {
         class:
@@ -133,11 +147,12 @@ export function PageEditor({
   const { status: contentStatus, trigger: triggerContentSave } = useAutosave({
     onSave: async () => {
       // Update page content
+      const newUpdatedAt = new Date().toISOString();
       const { error: pageError } = await supabase
         .from('pages')
         .update({
           content,
-          updated_at: new Date().toISOString(),
+          updated_at: newUpdatedAt,
         })
         .eq('id', pageId);
 
@@ -145,6 +160,9 @@ export function PageEditor({
         console.error('Failed to save page content:', pageError);
         throw pageError;
       }
+
+      // Update local updated_at timestamp after successful save
+      setUpdatedAt(newUpdatedAt);
 
       // Extract and sync tasks
       const taskItems = extractTaskItems(content);
@@ -204,6 +222,50 @@ export function PageEditor({
       triggerContentSave();
     }
   }, [content, triggerContentSave, initialPage.content]);
+
+  // Polling callback: refetch page content and update editor if server version is newer
+  const pollPageContent = useCallback(async () => {
+    // Don't poll when editor is focused (user is actively typing)
+    if (isEditorFocused) {
+      return;
+    }
+
+    try {
+      // Fetch only the page content and updated_at timestamp
+      const { data, error } = await supabase
+        .from('pages')
+        .select('content, updated_at')
+        .eq('id', pageId)
+        .single();
+
+      if (error) {
+        console.error('Failed to poll page content:', error);
+        return;
+      }
+
+      if (!data) {
+        return;
+      }
+
+      // Only update if server version is newer than local state
+      if (data.updated_at > updatedAt) {
+        // Update editor content
+        if (editor && data.content) {
+          editor.commands.setContent(data.content);
+          setContent(data.content);
+          setUpdatedAt(data.updated_at);
+        }
+      }
+    } catch (err) {
+      console.error('Error polling page content:', err);
+    }
+  }, [supabase, pageId, isEditorFocused, updatedAt, editor]);
+
+  // Poll for page updates every 30 seconds
+  usePolling(pollPageContent, {
+    interval: 30000, // 30 seconds
+    runOnMount: false, // Don't run immediately - we already have server data
+  });
 
   // Debounced title update
   useEffect(() => {
