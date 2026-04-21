@@ -6,10 +6,9 @@
  */
 
 const EDITOR_CONTENT_PREFIX = 'ledger_editor_content_';
-const EDITOR_TITLE_PREFIX = 'ledger_editor_title_';
 
 export interface StoredEditorState {
-  content: Record<string, any>;
+  content: Record<string, unknown>;
   title: string;
   timestamp: number;
 }
@@ -23,7 +22,7 @@ export interface StoredEditorState {
  */
 export function storeEditorContent(
   pageId: string,
-  content: Record<string, any>,
+  content: Record<string, unknown>,
   title: string
 ): void {
   try {

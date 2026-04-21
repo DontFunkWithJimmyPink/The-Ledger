@@ -72,7 +72,7 @@ export function PageEditor({
   const [title, setTitle] = useState<string>(
     restoredContent?.title || initialPage.title
   );
-  const [content, setContent] = useState<Record<string, any>>(
+  const [content, setContent] = useState<Record<string, unknown>>(
     restoredContent?.content || initialPage.content
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
