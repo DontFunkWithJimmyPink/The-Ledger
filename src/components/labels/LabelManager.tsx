@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Label } from '@/types';
 import toast from 'react-hot-toast';
@@ -25,6 +25,10 @@ export function LabelManager({ className = '' }: LabelManagerProps) {
 
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get active label from URL params
+  const activeLabelId = searchParams.get('labelId');
 
   // Fetch labels on mount
   useEffect(() => {
@@ -173,6 +177,21 @@ export function LabelManager({ className = '' }: LabelManagerProps) {
     return colorMap[color] || 'bg-leather-300';
   };
 
+  const handleLabelClick = (labelId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // If clicking the active label, clear the filter
+    if (activeLabelId === labelId) {
+      params.delete('labelId');
+    } else {
+      // Set the new label filter
+      params.set('labelId', labelId);
+    }
+
+    // Navigate to notebook with the updated params
+    router.push(`/notebook${params.toString() ? `?${params.toString()}` : ''}`);
+  };
+
   return (
     <div className={className}>
       <div className="flex items-center justify-between px-4 mb-3">
@@ -211,44 +230,52 @@ export function LabelManager({ className = '' }: LabelManagerProps) {
         </div>
       ) : (
         <div className="px-4 space-y-2">
-          {labels.map((label) => (
-            <div key={label.id} className="flex items-center gap-2 group">
-              <button
-                className="flex items-center gap-2 flex-1 px-2 py-1 rounded text-sm font-sans text-cream-50 hover:bg-leather-700 transition-colors"
-                title={`Filter by ${label.name}`}
-              >
-                <div
-                  className={`w-3 h-3 rounded ${getColorClass(label.color)}`}
-                />
-                <span className="truncate">{label.name}</span>
-              </button>
-              <button
-                onClick={() => handleDeleteLabel(label.id, label.name)}
-                disabled={deletingLabelId === label.id}
-                className="opacity-0 group-hover:opacity-100 text-cream-300 hover:text-red-400 transition-all disabled:opacity-50"
-                aria-label={`Delete ${label.name}`}
-                title={`Delete ${label.name}`}
-              >
-                {deletingLabelId === label.id ? (
-                  <svg
-                    className="w-4 h-4 animate-spin"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                ) : (
-                  <span className="text-lg leading-none">×</span>
-                )}
-              </button>
-            </div>
-          ))}
+          {labels.map((label) => {
+            const isActive = activeLabelId === label.id;
+            return (
+              <div key={label.id} className="flex items-center gap-2 group">
+                <button
+                  onClick={() => handleLabelClick(label.id)}
+                  className={`flex items-center gap-2 flex-1 px-2 py-1 rounded text-sm font-sans transition-colors ${
+                    isActive
+                      ? 'bg-leather-700 text-cream-50'
+                      : 'text-cream-50 hover:bg-leather-700'
+                  }`}
+                  title={`Filter by ${label.name}`}
+                >
+                  <div
+                    className={`w-3 h-3 rounded ${getColorClass(label.color)}`}
+                  />
+                  <span className="truncate">{label.name}</span>
+                </button>
+                <button
+                  onClick={() => handleDeleteLabel(label.id, label.name)}
+                  disabled={deletingLabelId === label.id}
+                  className="opacity-0 group-hover:opacity-100 text-cream-300 hover:text-red-400 transition-all disabled:opacity-50"
+                  aria-label={`Delete ${label.name}`}
+                  title={`Delete ${label.name}`}
+                >
+                  {deletingLabelId === label.id ? (
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                  ) : (
+                    <span className="text-lg leading-none">×</span>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 

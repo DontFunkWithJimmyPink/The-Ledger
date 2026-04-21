@@ -52,6 +52,10 @@ export function TopBar({
       if (sortBy) params.set('sortBy', sortBy);
       if (direction) params.set('direction', direction);
 
+      // Preserve label filter param
+      const labelId = searchParams.get('labelId');
+      if (labelId) params.set('labelId', labelId);
+
       // Update URL to trigger server-side refetch
       const queryString = params.toString();
       router.push(`/notebook${queryString ? `?${queryString}` : ''}`);
