@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import '@fontsource/lora/400.css';
 import '@fontsource/lora/700.css';
 import '@fontsource/inter/400.css';
@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   },
   description: 'Digital Notebook App — Journal, tasks, and notes in one place',
   keywords: ['notebook', 'journal', 'tasks', 'notes', 'digital ledger'],
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({

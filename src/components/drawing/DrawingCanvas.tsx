@@ -20,6 +20,11 @@ export interface DrawingCanvasProps {
  * Must be dynamically imported with `next/dynamic` and `ssr: false` because Excalidraw
  * requires browser APIs (Canvas API, IndexedDB) that are not available during SSR.
  *
+ * Touch Support:
+ * Excalidraw natively supports touch events for drawing on mobile devices. No additional
+ * configuration is required. The library handles pointer events internally, including
+ * touch gestures for drawing, panning, and zooming.
+ *
  * @example
  * ```tsx
  * const DrawingCanvas = dynamic(() => import('@/components/drawing/DrawingCanvas'), {

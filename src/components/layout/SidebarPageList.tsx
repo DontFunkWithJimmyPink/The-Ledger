@@ -170,7 +170,12 @@ export function SidebarPageList() {
         items={pages.map((page) => page.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-1 px-2" role="list" aria-label="Pages">
+        <div
+          className="space-y-1 px-2"
+          role="list"
+          aria-label="Pages"
+          style={{ touchAction: 'none' }}
+        >
           {pages.map((page) => (
             <SidebarPageListItem key={page.id} page={page} />
           ))}
