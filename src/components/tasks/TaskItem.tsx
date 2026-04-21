@@ -113,7 +113,7 @@ export function TaskItem({ task, onUpdate }: TaskItemProps) {
       {/* Drag Handle */}
       <button
         type="button"
-        className="cursor-grab active:cursor-grabbing text-leather-500 hover:text-leather-700 mt-1"
+        className="cursor-grab active:cursor-grabbing text-leather-500 hover:text-leather-700 mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leather-500"
         aria-label="Drag to reorder task"
         {...attributes}
         {...listeners}

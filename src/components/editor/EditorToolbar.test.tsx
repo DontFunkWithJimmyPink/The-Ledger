@@ -323,4 +323,39 @@ describe('EditorToolbar', () => {
     // This is implicitly tested through the mock
     expect(screen.getByTestId('photo-upload-button')).toBeInTheDocument();
   });
+
+  describe('Keyboard Navigation', () => {
+    it('should have focus-visible rings on all toolbar buttons', () => {
+      const editor = createMockEditor();
+      render(<EditorToolbar editor={editor} pageId="test-page-id" />);
+
+      const buttons = [
+        screen.getByLabelText('Toggle bold'),
+        screen.getByLabelText('Toggle italic'),
+        screen.getByLabelText('Toggle heading 1'),
+        screen.getByLabelText('Toggle heading 2'),
+        screen.getByLabelText('Toggle bullet list'),
+        screen.getByLabelText('Toggle ordered list'),
+        screen.getByLabelText('Toggle task list'),
+        screen.getByLabelText('Toggle block quote'),
+      ];
+
+      buttons.forEach((button) => {
+        expect(button).toHaveClass('focus-visible:ring-2');
+      });
+    });
+
+    it('should execute command on Enter key press', async () => {
+      const editor = createMockEditor();
+      const user = userEvent.setup();
+      render(<EditorToolbar editor={editor} pageId="test-page-id" />);
+
+      const boldButton = screen.getByLabelText('Toggle bold');
+      boldButton.focus();
+      await user.keyboard('{Enter}');
+
+      expect(editor.chain).toHaveBeenCalled();
+      expect(editor._chainMock.toggleBold).toHaveBeenCalled();
+    });
+  });
 });

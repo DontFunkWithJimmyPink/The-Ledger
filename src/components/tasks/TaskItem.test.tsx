@@ -428,6 +428,24 @@ describe('TaskItem', () => {
     expect(taskElement).toHaveAttribute('aria-label', 'Buy milk');
   });
 
+  describe('Keyboard Navigation', () => {
+    it('should have focus-visible ring on drag handle', () => {
+      render(<TaskItem task={mockTask} />);
+      const dragHandle = screen.getByLabelText('Drag to reorder task');
+      expect(dragHandle).toHaveClass('focus-visible:ring-2');
+      expect(dragHandle).toHaveClass('focus-visible:ring-leather-500');
+    });
+
+    it('should have focus ring on checkbox', () => {
+      render(<TaskItem task={mockTask} />);
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mark "buy milk" as complete/i,
+      });
+      expect(checkbox).toHaveClass('focus:ring-2');
+      expect(checkbox).toHaveClass('focus:ring-leather-500');
+    });
+  });
+
   describe('Auto-dismiss reminders on task completion', () => {
     it('should dismiss pending reminders when task is marked as complete', async () => {
       const user = userEvent.setup();

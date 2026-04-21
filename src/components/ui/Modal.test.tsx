@@ -84,6 +84,17 @@ describe('Modal', () => {
     expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
   });
 
+  it('should have visible focus ring on close button', () => {
+    render(
+      <Modal isOpen={true} onClose={jest.fn()} title="Test Modal">
+        <p>Modal content</p>
+      </Modal>
+    );
+    const closeButton = screen.getByLabelText('Close modal');
+    expect(closeButton).toHaveClass('focus-visible:ring-2');
+    expect(closeButton).toHaveClass('focus-visible:ring-leather-500');
+  });
+
   it('should not propagate click events from modal content to backdrop', async () => {
     const handleClose = jest.fn();
     const user = userEvent.setup();
