@@ -241,6 +241,7 @@ export function LabelManager({ className = '' }: LabelManagerProps) {
                       ? 'bg-leather-700 text-cream-50'
                       : 'text-cream-50 hover:bg-leather-700'
                   }`}
+                  aria-label={`Filter by ${label.name}`}
                   title={`Filter by ${label.name}`}
                 >
                   <div
