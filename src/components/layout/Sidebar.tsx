@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LabelManager } from '@/components/labels/LabelManager';
+import { SidebarPageList } from './SidebarPageList';
 
 export interface SidebarProps {
   className?: string;
@@ -33,7 +34,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {navItems.map((item) => (
             <li key={item.href}>
@@ -54,8 +55,16 @@ export function Sidebar({ className = '' }: SidebarProps) {
           ))}
         </ul>
 
-        {/* Label Filter Placeholder */}
-        <div className="mt-8 pt-6 border-t border-leather-700">
+        {/* Pages Section */}
+        <div className="mt-6 pt-6 border-t border-leather-700">
+          <h2 className="px-2 mb-3 text-xs font-semibold text-cream-400 uppercase tracking-wider">
+            Pages
+          </h2>
+          <SidebarPageList />
+        </div>
+
+        {/* Label Filter Section */}
+        <div className="mt-6 pt-6 border-t border-leather-700">
           <LabelManager />
         </div>
       </nav>
