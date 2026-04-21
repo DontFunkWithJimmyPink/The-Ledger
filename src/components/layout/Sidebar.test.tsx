@@ -5,6 +5,19 @@ import { Sidebar } from './Sidebar';
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
+  useRouter: jest.fn(() => ({
+    refresh: jest.fn(),
+  })),
+}));
+
+// Mock LabelManager component
+jest.mock('@/components/labels/LabelManager', () => ({
+  LabelManager: () => <div data-testid="label-manager">Label Manager</div>,
+}));
+
+// Mock Supabase client
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: jest.fn(),
 }));
 
 describe('Sidebar', () => {
@@ -46,10 +59,9 @@ describe('Sidebar', () => {
     expect(remindersLink).toHaveClass('bg-leather-700');
   });
 
-  it('should render label filter placeholder', () => {
+  it('should render label manager', () => {
     render(<Sidebar />);
-    expect(screen.getByText('Labels')).toBeInTheDocument();
-    expect(screen.getByText('Label filters coming soon')).toBeInTheDocument();
+    expect(screen.getByTestId('label-manager')).toBeInTheDocument();
   });
 
   it('should accept custom className', () => {

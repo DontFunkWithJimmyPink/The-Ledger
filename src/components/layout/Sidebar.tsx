@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LabelManager } from '@/components/labels/LabelManager';
 
 export interface SidebarProps {
   className?: string;
@@ -55,12 +56,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
 
         {/* Label Filter Placeholder */}
         <div className="mt-8 pt-6 border-t border-leather-700">
-          <h2 className="px-4 mb-3 text-xs font-semibold text-cream-300 uppercase tracking-wider font-sans">
-            Labels
-          </h2>
-          <div className="px-4 py-3 text-sm text-cream-300 font-sans">
-            <p className="italic">Label filters coming soon</p>
-          </div>
+          <LabelManager />
         </div>
       </nav>
     </aside>
