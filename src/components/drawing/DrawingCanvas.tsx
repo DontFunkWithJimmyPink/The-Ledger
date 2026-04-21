@@ -40,7 +40,8 @@ export function DrawingCanvas({
   initialAppState = {},
 }: DrawingCanvasProps) {
   const supabase = createClient();
-  const [elements, setElements] = useState<ExcalidrawElement[]>(initialElements);
+  const [elements, setElements] =
+    useState<ExcalidrawElement[]>(initialElements);
   const [appState, setAppState] = useState<Partial<AppState>>(initialAppState);
 
   // Autosave drawing changes

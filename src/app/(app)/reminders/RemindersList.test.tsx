@@ -7,9 +7,7 @@ jest.mock('./ReminderItem', () => ({
     reminder,
   }: {
     reminder: { id: string; task_text: string | null };
-  }) => (
-    <div data-testid={`reminder-${reminder.id}`}>{reminder.task_text}</div>
-  ),
+  }) => <div data-testid={`reminder-${reminder.id}`}>{reminder.task_text}</div>,
 }));
 
 describe('RemindersList', () => {

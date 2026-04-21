@@ -12,3 +12,6 @@ export type { BadgeProps } from './Badge';
 
 export { Tooltip } from './Tooltip';
 export type { TooltipProps } from './Tooltip';
+
+export { SortControl } from './SortControl';
+export type { SortControlProps, SortBy, SortDirection } from './SortControl';

@@ -112,7 +112,9 @@ export function PageEditor({
           const src = node.attrs.src as string;
           const alt = (node.attrs.alt as string) || '';
           const photoId = node.attrs['data-photo-id'] as string | undefined;
-          const storagePath = node.attrs['data-storage-path'] as string | undefined;
+          const storagePath = node.attrs['data-storage-path'] as
+            | string
+            | undefined;
           setLightboxImage({ src, alt, photoId, storagePath, nodePos });
           setLightboxOpen(true);
           return true;
