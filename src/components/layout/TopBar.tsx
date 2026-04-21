@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { ReminderBell } from '@/components/reminders';
 import toast from 'react-hot-toast';
@@ -15,16 +15,59 @@ export function TopBar({
   className = '',
   initialReminderCount = 0,
 }: TopBarProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Initialize search query from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced search effect
+  useEffect(() => {
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Only trigger search on notebook page
+    if (pathname !== '/notebook') {
+      return;
+    }
+
+    // Set debounced timer (300ms)
+    debounceTimerRef.current = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (searchQuery.trim()) {
+        params.set('q', searchQuery.trim());
+      } else {
+        params.delete('q');
+      }
+
+      // Preserve existing sort params
+      const sortBy = searchParams.get('sortBy');
+      const direction = searchParams.get('direction');
+      if (sortBy) params.set('sortBy', sortBy);
+      if (direction) params.set('direction', direction);
+
+      // Update URL to trigger server-side refetch
+      const queryString = params.toString();
+      router.push(`/notebook${queryString ? `?${queryString}` : ''}`);
+    }, 300);
+
+    // Cleanup timer on unmount
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchQuery, pathname, router, searchParams]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for search functionality
-    if (searchQuery.trim()) {
-      toast('Search functionality coming soon', { icon: '🔍' });
-    }
+    // Form submit is handled by the debounced effect
   };
 
   const handleLogout = async () => {

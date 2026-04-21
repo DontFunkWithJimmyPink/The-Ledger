@@ -9,6 +9,7 @@ import type { Page } from '@/types';
 
 export interface PageListWrapperProps {
   pages: Page[];
+  searchQuery?: string;
 }
 
 /**
@@ -16,7 +17,10 @@ export interface PageListWrapperProps {
  * Allows server component to pass pages to client-side drag-and-drop component
  * Manages sort state and triggers refetch via URL search params
  */
-export function PageListWrapper({ pages }: PageListWrapperProps) {
+export function PageListWrapper({
+  pages,
+  searchQuery = '',
+}: PageListWrapperProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -36,6 +40,11 @@ export function PageListWrapper({ pages }: PageListWrapperProps) {
     const params = new URLSearchParams();
     params.set('sortBy', newSortBy);
     params.set('direction', newDirection);
+
+    // Preserve search query if present
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    }
 
     router.push(`/notebook?${params.toString()}`);
   };
