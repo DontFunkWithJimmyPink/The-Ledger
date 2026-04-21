@@ -16,6 +16,7 @@ import { CustomImage } from '@/components/editor/extensions/CustomImage';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { SkeletonCanvas } from '@/components/drawing/SkeletonCanvas';
 import { PageLabelAssigner } from '@/components/labels/PageLabelAssigner';
@@ -424,11 +425,13 @@ export function PageEditor({
       {/* Drawing Canvas - conditionally rendered when showDrawing is true */}
       {showDrawing && (
         <div className="px-4 py-4 bg-cream-50 border-t border-leather-300">
-          <DrawingCanvas
-            pageId={pageId}
-            initialElements={initialDrawing?.elements || []}
-            initialAppState={initialDrawing?.app_state || {}}
-          />
+          <ErrorBoundary fallbackMessage="Something went wrong with the drawing canvas — your content is safe">
+            <DrawingCanvas
+              pageId={pageId}
+              initialElements={initialDrawing?.elements || []}
+              initialAppState={initialDrawing?.app_state || {}}
+            />
+          </ErrorBoundary>
         </div>
       )}
 
