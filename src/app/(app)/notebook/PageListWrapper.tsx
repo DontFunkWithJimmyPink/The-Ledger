@@ -10,6 +10,7 @@ import type { Page } from '@/types';
 export interface PageListWrapperProps {
   pages: Page[];
   searchQuery?: string;
+  labelId?: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export interface PageListWrapperProps {
 export function PageListWrapper({
   pages,
   searchQuery = '',
+  labelId = '',
 }: PageListWrapperProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,6 +46,11 @@ export function PageListWrapper({
     // Preserve search query if present
     if (searchQuery) {
       params.set('q', searchQuery);
+    }
+
+    // Preserve label filter if present
+    if (labelId) {
+      params.set('labelId', labelId);
     }
 
     router.push(`/notebook?${params.toString()}`);

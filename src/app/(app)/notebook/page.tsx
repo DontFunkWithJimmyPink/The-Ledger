@@ -17,7 +17,12 @@ import { PageListWrapper } from './PageListWrapper';
 export default async function NotebookPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sortBy?: string; direction?: string; q?: string }>;
+  searchParams: Promise<{
+    sortBy?: string;
+    direction?: string;
+    q?: string;
+    labelId?: string;
+  }>;
 }) {
   const supabase = await createClient();
   const params = await searchParams;
@@ -62,6 +67,7 @@ export default async function NotebookPage({
   const direction = (params.direction as 'asc' | 'desc' | undefined) || 'asc';
   const ascending = direction === 'asc';
   const searchQuery = params.q?.trim() || '';
+  const labelId = params.labelId?.trim() || '';
 
   // Fetch pages: use search RPC if query exists, otherwise fetch all pages
   let pages: Page[] | null = null;
@@ -72,6 +78,18 @@ export default async function NotebookPage({
     const { data, error } = await supabase.rpc('search_pages', {
       search_query: searchQuery,
     });
+    pages = data as Page[] | null;
+    pagesError = error;
+  } else if (labelId) {
+    // Fetch pages filtered by label using inner join on page_labels
+    const { data, error } = await supabase
+      .from('pages')
+      .select(
+        'id, title, content, sort_order, updated_at, created_at, page_labels!inner(label_id)'
+      )
+      .eq('notebook_id', notebook.id)
+      .eq('page_labels.label_id', labelId)
+      .order(sortBy, { ascending });
     pages = data as Page[] | null;
     pagesError = error;
   } else {
@@ -189,12 +207,20 @@ export default async function NotebookPage({
 
       {/* Page List */}
       {pages && pages.length > 0 ? (
-        <PageListWrapper pages={pages as Page[]} searchQuery={searchQuery} />
+        <PageListWrapper
+          pages={pages as Page[]}
+          searchQuery={searchQuery}
+          labelId={labelId}
+        />
       ) : (
         <div className="flex flex-col items-center justify-center py-16">
           {searchQuery ? (
             <p className="text-ink-500 text-lg mb-4">
               No pages found for &apos;{searchQuery}&apos;
+            </p>
+          ) : labelId ? (
+            <p className="text-ink-500 text-lg mb-4">
+              No pages found with this label
             </p>
           ) : (
             <>
