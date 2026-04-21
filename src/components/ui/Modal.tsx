@@ -56,7 +56,7 @@ export function Modal({ isOpen, onClose, children, title }: ModalProps) {
             </h2>
             <button
               onClick={onClose}
-              className="text-ink-500 hover:text-ink-900 transition-colors"
+              className="text-ink-500 hover:text-ink-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leather-500 rounded-md"
               aria-label="Close modal"
             >
               <svg
