@@ -15,6 +15,13 @@ jest.mock('@/components/labels/LabelManager', () => ({
   LabelManager: () => <div data-testid="label-manager">Label Manager</div>,
 }));
 
+// Mock SidebarPageList component
+jest.mock('./SidebarPageList', () => ({
+  SidebarPageList: () => (
+    <div data-testid="sidebar-page-list">Sidebar Page List</div>
+  ),
+}));
+
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({
   createClient: jest.fn(),
@@ -57,6 +64,11 @@ describe('Sidebar', () => {
     render(<Sidebar />);
     const remindersLink = screen.getByRole('link', { name: /reminders/i });
     expect(remindersLink).toHaveClass('bg-leather-700');
+  });
+
+  it('should render sidebar page list', () => {
+    render(<Sidebar />);
+    expect(screen.getByTestId('sidebar-page-list')).toBeInTheDocument();
   });
 
   it('should render label manager', () => {
