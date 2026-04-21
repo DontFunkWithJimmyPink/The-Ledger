@@ -1,4 +1,4 @@
-import { render, waitFor, act } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { PageEditor } from './PageEditor';
 import { usePolling } from '@/lib/hooks/use-polling';
 import { useAutosave } from '@/lib/hooks/use-autosave';
@@ -21,7 +21,9 @@ const mockEditor = {
 jest.mock('@tiptap/react', () => ({
   useEditor: jest.fn((config) => {
     // Store handlers for testing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockEditor as any).onFocus = config.onFocus;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (mockEditor as any).onBlur = config.onBlur;
     return mockEditor;
   }),
@@ -141,7 +143,9 @@ describe('PageEditor - Polling (T068)', () => {
 
       // Simulate editor focus then blur
       act(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (mockEditor as any).onFocus();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (mockEditor as any).onBlur();
       });
 
@@ -176,6 +180,7 @@ describe('PageEditor - Polling (T068)', () => {
 
       // Focus the editor
       act(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (mockEditor as any).onFocus();
       });
 
