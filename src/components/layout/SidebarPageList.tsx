@@ -52,7 +52,9 @@ export function SidebarPageList() {
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('id, title, content, sort_order, updated_at, created_at, notebook_id')
+          .select(
+            'id, title, content, sort_order, updated_at, created_at, notebook_id'
+          )
           .order('sort_order', { ascending: true });
 
         if (error) {
