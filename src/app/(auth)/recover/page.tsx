@@ -1,14 +1,14 @@
 'use client';
 
 import type { FormEvent } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
-export default function RecoverPage() {
+function RecoverForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -256,5 +256,13 @@ export default function RecoverPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function RecoverPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-cream-50">Loading...</div>}>
+      <RecoverForm />
+    </Suspense>
   );
 }
