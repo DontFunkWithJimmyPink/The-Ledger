@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import type { Page, Drawing, Label } from '@/types';
 import { PageEditor } from '@/components/editor/PageEditor';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 interface PageEditorRouteProps {
   params: Promise<{ pageId: string }>;
@@ -58,13 +59,15 @@ export default async function PageEditorRoute({
 
   return (
     <div className="h-full flex flex-col">
-      <PageEditor
-        pageId={page.id}
-        initialPage={page as Page}
-        initialDrawing={drawing as Drawing | null}
-        allLabels={(allLabels as Label[]) || []}
-        assignedLabels={assignedLabels}
-      />
+      <ErrorBoundary fallbackMessage="Something went wrong with the editor — your content is safe">
+        <PageEditor
+          pageId={page.id}
+          initialPage={page as Page}
+          initialDrawing={drawing as Drawing | null}
+          allLabels={(allLabels as Label[]) || []}
+          assignedLabels={assignedLabels}
+        />
+      </ErrorBoundary>
     </div>
   );
 }
