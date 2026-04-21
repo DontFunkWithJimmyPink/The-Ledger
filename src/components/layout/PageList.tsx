@@ -139,7 +139,12 @@ export function PageList({ pages, onPagesReorder }: PageListProps) {
         items={localPages.map((page) => page.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-3" role="list" aria-label="Page list">
+        <div
+          className="space-y-3"
+          role="list"
+          aria-label="Page list"
+          style={{ touchAction: 'none' }}
+        >
           {localPages.map((page) => (
             <SortablePageListItem key={page.id} page={page} />
           ))}

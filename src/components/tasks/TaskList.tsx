@@ -145,7 +145,12 @@ export function TaskList({ tasks, onTasksReorder }: TaskListProps) {
         items={localTasks.map((task) => task.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-2" role="list" aria-label="Task list">
+        <div
+          className="space-y-2"
+          role="list"
+          aria-label="Task list"
+          style={{ touchAction: 'none' }}
+        >
           {localTasks.map((task) => (
             <TaskItem key={task.id} task={task} onUpdate={handleTaskUpdate} />
           ))}

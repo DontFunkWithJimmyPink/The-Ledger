@@ -463,4 +463,66 @@ describe('TaskList', () => {
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(3);
   });
+
+  describe('Touch Support', () => {
+    it('should configure PointerSensor for touch events', () => {
+      const { useSensor: mockUseSensorFn } = jest.requireMock('@dnd-kit/core');
+
+      render(<TaskList tasks={mockTasks} />);
+
+      // Verify PointerSensor was configured with activation constraint
+      expect(mockUseSensorFn).toHaveBeenCalled();
+      const sensorConfig = mockUseSensorFn.mock.calls[0];
+      expect(sensorConfig[1]).toEqual({
+        activationConstraint: {
+          distance: 8,
+        },
+      });
+    });
+
+    it('should apply touch-action: none to prevent scroll conflicts', () => {
+      const { container } = render(<TaskList tasks={mockTasks} />);
+
+      const listElement = container.querySelector('[role="list"]') as HTMLElement;
+      expect(listElement).toBeInTheDocument();
+      // Verify the inline style is set (check the style object directly)
+      expect(listElement?.style.touchAction).toBe('none');
+    });
+
+    it('should handle touch-initiated drag operations', async () => {
+      render(<TaskList tasks={mockTasks} />);
+
+      // Simulate a touch drag operation
+      const dragEndEvent: DragEndEvent = {
+        active: {
+          id: 'task-1',
+          data: { current: {} },
+          rect: { current: { initial: null, translated: null } },
+        },
+        over: {
+          id: 'task-2',
+          data: { current: {} },
+          rect: {} as ClientRect,
+          disabled: false,
+        },
+        delta: { x: 0, y: 50 },
+        // Mock touch pointer event
+        activatorEvent: {
+          type: 'pointerdown',
+          pointerType: 'touch',
+        } as any,
+        collisions: null,
+      };
+
+      if (mockDndContext.current?.onDragEnd) {
+        await act(async () => {
+          mockDndContext.current.onDragEnd?.(dragEndEvent);
+        });
+      }
+
+      await waitFor(() => {
+        expect(mockSupabaseFrom).toHaveBeenCalledWith('tasks');
+      });
+    });
+  });
 });
