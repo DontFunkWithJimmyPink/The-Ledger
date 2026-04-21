@@ -74,6 +74,7 @@ describe('PageEditor - Polling (T068)', () => {
       status: 'idle',
       trigger: jest.fn(),
       reset: jest.fn(),
+      retry: jest.fn(),
     });
 
     // Capture polling callback

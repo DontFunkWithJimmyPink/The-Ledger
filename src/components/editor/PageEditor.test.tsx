@@ -71,6 +71,7 @@ describe('PageEditor - Save Status Indicator', () => {
       status: 'idle',
       trigger: jest.fn(),
       reset: jest.fn(),
+      retry: jest.fn(),
     });
   });
 
@@ -80,6 +81,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saving',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -92,6 +94,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saved',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -104,6 +107,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'error',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -116,6 +120,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'idle',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -134,6 +139,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saving',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -147,6 +153,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saved',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -160,6 +167,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'error',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -175,6 +183,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saved',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       const { container } = render(
@@ -208,6 +217,7 @@ describe('PageEditor - Save Status Indicator', () => {
           status,
           trigger: jest.fn(),
           reset: jest.fn(),
+          retry: jest.fn(),
         });
 
         const saveStatusContainer = container.querySelector(
@@ -235,6 +245,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'idle',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
       rerender(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
 
@@ -245,6 +256,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'error',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
       rerender(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
 
@@ -260,6 +272,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'error',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       const { rerender } = render(
@@ -292,6 +305,7 @@ describe('PageEditor - Save Status Indicator', () => {
           status,
           trigger: jest.fn(),
           reset: jest.fn(),
+          retry: jest.fn(),
         });
 
         render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -308,6 +322,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saved',
         trigger: mockTrigger,
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       render(<PageEditor pageId={mockPage.id} initialPage={mockPage} />);
@@ -334,6 +349,7 @@ describe('PageEditor - Save Status Indicator', () => {
           status,
           trigger: jest.fn(),
           reset: jest.fn(),
+          retry: jest.fn(),
         });
 
         const { unmount } = render(
@@ -359,6 +375,7 @@ describe('PageEditor - Save Status Indicator', () => {
         status: 'saved',
         trigger: jest.fn(),
         reset: jest.fn(),
+        retry: jest.fn(),
       });
 
       const { container } = render(
@@ -420,6 +437,7 @@ describe('PageEditor - Inline Title Editing (T037)', () => {
       status: 'idle',
       trigger: jest.fn(),
       reset: jest.fn(),
+      retry: jest.fn(),
     });
   });
 
@@ -647,6 +665,7 @@ describe('PageEditor - Image Extension and PhotoLightbox (T051)', () => {
       status: 'idle',
       trigger: jest.fn(),
       reset: jest.fn(),
+      retry: jest.fn(),
     });
   });
 

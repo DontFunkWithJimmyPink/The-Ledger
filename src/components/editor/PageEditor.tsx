@@ -144,7 +144,11 @@ export function PageEditor({
   });
 
   // Autosave content changes
-  const { status: contentStatus, trigger: triggerContentSave } = useAutosave({
+  const {
+    status: contentStatus,
+    trigger: triggerContentSave,
+    retry: retryContentSave,
+  } = useAutosave({
     onSave: async () => {
       // Update page content
       const newUpdatedAt = new Date().toISOString();
@@ -291,12 +295,54 @@ export function PageEditor({
     document.title = title ? `${title} — The Ledger` : 'The Ledger';
   }, [title]);
 
-  // Show toast on persistent error
+  // Show custom toast with retry button on persistent error
   useEffect(() => {
     if (contentStatus === 'error') {
-      toast.error('Save failed — retrying');
+      toast.custom(
+        (t) => (
+          <div
+            className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } max-w-md w-full bg-cream-100 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-red-500 ring-opacity-50`}
+          >
+            <div className="flex-1 w-0 p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <span className="text-2xl">⚠️</span>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-ink-900">
+                    Save failed
+                  </p>
+                  <p className="mt-1 text-sm text-ink-700">
+                    Check your connection
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex border-l border-red-300">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  retryContentSave();
+                }}
+                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-leather-700 hover:text-leather-900 focus:outline-none focus:ring-2 focus:ring-leather-500"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          id: 'save-error',
+          duration: Infinity,
+        }
+      );
+    } else if (contentStatus === 'saved') {
+      // Clear the error toast when save succeeds
+      toast.dismiss('save-error');
     }
-  }, [contentStatus]);
+  }, [contentStatus, retryContentSave]);
 
   // Handle photo deletion from lightbox
   const handlePhotoDelete = () => {
