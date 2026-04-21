@@ -110,10 +110,10 @@ export function PhotoUploadButton({
       }
 
       // Generate signed URL (1 hour expiry)
-      const { data: signedUrlData, error: signedUrlError } = await supabase
-        .storage
-        .from('notebook-photos')
-        .createSignedUrl(storagePath, 3600);
+      const { data: signedUrlData, error: signedUrlError } =
+        await supabase.storage
+          .from('notebook-photos')
+          .createSignedUrl(storagePath, 3600);
 
       if (signedUrlError || !signedUrlData) {
         console.error('Failed to create signed URL:', signedUrlError);

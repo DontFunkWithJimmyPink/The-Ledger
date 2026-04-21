@@ -8,12 +8,18 @@ import { PageListWrapper } from './PageListWrapper';
 /**
  * Notebook Home Page - Server Component
  *
- * Fetches all pages for the user's notebook (ordered by sort_order).
+ * Fetches all pages for the user's notebook (ordered by sort_order by default).
  * Renders list of PageListItem components.
  * Includes "New Page" button that creates a new page and redirects to it.
+ * Supports URL search params for sorting: sortBy and direction
  */
-export default async function NotebookPage() {
+export default async function NotebookPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sortBy?: string; direction?: string }>;
+}) {
   const supabase = await createClient();
+  const params = await searchParams;
 
   // Get the current user
   const {
@@ -44,12 +50,23 @@ export default async function NotebookPage() {
     );
   }
 
-  // Fetch all pages for this notebook, ordered by sort_order
+  // Determine sort parameters from URL search params
+  const sortBy =
+    (params.sortBy as
+      | 'sort_order'
+      | 'created_at'
+      | 'updated_at'
+      | 'title'
+      | undefined) || 'sort_order';
+  const direction = (params.direction as 'asc' | 'desc' | undefined) || 'asc';
+  const ascending = direction === 'asc';
+
+  // Fetch all pages for this notebook, ordered by selected criteria
   const { data: pages, error: pagesError } = await supabase
     .from('pages')
     .select('id, title, content, sort_order, updated_at, created_at')
     .eq('notebook_id', notebook.id)
-    .order('sort_order');
+    .order(sortBy, { ascending });
 
   if (pagesError) {
     return (

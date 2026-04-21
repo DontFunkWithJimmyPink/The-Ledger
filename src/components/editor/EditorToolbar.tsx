@@ -2,7 +2,10 @@
 
 import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/Button';
-import { PhotoUploadButton, type PhotoMetadata } from '@/components/photos/PhotoUploadButton';
+import {
+  PhotoUploadButton,
+  type PhotoMetadata,
+} from '@/components/photos/PhotoUploadButton';
 
 export interface EditorToolbarProps {
   editor: Editor | null;

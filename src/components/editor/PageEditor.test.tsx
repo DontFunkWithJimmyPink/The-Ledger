@@ -810,7 +810,8 @@ describe('PageEditor - Image Extension and PhotoLightbox (T051)', () => {
       const { PhotoLightbox } = jest.requireMock(
         '@/components/photos/PhotoLightbox'
       );
-      const lastCall = PhotoLightbox.mock.calls[PhotoLightbox.mock.calls.length - 1];
+      const lastCall =
+        PhotoLightbox.mock.calls[PhotoLightbox.mock.calls.length - 1];
       expect(lastCall[0].alt).toBe('');
     });
 

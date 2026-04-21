@@ -318,7 +318,9 @@ describe('PhotoLightbox', () => {
 
       await waitFor(() => {
         expect(mockSupabaseStorage).toHaveBeenCalledWith('notebook-photos');
-        expect(mockSupabaseStorageRemove).toHaveBeenCalledWith([mockStoragePath]);
+        expect(mockSupabaseStorageRemove).toHaveBeenCalledWith([
+          mockStoragePath,
+        ]);
       });
 
       await waitFor(() => {
@@ -395,7 +397,10 @@ describe('PhotoLightbox', () => {
       const user = userEvent.setup();
       // Make storage delete take some time
       mockSupabaseStorageRemove.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({ error: null }), 100))
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ error: null }), 100)
+          )
       );
 
       render(

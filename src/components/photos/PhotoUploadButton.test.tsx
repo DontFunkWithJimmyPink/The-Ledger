@@ -116,7 +116,9 @@ describe('PhotoUploadButton', () => {
       const user = userEvent.setup();
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const clickSpy = jest.spyOn(fileInput, 'click');
 
       const button = screen.getByRole('button', { name: /upload photo/i });
@@ -131,7 +133,9 @@ describe('PhotoUploadButton', () => {
       const user = userEvent.setup();
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
 
       // Create a file larger than 10 MB
       const oversizedFile = new File(['x'.repeat(10485761)], 'large.jpg', {
@@ -158,7 +162,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
 
       // Create a file exactly 10 MB (10485760 bytes)
       const validFile = new File(['x'.repeat(10485760)], 'valid.jpg', {
@@ -183,7 +189,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
 
       const validFile = new File(['test content'], 'small.jpg', {
         type: 'image/jpeg',
@@ -209,7 +217,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test-image.jpg', {
         type: 'image/jpeg',
       });
@@ -239,7 +249,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'my photo (1).jpg', {
         type: 'image/jpeg',
       });
@@ -256,11 +268,15 @@ describe('PhotoUploadButton', () => {
 
     it('should show error toast if storage upload fails', async () => {
       const user = userEvent.setup();
-      mockSupabaseUpload.mockResolvedValue({ error: { message: 'Upload error' } });
+      mockSupabaseUpload.mockResolvedValue({
+        error: { message: 'Upload error' },
+      });
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -283,7 +299,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test content'], 'test.jpg', {
         type: 'image/jpeg',
       });
@@ -325,7 +343,9 @@ describe('PhotoUploadButton', () => {
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -354,7 +374,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -378,7 +400,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -404,7 +428,9 @@ describe('PhotoUploadButton', () => {
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -425,7 +451,9 @@ describe('PhotoUploadButton', () => {
         />
       );
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -454,7 +482,9 @@ describe('PhotoUploadButton', () => {
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -483,7 +513,9 @@ describe('PhotoUploadButton', () => {
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -500,12 +532,16 @@ describe('PhotoUploadButton', () => {
       // Make upload take some time
       mockSupabaseUpload.mockImplementation(
         () =>
-          new Promise((resolve) => setTimeout(() => resolve({ error: null }), 100))
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ error: null }), 100)
+          )
       );
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -525,7 +561,9 @@ describe('PhotoUploadButton', () => {
       const user = userEvent.setup();
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
@@ -542,7 +580,9 @@ describe('PhotoUploadButton', () => {
 
       render(<PhotoUploadButton pageId={mockPageId} />);
 
-      const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement;
+      const fileInput = screen.getByTestId(
+        'photo-upload-input'
+      ) as HTMLInputElement;
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 
       await user.upload(fileInput, testFile);
