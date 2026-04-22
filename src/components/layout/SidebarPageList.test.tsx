@@ -193,8 +193,17 @@ describe('SidebarPageList', () => {
 
     // Simulate drag from index 1 to index 0
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'page-2', data: { current: undefined } },
-      over: { id: 'page-1', data: { current: undefined } },
+      active: {
+        id: 'page-2',
+        data: { current: undefined },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       collisions: null,
       activatorEvent: new MouseEvent('mousedown'),
@@ -221,8 +230,17 @@ describe('SidebarPageList', () => {
 
     // Simulate drag from index 0 to index 2
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'page-1', data: { current: undefined } },
-      over: { id: 'page-3', data: { current: undefined } },
+      active: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'page-3',
+        data: { current: undefined },
+        rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       collisions: null,
       activatorEvent: new MouseEvent('mousedown'),
@@ -249,8 +267,17 @@ describe('SidebarPageList', () => {
 
     // Simulate drag from index 0 to index 1
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'page-1', data: { current: undefined } },
-      over: { id: 'page-2', data: { current: undefined } },
+      active: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'page-2',
+        data: { current: undefined },
+        rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       collisions: null,
       activatorEvent: new MouseEvent('mousedown'),
@@ -276,8 +303,17 @@ describe('SidebarPageList', () => {
     });
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'page-1', data: { current: undefined } },
-      over: { id: 'page-1', data: { current: undefined } },
+      active: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       collisions: null,
       activatorEvent: new MouseEvent('mousedown'),
@@ -306,8 +342,17 @@ describe('SidebarPageList', () => {
     });
 
     const dragEndEvent: DragEndEvent = {
-      active: { id: 'page-1', data: { current: undefined } },
-      over: { id: 'page-2', data: { current: undefined } },
+      active: {
+        id: 'page-1',
+        data: { current: undefined },
+        rect: { current: { initial: null, translated: null } },
+      },
+      over: {
+        id: 'page-2',
+        data: { current: undefined },
+        rect: { width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
+        disabled: false,
+      },
       delta: { x: 0, y: 0 },
       collisions: null,
       activatorEvent: new MouseEvent('mousedown'),

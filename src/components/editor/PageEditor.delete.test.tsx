@@ -11,12 +11,13 @@ jest.mock('@/lib/hooks/use-autosave');
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
-jest.mock('react-hot-toast', () => {
-  const mockToast = jest.fn();
-  mockToast.error = jest.fn();
-  mockToast.success = jest.fn();
-  return mockToast;
-});
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: Object.assign(jest.fn(), {
+    error: jest.fn(),
+    success: jest.fn(),
+  }),
+}));
 
 // Mock Supabase client - must be done before importing PageEditor
 const mockDeleteFn = jest.fn();

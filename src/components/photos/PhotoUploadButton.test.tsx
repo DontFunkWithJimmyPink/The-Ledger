@@ -8,13 +8,13 @@ import toast from 'react-hot-toast';
 jest.mock('@/lib/supabase/client');
 
 // Mock react-hot-toast
-jest.mock('react-hot-toast', () => {
-  const mockToast = jest.fn();
-  return {
-    __esModule: true,
-    default: mockToast,
-  };
-});
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: Object.assign(jest.fn(), {
+    error: jest.fn(),
+    success: jest.fn(),
+  }),
+}));
 
 describe('PhotoUploadButton', () => {
   const mockPageId = 'page-123';
@@ -31,10 +31,6 @@ describe('PhotoUploadButton', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Setup toast mock
-    (toast as jest.Mock).error = jest.fn();
-    (toast as jest.Mock).success = jest.fn();
 
     // Setup Supabase storage mock
     mockSupabaseUpload.mockResolvedValue({ error: null });
