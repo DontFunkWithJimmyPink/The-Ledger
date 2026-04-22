@@ -22,6 +22,7 @@ export function generateKeyBetween(
   if (a == null) {
     // Generate a key before b
     // Use numeric prefix which sorts before letters in localeCompare
+    if (!b) return 'a0'; // Handle case where b is also null/undefined
     const firstChar = b.charAt(0);
     if (firstChar >= 'a' || firstChar >= 'A') {
       // If b starts with a letter, use a number prefix
@@ -37,6 +38,7 @@ export function generateKeyBetween(
 
   if (b == null) {
     // Generate a key after a
+    if (!a) return 'a0'; // Handle case where a is also null/undefined
     const lastChar = a.charAt(a.length - 1);
     const lastCharIndex = BASE_62_DIGITS.indexOf(lastChar);
     if (lastCharIndex < BASE_62_DIGITS.length - 1) {
