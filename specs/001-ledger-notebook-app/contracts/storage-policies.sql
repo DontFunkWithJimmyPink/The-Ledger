@@ -12,7 +12,7 @@
 -- (or via Supabase CLI: supabase storage create notebook-photos --no-public)
 
 -- Enable RLS on the storage.objects table (may already be enabled on hosted Supabase)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- ---------------------------------------------------------------------------
 -- Bucket: notebook-photos
