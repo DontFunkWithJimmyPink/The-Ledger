@@ -236,7 +236,12 @@ describe('PageEditor - Polling (T068)', () => {
     it('should update editor content when server version is newer', async () => {
       const newerContent = {
         type: 'doc',
-        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'New content' }] }],
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'New content' }],
+          },
+        ],
       };
 
       const mockSingle = jest.fn(() => ({
@@ -274,7 +279,12 @@ describe('PageEditor - Polling (T068)', () => {
     it('should not update editor content when server version is same or older', async () => {
       const olderContent = {
         type: 'doc',
-        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Old content' }] }],
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Old content' }],
+          },
+        ],
       };
 
       const mockSingle = jest.fn(() => ({

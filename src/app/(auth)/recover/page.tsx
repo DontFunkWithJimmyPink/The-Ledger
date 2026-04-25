@@ -261,7 +261,13 @@ function RecoverForm() {
 
 export default function RecoverPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-cream-50">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-cream-50">
+          Loading...
+        </div>
+      }
+    >
       <RecoverForm />
     </Suspense>
   );
