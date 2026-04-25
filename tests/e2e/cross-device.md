@@ -61,12 +61,14 @@ The app uses two polling mechanisms for cross-device sync:
 #### Step 1: Sign In on Both Browsers
 
 **Browser A (Chrome)**:
+
 1. Open http://localhost:3000
 2. Navigate to the login page
 3. Sign in with test credentials
 4. Verify you land on the `/notebook` page
 
 **Browser B (Firefox or Chrome Incognito)**:
+
 1. Open http://localhost:3000
 2. Sign in with the **same test credentials**
 3. Verify you land on the `/notebook` page
@@ -75,6 +77,7 @@ The app uses two polling mechanisms for cross-device sync:
 #### Step 2: Create New Page on Browser A
 
 **On Browser A**:
+
 1. Click the "New Page" button
 2. Enter a distinctive title: "Cross-Device Test - [timestamp]"
 3. Add some content in the editor: "Testing cross-device sync at [current time]"
@@ -82,6 +85,7 @@ The app uses two polling mechanisms for cross-device sync:
 5. Note the exact time when the save completed
 
 **Expected Behavior**:
+
 - Content auto-saves within 2 seconds (debounce interval)
 - "Saved" indicator appears
 - Page appears in Browser A's notebook list
@@ -89,17 +93,20 @@ The app uses two polling mechanisms for cross-device sync:
 #### Step 3: Verify Sync on Browser B (Within 30 Seconds)
 
 **On Browser B**:
+
 1. **Do NOT manually refresh the page**
 2. Wait and observe the notebook page list
 3. Within 30 seconds of Browser A's save, the new page should appear automatically
 4. The page should appear with the correct title: "Cross-Device Test - [timestamp]"
 
 **Expected Behavior**:
+
 - New page appears in Browser B's list within 30 seconds
 - No manual refresh required
 - Page displays correct title and metadata
 
 **Actual Polling Window**:
+
 - Minimum: 0 seconds (if polling fires immediately after save)
 - Maximum: 30 seconds (if save happens right after a polling cycle)
 - Average: ~15 seconds
@@ -107,22 +114,26 @@ The app uses two polling mechanisms for cross-device sync:
 #### Step 4: Verify Content Sync
 
 **On Browser B**:
+
 1. Click on the newly appeared page to open it
 2. Verify the page content matches what was entered on Browser A
 3. Leave the page open (do not focus the editor)
 
 **On Browser A**:
+
 1. Return to the same page (if you navigated away)
 2. Add additional content: "Second update at [current time]"
 3. Wait for "Saved" indicator
 4. Note the save time
 
 **On Browser B**:
+
 1. **Ensure the editor is NOT focused** (click elsewhere if needed)
 2. Wait up to 30 seconds
 3. The editor content should update automatically with the new text
 
 **Expected Behavior**:
+
 - Content updates appear in Browser B within 30 seconds
 - No manual refresh required
 - Editor updates only when NOT focused (to avoid overwriting user input)
@@ -130,14 +141,17 @@ The app uses two polling mechanisms for cross-device sync:
 #### Step 5: Test Focused Editor Protection
 
 **On Browser B**:
+
 1. Click into the editor to focus it (start typing or just click in the content area)
 2. Keep the editor focused
 
 **On Browser A**:
+
 1. Make another content change: "Third update - should not sync while focused"
 2. Wait for "Saved" indicator
 
 **On Browser B**:
+
 1. Wait 30 seconds while keeping the editor focused
 2. Content should **NOT** update (to protect user from losing their work)
 3. Click outside the editor (blur the editor)
@@ -145,6 +159,7 @@ The app uses two polling mechanisms for cross-device sync:
 5. Content should now update with Browser A's changes
 
 **Expected Behavior**:
+
 - Editor content does NOT update while focused
 - Content updates once editor is blurred and next polling cycle runs
 - This protects user input from being overwritten mid-typing
@@ -180,12 +195,14 @@ Playwright can simulate cross-device scenarios using **browser contexts**. Each 
 ### Key Concepts
 
 **Browser Context**: An isolated incognito-like session within a browser instance
+
 - Separate cookie storage
 - Separate local/session storage
 - Independent authentication
 - Can run in parallel
 
 **Why Use Two Contexts?**
+
 - Simulates two separate devices/browsers
 - Each context can authenticate as the same user
 - Tests real cross-device sync without mocking
@@ -224,7 +241,9 @@ test.describe('Cross-Device Sync', () => {
       await pageB.waitForURL('/notebook');
 
       // Step 2: Get initial page count on Browser B
-      const initialCount = await pageB.locator('[data-testid="page-list-item"]').count();
+      const initialCount = await pageB
+        .locator('[data-testid="page-list-item"]')
+        .count();
 
       // Step 3: Create a new page on Browser A
       const testTitle = `Cross-Device Test ${Date.now()}`;
@@ -233,10 +252,15 @@ test.describe('Cross-Device Sync', () => {
 
       // Enter title and content
       await pageA.fill('[data-testid="page-title-input"]', testTitle);
-      await pageA.fill('[data-testid="editor-content"]', 'Testing cross-device sync');
+      await pageA.fill(
+        '[data-testid="editor-content"]',
+        'Testing cross-device sync'
+      );
 
       // Wait for autosave
-      await pageA.waitForSelector('[data-testid="save-status"]:has-text("Saved")');
+      await pageA.waitForSelector(
+        '[data-testid="save-status"]:has-text("Saved")'
+      );
 
       // Step 4: Navigate back to notebook list on Browser A
       await pageA.click('[data-testid="back-to-notebook"]');
@@ -250,11 +274,15 @@ test.describe('Cross-Device Sync', () => {
       );
 
       // Step 6: Verify the page appears in Browser B's list
-      const newCount = await pageB.locator('[data-testid="page-list-item"]').count();
+      const newCount = await pageB
+        .locator('[data-testid="page-list-item"]')
+        .count();
       expect(newCount).toBe(initialCount + 1);
 
       // Step 7: Test content sync - click the new page on Browser B
-      await pageB.click(`[data-testid="page-list-item"]:has-text("${testTitle}")`);
+      await pageB.click(
+        `[data-testid="page-list-item"]:has-text("${testTitle}")`
+      );
       await pageB.waitForURL(/\/notebook\/.+/);
 
       // Verify content is synced
@@ -263,12 +291,16 @@ test.describe('Cross-Device Sync', () => {
 
       // Step 8: Test content update sync
       // Make a change on Browser A
-      await pageA.click(`[data-testid="page-list-item"]:has-text("${testTitle}")`);
+      await pageA.click(
+        `[data-testid="page-list-item"]:has-text("${testTitle}")`
+      );
       await pageA.waitForURL(/\/notebook\/.+/);
 
       const updateText = 'Updated content for sync test';
       await pageA.fill('[data-testid="editor-content"]', updateText);
-      await pageA.waitForSelector('[data-testid="save-status"]:has-text("Saved")');
+      await pageA.waitForSelector(
+        '[data-testid="save-status"]:has-text("Saved")'
+      );
 
       // Ensure Browser B editor is NOT focused (blur it)
       await pageB.click('body');
@@ -276,7 +308,9 @@ test.describe('Cross-Device Sync', () => {
       // Wait for polling to sync the update (max 30 seconds + buffer)
       await pageB.waitForFunction(
         (expectedText) => {
-          const editor = document.querySelector('[data-testid="editor-content"]');
+          const editor = document.querySelector(
+            '[data-testid="editor-content"]'
+          );
           return editor?.textContent?.includes(expectedText);
         },
         updateText,
@@ -284,9 +318,10 @@ test.describe('Cross-Device Sync', () => {
       );
 
       // Verify the update appeared
-      const updatedContent = await pageB.textContent('[data-testid="editor-content"]');
+      const updatedContent = await pageB.textContent(
+        '[data-testid="editor-content"]'
+      );
       expect(updatedContent).toContain(updateText);
-
     } finally {
       // Cleanup: close both contexts and browser
       await contextA.close();
@@ -315,8 +350,13 @@ test.describe('Cross-Device Sync', () => {
       await pageB.type('[data-testid="editor-content"]', 'Typing in progress');
 
       // Make a change on Browser A
-      await pageA.fill('[data-testid="editor-content"]', 'Should not sync while focused');
-      await pageA.waitForSelector('[data-testid="save-status"]:has-text("Saved")');
+      await pageA.fill(
+        '[data-testid="editor-content"]',
+        'Should not sync while focused'
+      );
+      await pageA.waitForSelector(
+        '[data-testid="save-status"]:has-text("Saved")'
+      );
 
       // Wait more than polling interval (30s + buffer)
       await pageB.waitForTimeout(35000);
@@ -332,7 +372,9 @@ test.describe('Cross-Device Sync', () => {
       // Wait for next polling cycle
       await pageB.waitForFunction(
         (expectedText) => {
-          const editor = document.querySelector('[data-testid="editor-content"]');
+          const editor = document.querySelector(
+            '[data-testid="editor-content"]'
+          );
           return editor?.textContent?.includes(expectedText);
         },
         'Should not sync while focused',
@@ -340,9 +382,10 @@ test.describe('Cross-Device Sync', () => {
       );
 
       // Now the content should be synced
-      const updatedContent = await pageB.textContent('[data-testid="editor-content"]');
+      const updatedContent = await pageB.textContent(
+        '[data-testid="editor-content"]'
+      );
       expect(updatedContent).toContain('Should not sync while focused');
-
     } finally {
       await contextA.close();
       await contextB.close();

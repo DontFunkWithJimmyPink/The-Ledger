@@ -20,27 +20,27 @@ The Ledger application has been audited for accessibility compliance with WCAG 2
 
 All icon-only buttons have proper `aria-label` attributes:
 
-| Component | Location | Element | Status |
-|-----------|----------|---------|--------|
-| TopBar | `src/components/layout/TopBar.tsx:98-102` | Hamburger menu button | ✅ `aria-label="Open menu"` |
-| TopBar | `src/components/layout/TopBar.tsx:139-148` | User menu button | ✅ `aria-label="User menu"` + `aria-expanded` |
-| TopBar | `src/components/layout/TopBar.tsx:122-129` | Search input | ✅ `aria-label="Search pages"` |
-| Sidebar | `src/components/layout/Sidebar.tsx:57-61` | Close button | ✅ `aria-label="Close sidebar"` |
-| Sidebar | `src/components/layout/Sidebar.tsx:94` | Navigation icons | ✅ `aria-hidden="true"` (decorative) |
-| Modal | `src/components/ui/Modal.tsx:57-75` | Close button | ✅ `aria-label="Close modal"` |
-| EditorToolbar | `src/components/editor/EditorToolbar.tsx:45-163` | All formatting buttons | ✅ Individual labels + keyboard shortcuts |
-| PhotoUploadButton | `src/components/photos/PhotoUploadButton.tsx:158-167` | Upload button | ✅ Dynamic label based on state |
-| ReminderBell | `src/components/reminders/ReminderBell.tsx:49-54` | Reminder button | ✅ Dynamic label with count |
-| SortControl | `src/components/ui/SortControl.tsx:76-114` | Sort dropdown | ✅ `aria-label` + `aria-expanded` |
-| SortControl | `src/components/ui/SortControl.tsx:140-177` | Direction toggle | ✅ Dynamic label for direction |
-| LabelManager | `src/components/labels/LabelManager.tsx:201-220` | New label button | ✅ `aria-label="New label"` |
-| LabelManager | `src/components/labels/LabelManager.tsx:237-250` | Filter by label | ✅ `aria-label="Filter by {name}"` |
-| LabelManager | `src/components/labels/LabelManager.tsx:251-275` | Delete label | ✅ `aria-label="Delete {name}"` |
-| ColorPicker | `src/components/ui/ColorPicker.tsx:60-67` | Dropdown toggle | ✅ `aria-label` + `aria-expanded` + `aria-haspopup` |
-| ColorPicker | `src/components/ui/ColorPicker.tsx:92-101` | Color buttons | ✅ `aria-label` for each color |
-| SidebarPageListItem | `src/components/layout/SidebarPageListItem.tsx:54-75` | Drag handle | ✅ `aria-label="Drag to reorder page"` |
-| PhotoLightbox | `src/components/photos/PhotoLightbox.tsx:108-127` | Close button | ✅ `aria-label="Close lightbox"` |
-| PhotoLightbox | `src/components/photos/PhotoLightbox.tsx:131-172` | Delete button | ✅ `aria-label="Delete photo"` |
+| Component           | Location                                              | Element                | Status                                              |
+| ------------------- | ----------------------------------------------------- | ---------------------- | --------------------------------------------------- |
+| TopBar              | `src/components/layout/TopBar.tsx:98-102`             | Hamburger menu button  | ✅ `aria-label="Open menu"`                         |
+| TopBar              | `src/components/layout/TopBar.tsx:139-148`            | User menu button       | ✅ `aria-label="User menu"` + `aria-expanded`       |
+| TopBar              | `src/components/layout/TopBar.tsx:122-129`            | Search input           | ✅ `aria-label="Search pages"`                      |
+| Sidebar             | `src/components/layout/Sidebar.tsx:57-61`             | Close button           | ✅ `aria-label="Close sidebar"`                     |
+| Sidebar             | `src/components/layout/Sidebar.tsx:94`                | Navigation icons       | ✅ `aria-hidden="true"` (decorative)                |
+| Modal               | `src/components/ui/Modal.tsx:57-75`                   | Close button           | ✅ `aria-label="Close modal"`                       |
+| EditorToolbar       | `src/components/editor/EditorToolbar.tsx:45-163`      | All formatting buttons | ✅ Individual labels + keyboard shortcuts           |
+| PhotoUploadButton   | `src/components/photos/PhotoUploadButton.tsx:158-167` | Upload button          | ✅ Dynamic label based on state                     |
+| ReminderBell        | `src/components/reminders/ReminderBell.tsx:49-54`     | Reminder button        | ✅ Dynamic label with count                         |
+| SortControl         | `src/components/ui/SortControl.tsx:76-114`            | Sort dropdown          | ✅ `aria-label` + `aria-expanded`                   |
+| SortControl         | `src/components/ui/SortControl.tsx:140-177`           | Direction toggle       | ✅ Dynamic label for direction                      |
+| LabelManager        | `src/components/labels/LabelManager.tsx:201-220`      | New label button       | ✅ `aria-label="New label"`                         |
+| LabelManager        | `src/components/labels/LabelManager.tsx:237-250`      | Filter by label        | ✅ `aria-label="Filter by {name}"`                  |
+| LabelManager        | `src/components/labels/LabelManager.tsx:251-275`      | Delete label           | ✅ `aria-label="Delete {name}"`                     |
+| ColorPicker         | `src/components/ui/ColorPicker.tsx:60-67`             | Dropdown toggle        | ✅ `aria-label` + `aria-expanded` + `aria-haspopup` |
+| ColorPicker         | `src/components/ui/ColorPicker.tsx:92-101`            | Color buttons          | ✅ `aria-label` for each color                      |
+| SidebarPageListItem | `src/components/layout/SidebarPageListItem.tsx:54-75` | Drag handle            | ✅ `aria-label="Drag to reorder page"`              |
+| PhotoLightbox       | `src/components/photos/PhotoLightbox.tsx:108-127`     | Close button           | ✅ `aria-label="Close lightbox"`                    |
+| PhotoLightbox       | `src/components/photos/PhotoLightbox.tsx:131-172`     | Delete button          | ✅ `aria-label="Delete photo"`                      |
 
 ### 2. Form Input Labels
 
@@ -98,19 +98,23 @@ The application uses semantic HTML elements throughout:
 All color combinations meet or exceed WCAG 2.1 AA requirements:
 
 #### Primary Text (4.5:1 required)
+
 - ink-900 on cream-50: **17.95:1** ✅
 - ink-900 on cream-100: **16.04:1** ✅
 - ink-900 on cream-200: **13.57:1** ✅
 - ink-500 on cream-50: **10.78:1** ✅
 
 #### Button Text (4.5:1 required)
+
 - cream-50 on leather-700: **8.95:1** ✅
 
 #### Sidebar Text (4.5:1 required)
+
 - cream-50 on leather-900: **14.52:1** ✅
 - cream-100 on leather-900: **12.97:1** ✅
 
 #### UI Components (3:1 required)
+
 - leather-500 borders on cream-50: **5.38:1** ✅
 - leather-500 borders on cream-200: **4.07:1** ✅
 - leather-700 focus rings on cream-50: **8.95:1** ✅
@@ -129,6 +133,7 @@ See `color-contrast.test.ts` for automated verification of all color combination
 ### 8. Focus Indicators
 
 All interactive elements have visible focus indicators:
+
 - Custom focus ring using `focus:ring-2 focus:ring-leather-700`
 - Focus visible styles using `focus-visible:ring-2` where appropriate
 - High contrast focus indicators (8.95:1 ratio)
@@ -146,6 +151,7 @@ This will verify all color combinations meet WCAG 2.1 AA contrast requirements.
 ### Manual Testing Checklist
 
 #### Keyboard Navigation
+
 - [ ] All interactive elements reachable via Tab
 - [ ] Tab order is logical and follows visual layout
 - [ ] Shift+Tab moves focus backward
@@ -155,6 +161,7 @@ This will verify all color combinations meet WCAG 2.1 AA contrast requirements.
 - [ ] No keyboard traps
 
 #### Screen Reader Testing
+
 - [ ] All images have appropriate alt text
 - [ ] Form inputs announced with labels
 - [ ] Button purposes clear from labels
@@ -164,6 +171,7 @@ This will verify all color combinations meet WCAG 2.1 AA contrast requirements.
 - [ ] Page titles descriptive
 
 #### Visual Testing
+
 - [ ] Text contrast meets 4.5:1 minimum
 - [ ] Focus indicators clearly visible
 - [ ] No information conveyed by color alone
@@ -173,6 +181,7 @@ This will verify all color combinations meet WCAG 2.1 AA contrast requirements.
 ## Browser Testing
 
 Accessibility features verified in:
+
 - Chrome/Edge (latest)
 - Firefox (latest)
 - Safari (latest)
@@ -182,6 +191,7 @@ Accessibility features verified in:
 ## Screen Reader Testing
 
 Tested with:
+
 - NVDA (Windows)
 - JAWS (Windows)
 - VoiceOver (macOS/iOS)

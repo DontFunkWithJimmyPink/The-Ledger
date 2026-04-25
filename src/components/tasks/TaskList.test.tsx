@@ -483,7 +483,9 @@ describe('TaskList', () => {
     it('should apply touch-action: none to prevent scroll conflicts', () => {
       const { container } = render(<TaskList tasks={mockTasks} />);
 
-      const listElement = container.querySelector('[role="list"]') as HTMLElement;
+      const listElement = container.querySelector(
+        '[role="list"]'
+      ) as HTMLElement;
       expect(listElement).toBeInTheDocument();
       // Verify the inline style is set (check the style object directly)
       expect(listElement?.style.touchAction).toBe('none');

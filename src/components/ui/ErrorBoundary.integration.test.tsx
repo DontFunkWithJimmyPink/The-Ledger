@@ -23,7 +23,9 @@ const TestComponent = ({ shouldError }: { shouldError: boolean }) => {
   if (shouldError) {
     throw new Error('Test error in component');
   }
-  return <div data-testid="test-component">Component rendered successfully</div>;
+  return (
+    <div data-testid="test-component">Component rendered successfully</div>
+  );
 };
 
 describe('Error Boundary Integration - T075', () => {
