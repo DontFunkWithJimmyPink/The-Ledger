@@ -15,10 +15,12 @@ The Ledger uses GitHub Actions for CI/CD with deployment to Vercel. There are th
 ### 1. CI Workflow (`.github/workflows/ci.yml`)
 
 Runs automatically on:
+
 - Pull requests to `main`
 - Pushes to `main`
 
 **Jobs:**
+
 - **Lint** - Runs ESLint and checks code formatting
 - **Type Check** - Validates TypeScript types
 - **Test** - Runs unit tests with coverage reporting
@@ -28,10 +30,12 @@ Runs automatically on:
 ### 2. Production Deployment (`.github/workflows/deploy-production.yml`)
 
 Deploys to production on:
+
 - Push to `main` branch
 - Manual trigger via workflow_dispatch
 
 **Process:**
+
 1. Checks out code
 2. Installs dependencies
 3. Pulls Vercel environment configuration
@@ -39,6 +43,7 @@ Deploys to production on:
 5. Deploys to Vercel production
 
 **Required Secrets:**
+
 - `VERCEL_TOKEN` - Vercel authentication token
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
@@ -46,9 +51,11 @@ Deploys to production on:
 ### 3. Preview Deployment (`.github/workflows/deploy-preview.yml`)
 
 Creates preview deployments for:
+
 - Pull requests to `main` (opened, synchronized, or reopened)
 
 **Process:**
+
 1. Checks out PR code
 2. Installs dependencies
 3. Pulls Vercel preview environment configuration
@@ -57,6 +64,7 @@ Creates preview deployments for:
 6. Comments on PR with preview URL
 
 **Required Secrets:**
+
 - `VERCEL_TOKEN` - Vercel authentication token
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
@@ -97,11 +105,13 @@ Creates preview deployments for:
 Add the following secrets to your GitHub repository (Settings → Secrets and variables → Actions):
 
 **Required:**
+
 - `VERCEL_TOKEN` - Your Vercel token
 - `VERCEL_ORG_ID` - Your Vercel organization ID
 - `VERCEL_PROJECT_ID` - Your Vercel project ID
 
 **Optional (for builds):**
+
 - `NEXT_PUBLIC_SUPABASE_URL` - Used for build validation
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Used for build validation
 - `CODECOV_TOKEN` - For code coverage reporting (if using Codecov)
@@ -109,6 +119,7 @@ Add the following secrets to your GitHub repository (Settings → Secrets and va
 ### 3. Supabase Setup
 
 Ensure you have:
+
 1. Applied the database schema from `specs/001-ledger-notebook-app/contracts/database-schema.sql`
 2. Created the storage bucket and applied storage policies
 3. Configured appropriate environment variables in Vercel
@@ -180,6 +191,7 @@ See [Database Setup Guide](database-setup.md) and [Storage Setup Guide](storage-
 **Problem:** E2E tests fail in CI but pass locally
 
 **Solution:**
+
 - Check if Playwright browsers are installed correctly
 - Verify environment variables are set for E2E tests
 - Review Playwright report artifacts for details
@@ -187,6 +199,7 @@ See [Database Setup Guide](database-setup.md) and [Storage Setup Guide](storage-
 **Problem:** Tests timeout
 
 **Solution:**
+
 - Increase timeout in `playwright.config.ts`
 - Check if the application is starting correctly
 - Review test logs for hanging processes
@@ -194,6 +207,7 @@ See [Database Setup Guide](database-setup.md) and [Storage Setup Guide](storage-
 ## Best Practices
 
 1. **Always test locally before pushing:**
+
    ```bash
    npm run lint
    npm run type-check

@@ -158,14 +158,18 @@ describe('WCAG 2.1 AA Color Contrast Tests', () => {
     it('leather-700 focus ring visible on cream-50 background', () => {
       const ratio = getContrastRatio(COLORS.leather[700], COLORS.cream[50]);
       expect(ratio).toBeGreaterThanOrEqual(3.0);
-      console.log(`✓ leather-700 focus ring on cream-50: ${ratio.toFixed(2)}:1`);
+      console.log(
+        `✓ leather-700 focus ring on cream-50: ${ratio.toFixed(2)}:1`
+      );
     });
 
     it('leather-700 active states on leather-900 background - informational', () => {
       const ratio = getContrastRatio(COLORS.leather[700], COLORS.leather[900]);
       // Active state on sidebar - doesn't need to meet 3:1 as the text content
       // (cream-50 on leather-700) already provides adequate contrast (8.95:1)
-      console.log(`ℹ leather-700 on leather-900: ${ratio.toFixed(2)}:1 (background only, text is compliant)`);
+      console.log(
+        `ℹ leather-700 on leather-900: ${ratio.toFixed(2)}:1 (background only, text is compliant)`
+      );
     });
   });
 
@@ -174,14 +178,18 @@ describe('WCAG 2.1 AA Color Contrast Tests', () => {
       const ratio = getContrastRatio(COLORS.leather[300], COLORS.cream[50]);
       // Hover states for icons/decorative elements don't require 3:1 contrast
       // as long as the interactive element is still perceivable through other means
-      console.log(`ℹ leather-300 hover on cream-50: ${ratio.toFixed(2)}:1 (decorative hover, not required)`);
+      console.log(
+        `ℹ leather-300 hover on cream-50: ${ratio.toFixed(2)}:1 (decorative hover, not required)`
+      );
     });
 
     it('cream-100 hover backgrounds on cream-50 - informational', () => {
       const ratio = getContrastRatio(COLORS.cream[100], COLORS.cream[50]);
       // This is acceptable for subtle hover states
       // that don't convey essential information
-      console.log(`ℹ cream-100 hover on cream-50: ${ratio.toFixed(2)}:1 (subtle hover)`);
+      console.log(
+        `ℹ cream-100 hover on cream-50: ${ratio.toFixed(2)}:1 (subtle hover)`
+      );
     });
   });
 });
@@ -191,21 +199,65 @@ describe('Summary Report', () => {
     console.log('\n=== WCAG 2.1 AA Color Contrast Report ===\n');
 
     const testCases = [
-      { fg: COLORS.ink[900], bg: COLORS.cream[50], desc: 'Primary text on page bg', min: 4.5 },
-      { fg: COLORS.ink[900], bg: COLORS.cream[100], desc: 'Primary text on card bg', min: 4.5 },
-      { fg: COLORS.ink[900], bg: COLORS.cream[200], desc: 'Primary text on input bg', min: 4.5 },
-      { fg: COLORS.ink[500], bg: COLORS.cream[50], desc: 'Secondary text on page bg', min: 4.5 },
-      { fg: COLORS.cream[50], bg: COLORS.leather[700], desc: 'Primary button text', min: 4.5 },
-      { fg: COLORS.cream[50], bg: COLORS.leather[900], desc: 'Sidebar text', min: 4.5 },
-      { fg: COLORS.leather[500], bg: COLORS.cream[50], desc: 'Borders on page bg', min: 3.0 },
-      { fg: COLORS.leather[700], bg: COLORS.cream[50], desc: 'Focus rings', min: 3.0 },
+      {
+        fg: COLORS.ink[900],
+        bg: COLORS.cream[50],
+        desc: 'Primary text on page bg',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.ink[900],
+        bg: COLORS.cream[100],
+        desc: 'Primary text on card bg',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.ink[900],
+        bg: COLORS.cream[200],
+        desc: 'Primary text on input bg',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.ink[500],
+        bg: COLORS.cream[50],
+        desc: 'Secondary text on page bg',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.cream[50],
+        bg: COLORS.leather[700],
+        desc: 'Primary button text',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.cream[50],
+        bg: COLORS.leather[900],
+        desc: 'Sidebar text',
+        min: 4.5,
+      },
+      {
+        fg: COLORS.leather[500],
+        bg: COLORS.cream[50],
+        desc: 'Borders on page bg',
+        min: 3.0,
+      },
+      {
+        fg: COLORS.leather[700],
+        bg: COLORS.cream[50],
+        desc: 'Focus rings',
+        min: 3.0,
+      },
     ];
 
     let passing = 0;
     let total = testCases.length;
 
-    console.log('Test Case                           | Ratio   | Required | Status');
-    console.log('-------------------------------------|---------|----------|--------');
+    console.log(
+      'Test Case                           | Ratio   | Required | Status'
+    );
+    console.log(
+      '-------------------------------------|---------|----------|--------'
+    );
 
     testCases.forEach((test) => {
       const ratio = getContrastRatio(test.fg, test.bg);
@@ -218,7 +270,9 @@ describe('Summary Report', () => {
 
     console.log('\n');
     console.log(`Results: ${passing}/${total} tests passed`);
-    console.log(`Compliance: ${passing === total ? '✓ WCAG 2.1 AA COMPLIANT' : '✗ NOT COMPLIANT'}\n`);
+    console.log(
+      `Compliance: ${passing === total ? '✓ WCAG 2.1 AA COMPLIANT' : '✗ NOT COMPLIANT'}\n`
+    );
 
     expect(passing).toBe(total);
   });

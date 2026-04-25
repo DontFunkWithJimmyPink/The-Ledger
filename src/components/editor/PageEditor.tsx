@@ -13,7 +13,10 @@ import { usePolling } from '@/lib/hooks/use-polling';
 import { useSessionRestore } from '@/lib/hooks/use-session-restore';
 import { extractTaskItems } from '@/lib/utils/content';
 import { isAuthError } from '@/lib/utils/auth-errors';
-import { storeEditorContent, clearEditorContent } from '@/lib/utils/session-storage';
+import {
+  storeEditorContent,
+  clearEditorContent,
+} from '@/lib/utils/session-storage';
 import { CustomTaskItem } from '@/components/editor/extensions/CustomTaskItem';
 import { CustomImage } from '@/components/editor/extensions/CustomImage';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
@@ -339,7 +342,16 @@ export function PageEditor({
       }
       console.error('Error polling page content:', err);
     }
-  }, [supabase, pageId, isEditorFocused, updatedAt, editor, content, title, router]);
+  }, [
+    supabase,
+    pageId,
+    isEditorFocused,
+    updatedAt,
+    editor,
+    content,
+    title,
+    router,
+  ]);
 
   // Poll for page updates every 30 seconds
   usePolling(pollPageContent, {
