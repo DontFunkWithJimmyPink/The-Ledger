@@ -232,6 +232,7 @@ See [`src/index.js`](src/index.js) for the reference import used in this project
 - [Database Verification](docs/database-verification.md) - Checklist for verifying database setup
 - [Storage Setup Guide](docs/storage-setup.md) - Complete guide for configuring storage
 - [Storage Verification](docs/storage-verification.md) - Checklist for verifying storage setup
+- [Deployment Guide](docs/deployment.md) - CI/CD and deployment configuration
 - [Quickstart Guide](specs/001-ledger-notebook-app/quickstart.md) - Development environment setup
 - [Implementation Plan](specs/001-ledger-notebook-app/plan.md) - Feature implementation details
 - [Tasks](specs/001-ledger-notebook-app/tasks.md) - Task breakdown and dependencies
