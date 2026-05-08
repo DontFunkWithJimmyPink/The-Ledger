@@ -66,7 +66,8 @@ Key packages installed:
 2. In the current Supabase UI, you may need **Connect**, **Project Settings**, and
    **API Keys** to locate:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
-   - **public key** (may be labeled **publishable key** instead of anon key) →
+   - **anon key** (also labeled **publishable key** in newer Supabase dashboard
+     versions; both refer to the same public credential) →
      `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. In **SQL Editor**, run the schema file:
    ```
