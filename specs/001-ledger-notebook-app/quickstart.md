@@ -102,7 +102,7 @@ Create a `.env.local` file in the project root (this file is git-ignored):
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-client-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-or-publishable-key
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
