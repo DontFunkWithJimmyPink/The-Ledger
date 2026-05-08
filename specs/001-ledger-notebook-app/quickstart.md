@@ -14,6 +14,9 @@
 | Supabase CLI          | latest  | `npm install -g supabase`                        |
 | Vercel CLI (optional) | latest  | `npm install -g vercel`                          |
 
+> **Windows PowerShell note:** If `npm` is blocked by execution policy, use `npm.cmd`
+> instead (for example, `npm.cmd install` and `npm.cmd run dev`).
+
 ---
 
 ## 1 — Clone the Repository
@@ -21,8 +24,10 @@
 ```bash
 git clone https://github.com/DontFunkWithJimmyPink/The-Ledger.git
 cd The-Ledger
-git checkout 001-ledger-notebook-app
 ```
+
+> The repository currently defaults to `main`. The previously referenced
+> `001-ledger-notebook-app` branch does not exist.
 
 ---
 
@@ -32,9 +37,17 @@ git checkout 001-ledger-notebook-app
 npm install
 ```
 
+On Windows PowerShell, if `npm` fails with an execution policy error, use:
+
+```powershell
+npm.cmd install
+```
+
+`npm install` may display deprecation and audit warnings without indicating setup failed.
+
 Key packages installed:
 
-- `next` — Next.js 14 (App Router)
+- `next` — Next.js 15 (App Router)
 - `@supabase/supabase-js`, `@supabase/ssr` — Supabase client
 - `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-task-list`, `@tiptap/extension-task-item`, `@tiptap/extension-image`, `@tiptap/extension-placeholder` — Rich text editor
 - `@excalidraw/excalidraw` — Drawing canvas
@@ -50,9 +63,11 @@ Key packages installed:
 ### Option A: Supabase Hosted (Recommended for Development)
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In **Settings → API**, copy your:
+2. In the current Supabase UI, you may need **Connect**, **Project Settings**, and
+   **API Keys** to locate:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
-   - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - **public key** (may be labeled **publishable key** instead of anon key) →
+     `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. In **SQL Editor**, run the schema file:
    ```
    specs/001-ledger-notebook-app/contracts/database-schema.sql
@@ -62,6 +77,9 @@ Key packages installed:
    ```
    specs/001-ledger-notebook-app/contracts/storage-policies.sql
    ```
+6. In **Authentication → URL Configuration**, set:
+   - **Site URL**: `http://localhost:3000`
+   - **Redirect URL**: `http://localhost:3000/api/auth/callback`
 
 ### Option B: Supabase Local (Docker)
 
@@ -84,7 +102,7 @@ Create a `.env.local` file in the project root (this file is git-ignored):
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-client-key
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -94,7 +112,8 @@ NEXT_PUBLIC_POLL_INTERVAL_MS=5000
 ```
 
 > ⚠️ Never commit `.env.local` or your Supabase service-role key to source control.
-> The anon key is safe to expose — it is scoped by RLS.
+> The app currently reads `NEXT_PUBLIC_SUPABASE_ANON_KEY`. If your dashboard only shows a
+> **publishable key**, place that value in `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 ---
 
@@ -104,14 +123,28 @@ NEXT_PUBLIC_POLL_INTERVAL_MS=5000
 npm run dev
 ```
 
+On Windows PowerShell, if needed:
+
+```powershell
+npm.cmd run dev
+```
+
 The app will be available at [http://localhost:3000](http://localhost:3000).
+
+The `/` route is currently a placeholder page. Use the following routes for the
+main flow:
+
+- `/register`
+- `/login`
+- `/notebook`
+- `/reminders`
 
 The first time you open the app:
 
-1. Click **Create an account** and sign up with an email + password.
+1. Go to `/register` and sign up with an email + password.
 2. Check your email for a confirmation link (in local Supabase, use the Inbucket UI at
    [http://localhost:54324](http://localhost:54324)).
-3. After confirming, you'll be redirected to your notebook.
+3. After confirming, sign in and open `/notebook`.
 
 ---
 
@@ -164,8 +197,8 @@ vercel --prod
 ### Via GitHub Integration (Recommended)
 
 1. Push the branch to GitHub.
-2. In Vercel, import the repository and select the `001-ledger-notebook-app` branch (or `main`
-   after merge).
+2. In Vercel, import the repository and select the branch you are deploying (typically
+   `main`).
 3. Add the same environment variables from `.env.local` in the **Vercel project settings**.
 4. Set `NEXT_PUBLIC_APP_URL` to your Vercel deployment URL (e.g., `https://the-ledger.vercel.app`).
 5. In your Supabase project, add the Vercel URL to **Auth → URL Configuration → Redirect URLs**.
@@ -206,12 +239,36 @@ specs/001-ledger-notebook-app/   → This feature's design docs and contracts
 
 ## Troubleshooting
 
-| Problem                            | Solution                                                                                       |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
-| "Invalid API key" from Supabase    | Check `.env.local` values match the Supabase dashboard exactly                                 |
-| Sign-up email not arriving (local) | Open Inbucket at [http://localhost:54324](http://localhost:54324)                              |
-| Excalidraw SSR error               | Ensure the `DrawingCanvas` component is wrapped in `next/dynamic` with `ssr: false`            |
-| Tiptap `window is not defined`     | Wrap any Tiptap usage in a `"use client"` component                                            |
-| Photos not uploading               | Check the `notebook-photos` bucket exists and is **private**, and storage policies are applied |
-| RLS blocking queries               | Confirm you are authenticated (`supabase.auth.getUser()`) and tables have RLS policies applied |
-| Port conflict on :3000             | `npm run dev -- --port 3001`                                                                   |
+| Problem                                                             | Solution                                                                                                                                                |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Invalid API key" from Supabase                                     | Check `.env.local` values match the Supabase dashboard exactly.                                                                                         |
+| Sign-up email not arriving (local)                                  | Open Inbucket at [http://localhost:54324](http://localhost:54324).                                                                                      |
+| `database error saving new user` during sign-up                     | Recreate the `on_auth_user_created` trigger/function shown below so it inserts into `public.notebooks`.                                                 |
+| `Authentication failed. Please try again.` after email confirmation | In **Authentication → URL Configuration**, set Site URL to `http://localhost:3000` and add `http://localhost:3000/api/auth/callback` as a redirect URL. |
+| Excalidraw SSR error                                                | Ensure the `DrawingCanvas` component is wrapped in `next/dynamic` with `ssr: false`.                                                                    |
+| Tiptap `window is not defined`                                      | Wrap any Tiptap usage in a `"use client"` component.                                                                                                    |
+| Photos not uploading                                                | Check the `notebook-photos` bucket exists and is **private**, and storage policies are applied.                                                         |
+| RLS blocking queries                                                | Confirm you are authenticated (`supabase.auth.getUser()`) and tables have RLS policies applied.                                                         |
+| Port conflict on :3000                                              | `npm run dev -- --port 3001`                                                                                                                            |
+
+If sign-up fails with `database error saving new user`, run this in Supabase SQL Editor:
+
+```sql
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists create_notebook_for_user();
+
+create or replace function create_notebook_for_user()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  insert into public.notebooks (user_id) values (new.id);
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function create_notebook_for_user();
+```
