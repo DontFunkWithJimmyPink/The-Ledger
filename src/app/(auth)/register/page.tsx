@@ -42,7 +42,7 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+          emailRedirectTo: `${(process.env.NEXT_PUBLIC_APP_URL || window.location.origin).replace(/\/$/, '')}/api/auth/callback`,
         },
       });
 
